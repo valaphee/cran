@@ -14,21 +14,9 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.control
-
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.Binding
-import com.valaphee.flow.LazyNode
+package com.valaphee.flow
 
 /**
  * @author Kevin Ludwig
  */
-class Select(
-    @get:JsonProperty("in") val `in`: Binding,
-    @get:JsonProperty("in_value") val inValue: Map<Any?, Binding>,
-    @get:JsonProperty("out") val out: Binding
-) : LazyNode() {
-    override suspend fun bind() {
-        out.set { inValue[`in`.get()]?.get() }
-    }
-}
+abstract class LazyNode : Node()

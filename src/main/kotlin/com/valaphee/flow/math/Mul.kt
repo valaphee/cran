@@ -30,7 +30,7 @@ class Mul(
         out.set {
             val inA = inA.get()
             val inB = inB.get()
-            if (inA is Number && inB is Number) when (typeFor(inA::class, inB::class)) {
+            if (inA is Number && inB is Number) when (outType(inA::class, inB::class)) {
                 Byte::class -> inA.toByte() * inB.toByte()
                 Short::class -> inA.toShort() * inB.toShort()
                 Int::class -> inA.toInt() * inB.toInt()

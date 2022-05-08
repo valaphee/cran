@@ -18,14 +18,14 @@ package com.valaphee.flow.math
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Binding
-import com.valaphee.flow.Node
+import com.valaphee.flow.LazyNode
 import kotlin.math.max
 import kotlin.reflect.KClass
 
 /**
  * @author Kevin Ludwig
  */
-abstract class MathNode : Node() {
+abstract class MathNode : LazyNode() {
     @get:JsonProperty("in_a") abstract val inA: Binding
     @get:JsonProperty("in_b") abstract val inB: Binding
     @get:JsonProperty("out") abstract val out: Binding
@@ -41,6 +41,6 @@ abstract class MathNode : Node() {
         )
 
         @JvmStatic
-        protected fun typeFor(inA: KClass<*>, inB: KClass<*>) = typeOrder[max(typeOrder.indexOf(inA), typeOrder.indexOf(inB))]
+        protected fun outType(inA: KClass<*>, inB: KClass<*>) = typeOrder[max(typeOrder.indexOf(inA), typeOrder.indexOf(inB))]
     }
 }

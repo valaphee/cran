@@ -18,16 +18,20 @@ package com.valaphee.flow.control
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Binding
-import com.valaphee.flow.Node
+import com.valaphee.flow.EagerNode
 
 /**
  * @author Kevin Ludwig
  */
 class Branch(
-    @get:JsonProperty("in") val `in`: Binding,
-    @get:JsonProperty("when") val `when`: Map<Any?, Binding>
-) : Node() {
+    override val `in`: Binding,
+    @get:JsonProperty("in_value") val inValue: Binding,
+    @get:JsonProperty("out") val out: Map<Any?, Binding>
+) : EagerNode() {
     override suspend fun bind() {
-        while (true) `when`[`in`.get()]?.set()
+        while (true) {
+            `in`.get()
+            out[inValue.get()]?.set()
+        }
     }
 }

@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
  * @author Kevin Ludwig
  */
 class Plug(
-    @get:JsonProperty("in") val `in`: Binding,
+    @get:JsonProperty("aux") val aux: Binding,
 ) : Node() {
     override suspend fun bind() = Unit
 }

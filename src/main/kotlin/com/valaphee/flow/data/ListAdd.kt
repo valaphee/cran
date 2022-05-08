@@ -14,21 +14,27 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.control
+package com.valaphee.flow.data
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Binding
-import com.valaphee.flow.LazyNode
+import com.valaphee.flow.EagerNode
 
 /**
  * @author Kevin Ludwig
  */
-class Select(
-    @get:JsonProperty("in") val `in`: Binding,
-    @get:JsonProperty("in_value") val inValue: Map<Any?, Binding>,
+class ListAdd(
+    override val `in`: Binding,
+    @get:JsonProperty("in_list") val inList: Binding,
+    @get:JsonProperty("in_item") val inItem: Binding,
     @get:JsonProperty("out") val out: Binding
-) : LazyNode() {
+) : EagerNode() {
     override suspend fun bind() {
-        out.set { inValue[`in`.get()]?.get() }
+        while (true) {
+            `in`.get()
+            @Suppress("UNCHECKED_CAST")
+            (inList.get() as MutableList<Any?>).add(0, inItem.get())
+            out.set()
+        }
     }
 }

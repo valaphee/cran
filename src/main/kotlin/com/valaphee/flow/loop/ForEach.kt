@@ -18,20 +18,22 @@ package com.valaphee.flow.loop
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Binding
-import com.valaphee.flow.Node
+import com.valaphee.flow.EagerNode
 
 /**
  * @author Kevin Ludwig
  */
 class ForEach(
-    @get:JsonProperty("in") val `in`: Binding,
-    @get:JsonProperty("body") val body: Binding,
-    @get:JsonProperty("exit") val exit: Binding,
-) : Node() {
+    override val `in`: Binding,
+    @get:JsonProperty("in_value") val inValue: Binding,
+    @get:JsonProperty("out_body") val outBody: Binding,
+    @get:JsonProperty("out") val out: Binding,
+) : EagerNode() {
     override suspend fun bind() {
         while (true) {
-            (`in`.get() as List<*>).forEach { body.set(it) }
-            exit.set()
+            `in`.get()
+            (inValue.get() as List<*>).forEach { outBody.set(it) }
+            out.set()
         }
     }
 }
