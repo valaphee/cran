@@ -21,7 +21,6 @@ import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.EagerNode
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 /**
  * @author Kevin Ludwig
@@ -29,9 +28,10 @@ import kotlinx.coroutines.launch
 class Branch(
     override val `in`: ControlPath,
     @get:JsonProperty("in_value") val inValue: DataPath,
-    @get:JsonProperty("out") val out: Map<Any?, ControlPath>
+    @get:JsonProperty("out") val out: Map<Any?, ControlPath>,
+    @get:JsonProperty("out_default") val outDefault: ControlPath?
 ) : EagerNode() {
     override fun run(scope: CoroutineScope) {
-        scope.launch { `in`.collect { out[inValue.get()]?.emit() } }
+        `in`.collect(scope) { (out[inValue.get()] ?: outDefault)?.emit() }
     }
 }

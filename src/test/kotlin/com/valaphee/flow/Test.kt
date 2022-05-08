@@ -18,14 +18,14 @@ package com.valaphee.flow
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.valaphee.flow.loop.For
 import com.valaphee.flow.loop.ForEach
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.util.UUID
-import java.util.concurrent.ForkJoinPool
+import java.util.concurrent.Executors
 import kotlin.system.measureNanoTime
 import kotlin.system.measureTimeMillis
 
@@ -63,13 +63,14 @@ class Test {
             """.trimIndent()
         )
         flow.forEach { it.run(coroutineScope) }
+
         val plugs = flow.filterIsInstance<ControlPlug>().map { it.aux }
         val inPlug = plugs.single { it.id == UUID.fromString("1a607868-cd06-49a1-a8f8-65ddf450bf42") }
         val outPlug = plugs.single { it.id == UUID.fromString("162953bc-7789-40d0-82b2-713631f7e65c") }
-        repeat(100) {
+        repeat(10) {
             runBlocking {
                 println("Branch #$it " + measureNanoTime {
-                    inPlug.emit(null)
+                    inPlug.emit()
                     outPlug.wait()
                 })
             }
@@ -107,8 +108,65 @@ class Test {
             """.trimIndent()
         )
         flow.forEach { it.run(coroutineScope) }
+
         val plug = flow.filterIsInstance<DataPlug>().single().aux
         repeat(10) { runBlocking { println("Select #$it " + measureNanoTime { plug.get() }) } }
+    }
+
+    @Test
+    fun `test for`() {
+        val flow = objectMapper.readValue<List<Node>>(
+            """
+                [
+                    {
+                        "type" : "com.valaphee.flow.ControlPlug",
+                        "aux" : "05c40872-b49e-4675-9e78-15a552a4941f"
+                    },
+                    {
+                        "type" : "com.valaphee.flow.Value",
+                        "value" : 0,
+                        "out" : "4e753d42-7f3b-41d3-a6e5-dbecb0e31b55"
+                    },
+                    {
+                        "type" : "com.valaphee.flow.Value",
+                        "value" : 1,
+                        "out" : "4e753d42-7f3b-41d3-a6e5-dbecb0e31b56"
+                    },
+                    {
+                        "type" : "com.valaphee.flow.Value",
+                        "value" : 1000,
+                        "out" : "4e753d42-7f3b-41d3-a6e5-dbecb0e31b57"
+                    },
+                    {
+                        "type" : "com.valaphee.flow.loop.For",
+                        "in" : "05c40872-b49e-4675-9e78-15a552a4941f",
+                        "in_range_start" : "4e753d42-7f3b-41d3-a6e5-dbecb0e31b55",
+                        "in_range_end" : "4e753d42-7f3b-41d3-a6e5-dbecb0e31b57",
+                        "in_step" : "4e753d42-7f3b-41d3-a6e5-dbecb0e31b56",
+                        "out_body" : "f67440a8-4376-4122-8426-8c93b9ee84ef",
+                        "out" : "1fdc959a-40e5-47f4-b928-a0a4392b2be5"
+                    },
+                    {
+                        "type" : "com.valaphee.flow.ControlPlug",
+                        "aux" : "f67440a8-4376-4122-8426-8c93b9ee84ef"
+                    },
+                    {
+                        "type" : "com.valaphee.flow.ControlPlug",
+                        "aux" : "1fdc959a-40e5-47f4-b928-a0a4392b2be5"
+                    }
+                ]
+            """.trimIndent()
+        )
+        flow.forEach { it.run(coroutineScope) }
+
+        val `for` = flow.filterIsInstance<For>().single()
+        `for`.outBody.collect(coroutineScope) {}
+        runBlocking {
+            println("For " + measureNanoTime {
+                `for`.`in`.emit()
+                `for`.out.wait()
+            })
+        }
     }
 
     @Test
@@ -144,11 +202,14 @@ class Test {
             """.trimIndent()
         )
         flow.forEach { it.run(coroutineScope) }
+
         val forEach = flow.filterIsInstance<ForEach>().single()
-        coroutineScope.launch { forEach.outBody.collect { println("ForEach $it") } }
+        forEach.outBody.collect(coroutineScope) {}
         runBlocking {
-            forEach.`in`.emit(null)
-            forEach.out.wait()
+            println("ForEach " + measureTimeMillis {
+                forEach.`in`.emit()
+                forEach.out.wait()
+            })
         }
     }
 
@@ -177,13 +238,13 @@ class Test {
                         "out" : "b5c70241-06d3-4e0c-bd20-6813c2c71442"
                     },
                     {
-                        "type" : "com.valaphee.flow.data.ListGet",
+                        "type" : "com.valaphee.flow.list.ListGet",
                         "in_list" : "b5c70241-06d3-4e0c-bd20-6813c2c71442",
                         "in_index" : "94e212b7-cd96-4d07-a945-c6de4fed4cd2",
                         "out" : "29d14740-7c32-44a2-8495-5a25a51d9b38"
                     },
                     {
-                        "type" : "com.valaphee.flow.data.ListGet",
+                        "type" : "com.valaphee.flow.list.ListGet",
                         "in_list" : "b5c70241-06d3-4e0c-bd20-6813c2c71442",
                         "in_index" : "ba15541e-26fe-4e1e-8147-9f7a4e6160cb",
                         "out" : "d250c37a-4907-4999-89bf-ebdfa4d3b67d"
@@ -195,7 +256,7 @@ class Test {
                         "out" : "408f6589-32c1-4531-857d-1943999320de"
                     },
                     {
-                        "type" : "com.valaphee.flow.data.ListAdd",
+                        "type" : "com.valaphee.flow.list.ListAdd",
                         "in" : "7e1ac9d3-5b28-4b44-9fd1-a486685ab253",
                         "in_list" : "b5c70241-06d3-4e0c-bd20-6813c2c71442",
                         "in_item" : "408f6589-32c1-4531-857d-1943999320de",
@@ -209,6 +270,7 @@ class Test {
             """.trimIndent()
         )
         flow.forEach { it.run(coroutineScope) }
+
         val plugs = flow.filterIsInstance<ControlPlug>().map { it.aux }
         val inPlug = plugs.single { it.id == UUID.fromString("7e1ac9d3-5b28-4b44-9fd1-a486685ab253") }
         val outPlug = plugs.single { it.id == UUID.fromString("966c57a3-06c7-4ee1-8369-52e9db4ae28f") }
@@ -216,7 +278,7 @@ class Test {
         runBlocking {
             println("Fibonacci " + measureTimeMillis {
                 repeat(10) {
-                    inPlug.emit(null)
+                    inPlug.emit()
                     outPlug.wait()
                 }
             })
@@ -225,7 +287,7 @@ class Test {
     }
 
     companion object {
-        private val coroutineScope = CoroutineScope(ForkJoinPool.commonPool().asCoroutineDispatcher())
+        private val coroutineScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
         private val objectMapper = jacksonObjectMapper()
     }
 }

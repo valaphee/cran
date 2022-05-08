@@ -14,25 +14,29 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.data
+package com.valaphee.flow.loop
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
-import com.valaphee.flow.LazyNode
+import com.valaphee.flow.EagerNode
 import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
  */
-class ListGet(
-    @get:JsonProperty("in_list") val inList: DataPath,
-    @get:JsonProperty("in_index") val inIndex: DataPath,
-    @get:JsonProperty("out") val out: DataPath
-) : LazyNode() {
+class For(
+    override val `in`: ControlPath,
+    @get:JsonProperty("in_range_start") val inRangeStart: DataPath,
+    @get:JsonProperty("in_range_end") val inRangeEnd: DataPath,
+    @get:JsonProperty("in_step") val inStep: DataPath,
+    @get:JsonProperty("out_body") val outBody: ControlPath,
+    @get:JsonProperty("out") val out: ControlPath,
+) : EagerNode() {
     override fun run(scope: CoroutineScope) {
-        out.set {
-            @Suppress("UNCHECKED_CAST")
-            (inList.get() as MutableList<Any?>)[inIndex.get() as Int]
+        `in`.collect(scope) {
+            IntProgression.fromClosedRange((inRangeStart.get() as Number).toInt(), (inRangeEnd.get() as Number).toInt(), (inStep.get() as Number).toInt()).forEach { _ -> outBody.emit() }
+            out.emit()
         }
     }
 }

@@ -21,9 +21,9 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference
 import com.fasterxml.jackson.annotation.ObjectIdGenerator
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import com.fasterxml.jackson.annotation.SimpleObjectIdResolver
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
 import java.util.UUID
 
 /**
@@ -34,19 +34,27 @@ import java.util.UUID
 class ControlPath(
     override val id: UUID
 ) : Path() {
-    private val flow = MutableSharedFlow<Any?>(1)
+    /*private val flow = MutableSharedFlow<Any?>(1)*/
+    private val semaphore = Semaphore(Int.MAX_VALUE, Int.MAX_VALUE)
 
-    suspend fun collect(action: suspend (Any?) -> Unit) {
-        flow.collectLatest(action)
+    fun collect(scope: CoroutineScope, action: suspend (/*Any?*/) -> Unit) {
+        scope.launch {
+            /*flow.collectLatest(action)*/
+            while (true) {
+                semaphore.acquire()
+                action()
+            }
+        }
     }
 
-    suspend fun wait() = flow.first()
+    suspend fun wait() = /*flow.first()*/semaphore.acquire()
 
-    suspend fun emit() = emit(null)
+    fun emit() = semaphore.release()
 
-    suspend fun emit(value: Any?) {
+    /*fun emit(value: Any?) {
         flow.emit(value)
-    }
+        semaphore.release()
+    }*/
 
     class IdResolver : SimpleObjectIdResolver() {
         override fun resolveId(id: ObjectIdGenerator.IdKey) = super.resolveId(id) ?: ControlPath(id.key as UUID).also { bindItem(id, it) }

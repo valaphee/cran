@@ -14,31 +14,25 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.data
+package com.valaphee.flow.list
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
-import com.valaphee.flow.EagerNode
+import com.valaphee.flow.LazyNode
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 /**
  * @author Kevin Ludwig
  */
-class ListRemove(
-    override val `in`: ControlPath,
+class ListGet(
     @get:JsonProperty("in_list") val inList: DataPath,
-    @get:JsonProperty("in_item") val inItem: DataPath,
-    @get:JsonProperty("out") val out: ControlPath
-) : EagerNode() {
+    @get:JsonProperty("in_index") val inIndex: DataPath,
+    @get:JsonProperty("out") val out: DataPath
+) : LazyNode() {
     override fun run(scope: CoroutineScope) {
-        scope.launch {
-            `in`.collect {
-                @Suppress("UNCHECKED_CAST")
-                (inList.get() as MutableList<Any?>) -= inItem.get()
-                out.emit(null)
-            }
+        out.set {
+            @Suppress("UNCHECKED_CAST")
+            (inList.get() as MutableList<Any?>)[inIndex.get() as Int]
         }
     }
 }

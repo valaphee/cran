@@ -14,23 +14,28 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow
+package com.valaphee.flow.list
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.ObjectIdGenerator
-import com.fasterxml.jackson.annotation.SimpleObjectIdResolver
-import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext
-import java.util.UUID
+import com.valaphee.flow.ControlPath
+import com.valaphee.flow.DataPath
+import com.valaphee.flow.EagerNode
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
  */
-abstract class Path {
-    @get:JsonProperty("id") abstract val id: UUID
-
-    class IdResolver : SimpleObjectIdResolver() {
-        override fun resolveId(id: ObjectIdGenerator.IdKey) = super.resolveId(id) ?: DataPath(id.key as UUID).also { println("$id; "); bindItem(id, it) }
-
-        override fun newForDeserialization(context: Any?) = IdResolver().also { println((context as DefaultDeserializationContext).contextualType) }
+class ListRemove(
+    override val `in`: ControlPath,
+    @get:JsonProperty("in_list") val inList: DataPath,
+    @get:JsonProperty("in_item") val inItem: DataPath,
+    @get:JsonProperty("out") val out: ControlPath
+) : EagerNode() {
+    override fun run(scope: CoroutineScope) {
+        `in`.collect(scope) {
+            @Suppress("UNCHECKED_CAST")
+            (inList.get() as MutableList<Any?>) -= inItem.get()
+            out.emit()
+        }
     }
 }

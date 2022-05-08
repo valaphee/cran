@@ -18,6 +18,8 @@ package com.valaphee.flow.math
 
 import com.valaphee.flow.DataPath
 import kotlinx.coroutines.CoroutineScope
+import java.math.BigDecimal
+import java.math.BigInteger
 
 /**
  * @author Kevin Ludwig
@@ -31,15 +33,75 @@ class Div(
         out.set {
             val inA = inA.get()
             val inB = inB.get()
-            if (inA is Number && inB is Number) when (outType(inA::class, inB::class)) {
-                Byte::class -> inA.toByte() / inB.toByte()
-                Short::class -> inA.toShort() / inB.toShort()
-                Int::class -> inA.toInt() / inB.toInt()
-                Long::class -> inA.toLong() / inB.toLong()
-                Float::class -> inA.toFloat() / inB.toFloat()
-                Double::class -> inA.toDouble() / inB.toDouble()
+            when (inA) {
+                is Byte -> when (inB) {
+                    is Byte -> inA / inB
+                    is Short -> inA / inB
+                    is Int -> inA / inB
+                    is Long -> inA / inB
+                    is Float -> inA / inB
+                    is Double -> inA / inB
+                    else -> error("$inA / $inB")
+                }
+                is Short -> when (inB) {
+                    is Byte -> inA / inB
+                    is Short -> inA / inB
+                    is Int -> inA / inB
+                    is Long -> inA / inB
+                    is Float -> inA / inB
+                    is Double -> inA / inB
+                    else -> error("$inA / $inB")
+                }
+                is Int -> when (inB) {
+                    is Byte -> inA / inB
+                    is Short -> inA / inB
+                    is Int -> inA / inB
+                    is Long -> inA / inB
+                    is Float -> inA / inB
+                    is Double -> inA / inB
+                    else -> error("$inA / $inB")
+                }
+                is Long -> when (inB) {
+                    is Byte -> inA / inB
+                    is Short -> inA / inB
+                    is Int -> inA / inB
+                    is Long -> inA / inB
+                    is Float -> inA / inB
+                    is Double -> inA / inB
+                    else -> error("$inA / $inB")
+                }
+                is BigInteger -> when (inB) {
+                    is BigInteger -> inA / inB
+                    is BigDecimal -> inA.toBigDecimal() / inB
+                    is Number -> inA / BigInteger.valueOf(inB.toLong())
+                    else -> error("$inA / $inB")
+                }
+                is Float -> when (inB) {
+                    is Byte -> inA / inB
+                    is Short -> inA / inB
+                    is Int -> inA / inB
+                    is Long -> inA / inB
+                    is Float -> inA / inB
+                    is Double -> inA / inB
+                    else -> error("$inA / $inB")
+                }
+                is Double -> when (inB) {
+                    is Byte -> inA / inB
+                    is Short -> inA / inB
+                    is Int -> inA / inB
+                    is Long -> inA / inB
+                    is Float -> inA / inB
+                    is Double -> inA / inB
+                    else -> error("$inA / $inB")
+                }
+                is BigDecimal -> when (inB) {
+                    is BigInteger -> inA / inB.toBigDecimal()
+                    is BigDecimal -> inA / inB
+                    is Number -> inA / BigDecimal.valueOf(inB.toDouble())
+                    else -> error("$inA / $inB")
+                }
                 else -> error("$inA / $inB")
-            } else error("$inA / $inB")
+            }
         }
     }
 }

@@ -19,8 +19,6 @@ package com.valaphee.flow.math
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.LazyNode
-import kotlin.math.max
-import kotlin.reflect.KClass
 
 /**
  * @author Kevin Ludwig
@@ -29,18 +27,4 @@ abstract class MathNode : LazyNode() {
     @get:JsonProperty("in_a") abstract val inA: DataPath
     @get:JsonProperty("in_b") abstract val inB: DataPath
     @get:JsonProperty("out") abstract val out: DataPath
-
-    companion object {
-        private val typeOrder = listOf(
-            Byte::class,
-            Short::class,
-            Int::class,
-            Long::class,
-            Float::class,
-            Double::class
-        )
-
-        @JvmStatic
-        protected fun outType(inA: KClass<*>, inB: KClass<*>) = typeOrder[max(typeOrder.indexOf(inA), typeOrder.indexOf(inB))]
-    }
 }

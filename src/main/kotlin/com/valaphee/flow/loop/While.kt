@@ -21,7 +21,6 @@ import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.EagerNode
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 /**
  * @author Kevin Ludwig
@@ -33,11 +32,9 @@ class While(
     @get:JsonProperty("out") val out: ControlPath,
 ) : EagerNode() {
     override fun run(scope: CoroutineScope) {
-        scope.launch {
-            `in`.collect {
-                while (inValue.get() as Boolean) outBody.emit(null)
-                out.emit(null)
-            }
+        `in`.collect(scope) {
+            while (inValue.get() as Boolean) outBody.emit()
+            out.emit()
         }
     }
 }

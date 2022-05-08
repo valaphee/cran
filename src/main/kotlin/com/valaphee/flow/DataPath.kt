@@ -33,7 +33,7 @@ class DataPath(
 ) : Path() {
     private var value: (suspend () -> Any?)? = null
 
-    suspend fun get() = value!!()
+    suspend fun get() = value!!.invoke()
 
     fun set(value: suspend () -> Any?) {
         this.value = value

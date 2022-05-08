@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.data
+package com.valaphee.flow.list
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.EagerNode
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 /**
  * @author Kevin Ludwig
@@ -33,12 +32,10 @@ class ListAdd(
     @get:JsonProperty("out") val out: ControlPath
 ) : EagerNode() {
     override fun run(scope: CoroutineScope) {
-        scope.launch {
-            `in`.collect {
-                @Suppress("UNCHECKED_CAST")
-                (inList.get() as MutableList<Any?>).add(0, inItem.get())
-                out.emit(null)
-            }
+        `in`.collect(scope) {
+            @Suppress("UNCHECKED_CAST")
+            (inList.get() as MutableList<Any?>).add(0, inItem.get())
+            out.emit()
         }
     }
 }
