@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-rootProject.name = "bit-twiddle"
+rootProject.name = "visca"

@@ -30,7 +30,11 @@ version = "${details.lastTag}.${details.commitDistance}"
 
 repositories { mavenCentral() }
 
-dependencies { testImplementation("org.junit.jupiter:junit-jupiter:5.8.2") }
+dependencies {
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.1-native-mt")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
+}
 
 tasks {
     withType<JavaCompile> {
@@ -57,18 +61,18 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             pom.apply {
-                name.set("Bit Twiddle")
+                name.set("Flow")
                 description.set("")
                 url.set("https://valaphee.com")
                 scm {
-                    connection.set("https://github.com/valaphee/bit-twiddle.git")
-                    developerConnection.set("https://github.com/valaphee/bit-twiddle.git")
-                    url.set("https://github.com/valaphee/bit-twiddle")
+                    connection.set("https://github.com/valaphee/flow.git")
+                    developerConnection.set("https://github.com/valaphee/flow.git")
+                    url.set("https://github.com/valaphee/flow")
                 }
                 licenses {
                     license {
                         name.set("Apache License 2.0")
-                        url.set("https://raw.githubusercontent.com/valaphee/jackson-dataformat-nbt/master/LICENSE.txt")
+                        url.set("https://raw.githubusercontent.com/valaphee/flow/master/LICENSE.txt")
                     }
                 }
                 developers {
