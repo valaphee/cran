@@ -19,6 +19,7 @@ package com.valaphee.flow.data
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.LazyNode
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
@@ -28,7 +29,7 @@ class ListGet(
     @get:JsonProperty("in_index") val inIndex: DataPath,
     @get:JsonProperty("out") val out: DataPath
 ) : LazyNode() {
-    override suspend fun run() {
+    override fun run(scope: CoroutineScope) {
         out.set {
             @Suppress("UNCHECKED_CAST")
             (inList.get() as MutableList<Any?>)[inIndex.get() as Int]

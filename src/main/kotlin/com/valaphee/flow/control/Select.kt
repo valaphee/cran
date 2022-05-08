@@ -19,6 +19,7 @@ package com.valaphee.flow.control
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.LazyNode
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
@@ -28,7 +29,7 @@ class Select(
     @get:JsonProperty("in_value") val inValue: Map<Any?, DataPath>,
     @get:JsonProperty("out") val out: DataPath
 ) : LazyNode() {
-    override suspend fun run() {
+    override fun run(scope: CoroutineScope) {
         out.set { inValue[`in`.get()]?.get() }
     }
 }

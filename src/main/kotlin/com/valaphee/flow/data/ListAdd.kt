@@ -20,7 +20,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.EagerNode
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * @author Kevin Ludwig
@@ -31,11 +32,13 @@ class ListAdd(
     @get:JsonProperty("in_item") val inItem: DataPath,
     @get:JsonProperty("out") val out: ControlPath
 ) : EagerNode() {
-    override suspend fun run() {
-        `in`.flow.collectLatest {
-            @Suppress("UNCHECKED_CAST")
-            (inList.get() as MutableList<Any?>).add(0, inItem.get())
-            out.flow.emit(null)
+    override fun run(scope: CoroutineScope) {
+        scope.launch {
+            `in`.collect {
+                @Suppress("UNCHECKED_CAST")
+                (inList.get() as MutableList<Any?>).add(0, inItem.get())
+                out.emit(null)
+            }
         }
     }
 }

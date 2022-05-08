@@ -18,6 +18,7 @@ package com.valaphee.flow
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
@@ -26,5 +27,5 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 abstract class Node {
     @get:JsonProperty("type") val type: String get() = this::class.java.name
 
-    abstract suspend fun run()
+    abstract fun run(scope: CoroutineScope)
 }

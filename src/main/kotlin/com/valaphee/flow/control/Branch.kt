@@ -20,7 +20,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.EagerNode
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * @author Kevin Ludwig
@@ -30,7 +31,7 @@ class Branch(
     @get:JsonProperty("in_value") val inValue: DataPath,
     @get:JsonProperty("out") val out: Map<Any?, ControlPath>
 ) : EagerNode() {
-    override suspend fun run() {
-        `in`.flow.collectLatest { out[inValue.get()]?.flow?.emit(null) }
+    override fun run(scope: CoroutineScope) {
+        scope.launch { `in`.collect { out[inValue.get()]?.emit() } }
     }
 }

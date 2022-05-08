@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference
 import com.fasterxml.jackson.annotation.ObjectIdGenerator
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import com.fasterxml.jackson.annotation.SimpleObjectIdResolver
-import kotlinx.coroutines.CompletableDeferred
 import java.util.UUID
 
 /**
@@ -32,12 +31,12 @@ import java.util.UUID
 class DataPath(
     override val id: UUID
 ) : Path() {
-    private val deferred = CompletableDeferred<suspend () -> Any?>()
+    private var value: (suspend () -> Any?)? = null
 
-    suspend fun get() = deferred.await()()
+    suspend fun get() = value!!()
 
     fun set(value: suspend () -> Any?) {
-        deferred.complete(value)
+        this.value = value
     }
 
     class IdResolver : SimpleObjectIdResolver() {

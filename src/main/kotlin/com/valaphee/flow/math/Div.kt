@@ -17,6 +17,7 @@
 package com.valaphee.flow.math
 
 import com.valaphee.flow.DataPath
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
@@ -26,7 +27,7 @@ class Div(
     override val inB: DataPath,
     override val out: DataPath
 ) : MathNode() {
-    override suspend fun run() {
+    override fun run(scope: CoroutineScope) {
         out.set {
             val inA = inA.get()
             val inB = inB.get()

@@ -16,6 +16,7 @@
 package com.valaphee.flow
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
@@ -24,7 +25,7 @@ class Value(
     @get:JsonProperty("value") val value: Any?,
     @get:JsonProperty("out") val out: DataPath
 ) : Node() {
-    override suspend fun run() {
+    override fun run(scope: CoroutineScope) {
         out.set { value }
     }
 }

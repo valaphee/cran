@@ -17,6 +17,7 @@
 package com.valaphee.flow
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
@@ -24,5 +25,5 @@ import com.fasterxml.jackson.annotation.JsonProperty
 class ControlPlug(
     @get:JsonProperty("aux") val aux: ControlPath,
 ) : Node() {
-    override suspend fun run() = Unit
+    override fun run(scope: CoroutineScope) = Unit
 }

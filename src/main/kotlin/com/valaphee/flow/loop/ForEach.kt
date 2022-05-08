@@ -20,7 +20,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.EagerNode
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * @author Kevin Ludwig
@@ -31,10 +32,12 @@ class ForEach(
     @get:JsonProperty("out_body") val outBody: ControlPath,
     @get:JsonProperty("out") val out: ControlPath,
 ) : EagerNode() {
-    override suspend fun run() {
-        `in`.flow.collectLatest {
-            (inValue.get() as List<*>).forEach { outBody.flow.emit(it) }
-            out.flow.emit(null)
+    override fun run(scope: CoroutineScope) {
+        scope.launch {
+            `in`.collect {
+                (inValue.get() as List<*>).forEach { outBody.emit(it) }
+                out.emit(null)
+            }
         }
     }
 }

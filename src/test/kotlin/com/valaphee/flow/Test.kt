@@ -21,7 +21,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.valaphee.flow.loop.ForEach
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
@@ -63,15 +62,15 @@ class Test {
                 ]
             """.trimIndent()
         )
-        flow.forEach { coroutineContext.launch { it.run() } }
+        flow.forEach { it.run(coroutineScope) }
         val plugs = flow.filterIsInstance<ControlPlug>().map { it.aux }
         val inPlug = plugs.single { it.id == UUID.fromString("1a607868-cd06-49a1-a8f8-65ddf450bf42") }
         val outPlug = plugs.single { it.id == UUID.fromString("162953bc-7789-40d0-82b2-713631f7e65c") }
-        repeat(10) {
+        repeat(100) {
             runBlocking {
                 println("Branch #$it " + measureNanoTime {
-                    inPlug.flow.emit(null)
-                    outPlug.flow.first()
+                    inPlug.emit(null)
+                    outPlug.wait()
                 })
             }
         }
@@ -107,7 +106,7 @@ class Test {
                 ]
             """.trimIndent()
         )
-        flow.forEach { coroutineContext.launch { it.run() } }
+        flow.forEach { it.run(coroutineScope) }
         val plug = flow.filterIsInstance<DataPlug>().single().aux
         repeat(10) { runBlocking { println("Select #$it " + measureNanoTime { plug.get() }) } }
     }
@@ -144,12 +143,12 @@ class Test {
                 ]
             """.trimIndent()
         )
-        flow.forEach { coroutineContext.launch { it.run() } }
+        flow.forEach { it.run(coroutineScope) }
         val forEach = flow.filterIsInstance<ForEach>().single()
-        coroutineContext.launch { while (true) println("ForEach " + forEach.outBody.flow.first()) }
+        coroutineScope.launch { forEach.outBody.collect { println("ForEach $it") } }
         runBlocking {
-            forEach.`in`.flow.emit(null)
-            forEach.out.flow.first()
+            forEach.`in`.emit(null)
+            forEach.out.wait()
         }
     }
 
@@ -209,7 +208,7 @@ class Test {
                 ]
             """.trimIndent()
         )
-        flow.forEach { coroutineContext.launch { it.run() } }
+        flow.forEach { it.run(coroutineScope) }
         val plugs = flow.filterIsInstance<ControlPlug>().map { it.aux }
         val inPlug = plugs.single { it.id == UUID.fromString("7e1ac9d3-5b28-4b44-9fd1-a486685ab253") }
         val outPlug = plugs.single { it.id == UUID.fromString("966c57a3-06c7-4ee1-8369-52e9db4ae28f") }
@@ -217,8 +216,8 @@ class Test {
         runBlocking {
             println("Fibonacci " + measureTimeMillis {
                 repeat(10) {
-                    inPlug.flow.emit(null)
-                    outPlug.flow.first()
+                    inPlug.emit(null)
+                    outPlug.wait()
                 }
             })
             println("Fibonacci " + listValue.value)
@@ -226,7 +225,7 @@ class Test {
     }
 
     companion object {
-        private val coroutineContext = CoroutineScope(ForkJoinPool.commonPool().asCoroutineDispatcher())
+        private val coroutineScope = CoroutineScope(ForkJoinPool.commonPool().asCoroutineDispatcher())
         private val objectMapper = jacksonObjectMapper()
     }
 }
