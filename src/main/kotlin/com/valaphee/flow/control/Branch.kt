@@ -17,21 +17,20 @@
 package com.valaphee.flow.control
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.Binding
+import com.valaphee.flow.ControlPath
+import com.valaphee.flow.DataPath
 import com.valaphee.flow.EagerNode
+import kotlinx.coroutines.flow.collectLatest
 
 /**
  * @author Kevin Ludwig
  */
 class Branch(
-    override val `in`: Binding,
-    @get:JsonProperty("in_value") val inValue: Binding,
-    @get:JsonProperty("out") val out: Map<Any?, Binding>
+    override val `in`: ControlPath,
+    @get:JsonProperty("in_value") val inValue: DataPath,
+    @get:JsonProperty("out") val out: Map<Any?, ControlPath>
 ) : EagerNode() {
-    override suspend fun bind() {
-        while (true) {
-            `in`.get()
-            out[inValue.get()]?.set()
-        }
+    override suspend fun run() {
+        `in`.flow.collectLatest { out[inValue.get()]?.flow?.emit(null) }
     }
 }

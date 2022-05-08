@@ -17,18 +17,18 @@
 package com.valaphee.flow.data
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.Binding
+import com.valaphee.flow.DataPath
 import com.valaphee.flow.LazyNode
 
 /**
  * @author Kevin Ludwig
  */
 class ListGet(
-    @get:JsonProperty("in_list") val inList: Binding,
-    @get:JsonProperty("in_index") val inIndex: Binding,
-    @get:JsonProperty("out") val out: Binding
+    @get:JsonProperty("in_list") val inList: DataPath,
+    @get:JsonProperty("in_index") val inIndex: DataPath,
+    @get:JsonProperty("out") val out: DataPath
 ) : LazyNode() {
-    override suspend fun bind() {
+    override suspend fun run() {
         out.set {
             @Suppress("UNCHECKED_CAST")
             (inList.get() as MutableList<Any?>)[inIndex.get() as Int]

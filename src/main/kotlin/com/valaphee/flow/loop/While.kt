@@ -17,23 +17,24 @@
 package com.valaphee.flow.loop
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.Binding
+import com.valaphee.flow.ControlPath
+import com.valaphee.flow.DataPath
 import com.valaphee.flow.EagerNode
+import kotlinx.coroutines.flow.collectLatest
 
 /**
  * @author Kevin Ludwig
  */
 class While(
-    override val `in`: Binding,
-    @get:JsonProperty("in_value") val inValue: Binding,
-    @get:JsonProperty("out_body") val outBody: Binding,
-    @get:JsonProperty("out") val out: Binding,
+    override val `in`: ControlPath,
+    @get:JsonProperty("in_value") val inValue: DataPath,
+    @get:JsonProperty("out_body") val outBody: ControlPath,
+    @get:JsonProperty("out") val out: ControlPath,
 ) : EagerNode() {
-    override suspend fun bind() {
-        while (true) {
-            `in`.get()
-            while (inValue.get() as Boolean) outBody.set()
-            out.set()
+    override suspend fun run() {
+        `in`.flow.collectLatest {
+            while (inValue.get() as Boolean) outBody.flow.emit(null)
+            out.flow.emit(null)
         }
     }
 }

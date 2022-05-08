@@ -16,15 +16,12 @@
 
 package com.valaphee.flow
 
-import com.fasterxml.jackson.annotation.ObjectIdGenerator
-import com.fasterxml.jackson.annotation.SimpleObjectIdResolver
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.util.UUID
 
 /**
  * @author Kevin Ludwig
  */
-class BindingIdResolver : SimpleObjectIdResolver() {
-    override fun resolveId(id: ObjectIdGenerator.IdKey) = super.resolveId(id) ?: Binding(id.key as UUID).also { bindItem(id, it) }
-
-    override fun newForDeserialization(context: Any?) = BindingIdResolver()
+abstract class Path {
+    @get:JsonProperty("id") abstract val id: UUID
 }

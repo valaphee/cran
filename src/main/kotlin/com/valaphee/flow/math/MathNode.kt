@@ -17,7 +17,7 @@
 package com.valaphee.flow.math
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.Binding
+import com.valaphee.flow.DataPath
 import com.valaphee.flow.LazyNode
 import kotlin.math.max
 import kotlin.reflect.KClass
@@ -26,9 +26,9 @@ import kotlin.reflect.KClass
  * @author Kevin Ludwig
  */
 abstract class MathNode : LazyNode() {
-    @get:JsonProperty("in_a") abstract val inA: Binding
-    @get:JsonProperty("in_b") abstract val inB: Binding
-    @get:JsonProperty("out") abstract val out: Binding
+    @get:JsonProperty("in_a") abstract val inA: DataPath
+    @get:JsonProperty("in_b") abstract val inB: DataPath
+    @get:JsonProperty("out") abstract val out: DataPath
 
     companion object {
         private val typeOrder = listOf(

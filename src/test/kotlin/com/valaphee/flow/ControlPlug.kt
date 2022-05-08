@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.valaphee.flow
 
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -20,11 +21,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 /**
  * @author Kevin Ludwig
  */
-class Value(
-    @get:JsonProperty("value") val value: Any?,
-    @get:JsonProperty("out") val out: DataPath
+class ControlPlug(
+    @get:JsonProperty("aux") val aux: ControlPath,
 ) : Node() {
-    override suspend fun run() {
-        out.set { value }
-    }
+    override suspend fun run() = Unit
 }

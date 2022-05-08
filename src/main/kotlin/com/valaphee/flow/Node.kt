@@ -26,5 +26,5 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 abstract class Node {
     @get:JsonProperty("type") val type: String get() = this::class.java.name
 
-    abstract suspend fun bind()
+    abstract suspend fun run()
 }

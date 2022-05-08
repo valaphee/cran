@@ -18,37 +18,31 @@ package com.valaphee.flow
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.JsonIdentityReference
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.ObjectIdGenerators.PropertyGenerator
+import com.fasterxml.jackson.annotation.ObjectIdGenerator
+import com.fasterxml.jackson.annotation.ObjectIdGenerators
+import com.fasterxml.jackson.annotation.SimpleObjectIdResolver
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.channels.Channel
 import java.util.UUID
 
 /**
  * @author Kevin Ludwig
  */
-@JsonIdentityInfo(property = "id", generator = PropertyGenerator::class, resolver = BindingIdResolver::class)
+@JsonIdentityInfo(property = "id", generator = ObjectIdGenerators.PropertyGenerator::class, resolver = DataPath.IdResolver::class)
 @JsonIdentityReference(alwaysAsId = true)
-class Binding(
-    @get:JsonProperty val id: UUID
-) {
+class DataPath(
+    override val id: UUID
+) : Path() {
     private val deferred = CompletableDeferred<suspend () -> Any?>()
-    private var channel: Channel<Any?>? = null
 
     suspend fun get() = deferred.await()()
 
-    suspend fun set() = set(null)
-
-    suspend fun set(value: Any?) {
-        /*check(!deferred.isCompleted || channel != null)*/
-        (channel ?: Channel<Any?>().also { channel = it }).let {
-            deferred.complete { it.receive() }
-            it.send(value)
-        }
+    fun set(value: suspend () -> Any?) {
+        deferred.complete(value)
     }
 
-    fun set(value: suspend () -> Any?) {
-        /*check(!deferred.isCompleted)*/
-        deferred.complete(value)
+    class IdResolver : SimpleObjectIdResolver() {
+        override fun resolveId(id: ObjectIdGenerator.IdKey) = super.resolveId(id) ?: DataPath(id.key as UUID).also { bindItem(id, it) }
+
+        override fun newForDeserialization(context: Any?) = IdResolver()
     }
 }

@@ -21,12 +21,14 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.valaphee.flow.loop.ForEach
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.util.UUID
 import java.util.concurrent.ForkJoinPool
 import kotlin.system.measureNanoTime
+import kotlin.system.measureTimeMillis
 
 /**
  * @author Kevin Ludwig
@@ -38,7 +40,7 @@ class Test {
             """
                 [
                     {
-                        "type" : "com.valaphee.flow.Plug",
+                        "type" : "com.valaphee.flow.ControlPlug",
                         "aux" : "1a607868-cd06-49a1-a8f8-65ddf450bf42"
                     },
                     {
@@ -55,21 +57,21 @@ class Test {
                         }
                     },
                     {
-                        "type" : "com.valaphee.flow.Plug",
+                        "type" : "com.valaphee.flow.ControlPlug",
                         "aux" : "162953bc-7789-40d0-82b2-713631f7e65c"
                     }
                 ]
             """.trimIndent()
         )
-        flow.forEach { coroutineContext.launch { it.bind() } }
-        val plugs = flow.filterIsInstance<Plug>().map { it.aux }
+        flow.forEach { coroutineContext.launch { it.run() } }
+        val plugs = flow.filterIsInstance<ControlPlug>().map { it.aux }
         val inPlug = plugs.single { it.id == UUID.fromString("1a607868-cd06-49a1-a8f8-65ddf450bf42") }
         val outPlug = plugs.single { it.id == UUID.fromString("162953bc-7789-40d0-82b2-713631f7e65c") }
         repeat(10) {
             runBlocking {
                 println("Branch #$it " + measureNanoTime {
-                    inPlug.set()
-                    outPlug.get()
+                    inPlug.flow.emit(null)
+                    outPlug.flow.first()
                 })
             }
         }
@@ -99,14 +101,14 @@ class Test {
                         "out" : "46c52276-3478-41aa-a5a4-3d01acaccaf3"
                     },
                     {
-                        "type" : "com.valaphee.flow.Plug",
+                        "type" : "com.valaphee.flow.DataPlug",
                         "aux" : "46c52276-3478-41aa-a5a4-3d01acaccaf3"
                     }
                 ]
             """.trimIndent()
         )
-        flow.forEach { coroutineContext.launch { it.bind() } }
-        val plug = flow.filterIsInstance<Plug>().single().aux
+        flow.forEach { coroutineContext.launch { it.run() } }
+        val plug = flow.filterIsInstance<DataPlug>().single().aux
         repeat(10) { runBlocking { println("Select #$it " + measureNanoTime { plug.get() }) } }
     }
 
@@ -116,7 +118,7 @@ class Test {
             """
                 [
                     {
-                        "type" : "com.valaphee.flow.Plug",
+                        "type" : "com.valaphee.flow.ControlPlug",
                         "aux" : "05c40872-b49e-4675-9e78-15a552a4941f"
                     },
                     {
@@ -132,22 +134,22 @@ class Test {
                         "out" : "1fdc959a-40e5-47f4-b928-a0a4392b2be5"
                     },
                     {
-                        "type" : "com.valaphee.flow.Plug",
+                        "type" : "com.valaphee.flow.ControlPlug",
                         "aux" : "f67440a8-4376-4122-8426-8c93b9ee84ef"
                     },
                     {
-                        "type" : "com.valaphee.flow.Plug",
+                        "type" : "com.valaphee.flow.ControlPlug",
                         "aux" : "1fdc959a-40e5-47f4-b928-a0a4392b2be5"
                     }
                 ]
             """.trimIndent()
         )
-        flow.forEach { coroutineContext.launch { it.bind() } }
+        flow.forEach { coroutineContext.launch { it.run() } }
         val forEach = flow.filterIsInstance<ForEach>().single()
-        coroutineContext.launch { while (true) println("ForEach " + forEach.outBody.get()) }
+        coroutineContext.launch { while (true) println("ForEach " + forEach.outBody.flow.first()) }
         runBlocking {
-            forEach.`in`.set()
-            forEach.out.get()
+            forEach.`in`.flow.emit(null)
+            forEach.out.flow.first()
         }
     }
 
@@ -157,7 +159,7 @@ class Test {
             """
                 [
                     {
-                        "type" : "com.valaphee.flow.Plug",
+                        "type" : "com.valaphee.flow.ControlPlug",
                         "aux" : "7e1ac9d3-5b28-4b44-9fd1-a486685ab253"
                     },
                     {
@@ -201,24 +203,24 @@ class Test {
                         "out" : "966c57a3-06c7-4ee1-8369-52e9db4ae28f"
                     },
                     {
-                        "type" : "com.valaphee.flow.Plug",
+                        "type" : "com.valaphee.flow.ControlPlug",
                         "aux" : "966c57a3-06c7-4ee1-8369-52e9db4ae28f"
                     }
                 ]
             """.trimIndent()
         )
-        flow.forEach { coroutineContext.launch { it.bind() } }
-        val plugs = flow.filterIsInstance<Plug>().map { it.aux }
+        flow.forEach { coroutineContext.launch { it.run() } }
+        val plugs = flow.filterIsInstance<ControlPlug>().map { it.aux }
         val inPlug = plugs.single { it.id == UUID.fromString("7e1ac9d3-5b28-4b44-9fd1-a486685ab253") }
         val outPlug = plugs.single { it.id == UUID.fromString("966c57a3-06c7-4ee1-8369-52e9db4ae28f") }
         val listValue = flow.filterIsInstance<Value>().single { it.out.id == UUID.fromString("b5c70241-06d3-4e0c-bd20-6813c2c71442") }
         runBlocking {
-            repeat(10) {
-                println("Fibonacci #$it " + measureNanoTime {
-                    inPlug.set()
-                    outPlug.get()
-                })
-            }
+            println("Fibonacci " + measureTimeMillis {
+                repeat(10) {
+                    inPlug.flow.emit(null)
+                    outPlug.flow.first()
+                }
+            })
             println("Fibonacci " + listValue.value)
         }
     }

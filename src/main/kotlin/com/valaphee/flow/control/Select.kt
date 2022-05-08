@@ -17,18 +17,18 @@
 package com.valaphee.flow.control
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.Binding
+import com.valaphee.flow.DataPath
 import com.valaphee.flow.LazyNode
 
 /**
  * @author Kevin Ludwig
  */
 class Select(
-    @get:JsonProperty("in") val `in`: Binding,
-    @get:JsonProperty("in_value") val inValue: Map<Any?, Binding>,
-    @get:JsonProperty("out") val out: Binding
+    @get:JsonProperty("in") val `in`: DataPath,
+    @get:JsonProperty("in_value") val inValue: Map<Any?, DataPath>,
+    @get:JsonProperty("out") val out: DataPath
 ) : LazyNode() {
-    override suspend fun bind() {
+    override suspend fun run() {
         out.set { inValue[`in`.get()]?.get() }
     }
 }

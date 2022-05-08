@@ -17,24 +17,25 @@
 package com.valaphee.flow.data
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.Binding
+import com.valaphee.flow.ControlPath
+import com.valaphee.flow.DataPath
 import com.valaphee.flow.EagerNode
+import kotlinx.coroutines.flow.collectLatest
 
 /**
  * @author Kevin Ludwig
  */
 class ListAdd(
-    override val `in`: Binding,
-    @get:JsonProperty("in_list") val inList: Binding,
-    @get:JsonProperty("in_item") val inItem: Binding,
-    @get:JsonProperty("out") val out: Binding
+    override val `in`: ControlPath,
+    @get:JsonProperty("in_list") val inList: DataPath,
+    @get:JsonProperty("in_item") val inItem: DataPath,
+    @get:JsonProperty("out") val out: ControlPath
 ) : EagerNode() {
-    override suspend fun bind() {
-        while (true) {
-            `in`.get()
+    override suspend fun run() {
+        `in`.flow.collectLatest {
             @Suppress("UNCHECKED_CAST")
             (inList.get() as MutableList<Any?>).add(0, inItem.get())
-            out.set()
+            out.flow.emit(null)
         }
     }
 }

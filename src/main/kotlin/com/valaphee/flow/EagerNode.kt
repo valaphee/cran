@@ -22,5 +22,5 @@ import com.fasterxml.jackson.annotation.JsonProperty
  * @author Kevin Ludwig
  */
 abstract class EagerNode : Node() {
-    @get:JsonProperty("in") abstract val `in`: Binding
+    @get:JsonProperty("in") abstract val `in`: Path
 }

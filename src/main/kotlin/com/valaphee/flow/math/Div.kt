@@ -16,17 +16,17 @@
 
 package com.valaphee.flow.math
 
-import com.valaphee.flow.Binding
+import com.valaphee.flow.DataPath
 
 /**
  * @author Kevin Ludwig
  */
 class Div(
-    override val inA: Binding,
-    override val inB: Binding,
-    override val out: Binding
+    override val inA: DataPath,
+    override val inB: DataPath,
+    override val out: DataPath
 ) : MathNode() {
-    override suspend fun bind() {
+    override suspend fun run() {
         out.set {
             val inA = inA.get()
             val inB = inB.get()

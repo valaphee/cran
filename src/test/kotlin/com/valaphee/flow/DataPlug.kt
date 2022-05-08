@@ -21,8 +21,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 /**
  * @author Kevin Ludwig
  */
-class Plug(
-    @get:JsonProperty("aux") val aux: Binding,
+class DataPlug(
+    @get:JsonProperty("aux") val aux: DataPath,
 ) : Node() {
-    override suspend fun bind() = Unit
+    override suspend fun run() = Unit
 }
