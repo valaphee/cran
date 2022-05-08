@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow
+package com.valaphee.flow.control
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.valaphee.flow.Binding
+import com.valaphee.flow.Node
 
 /**
  * @author Kevin Ludwig
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "type")
-abstract class Node {
-    @get:JsonProperty("type") val type: String get() = this::class.java.name
-
-    abstract suspend fun bind()
+class Select(
+    @get:JsonProperty("in") val `in`: Binding,
+    @get:JsonProperty("value") val value: Map<Any?, Binding>,
+    @get:JsonProperty("out") val out: Binding
+) : Node() {
+    override suspend fun bind() {
+        out.set { value[`in`.get()]?.get() }
+    }
 }
