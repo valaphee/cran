@@ -24,7 +24,6 @@ import com.fasterxml.jackson.annotation.SimpleObjectIdResolver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
-import java.util.UUID
 
 /**
  * @author Kevin Ludwig
@@ -32,7 +31,7 @@ import java.util.UUID
 @JsonIdentityInfo(property = "id", generator = ObjectIdGenerators.PropertyGenerator::class, resolver = ControlPath.IdResolver::class)
 @JsonIdentityReference(alwaysAsId = true)
 class ControlPath(
-    override val id: UUID
+    override val id: Int
 ) : Path() {
     /*private val flow = MutableSharedFlow<Any?>(1)*/
     private val semaphore = Semaphore(Int.MAX_VALUE, Int.MAX_VALUE)
@@ -57,7 +56,7 @@ class ControlPath(
     }*/
 
     class IdResolver : SimpleObjectIdResolver() {
-        override fun resolveId(id: ObjectIdGenerator.IdKey) = super.resolveId(id) ?: ControlPath(id.key as UUID).also { bindItem(id, it) }
+        override fun resolveId(id: ObjectIdGenerator.IdKey) = super.resolveId(id) ?: ControlPath(id.key as Int).also { bindItem(id, it) }
 
         override fun newForDeserialization(context: Any?) = IdResolver()
     }

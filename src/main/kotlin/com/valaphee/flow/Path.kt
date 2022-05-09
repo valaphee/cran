@@ -17,20 +17,10 @@
 package com.valaphee.flow
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.ObjectIdGenerator
-import com.fasterxml.jackson.annotation.SimpleObjectIdResolver
-import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext
-import java.util.UUID
 
 /**
  * @author Kevin Ludwig
  */
 abstract class Path {
-    @get:JsonProperty("id") abstract val id: UUID
-
-    class IdResolver : SimpleObjectIdResolver() {
-        override fun resolveId(id: ObjectIdGenerator.IdKey) = super.resolveId(id) ?: DataPath(id.key as UUID).also { println("$id; "); bindItem(id, it) }
-
-        override fun newForDeserialization(context: Any?) = IdResolver().also { println((context as DefaultDeserializationContext).contextualType) }
-    }
+    @get:JsonProperty("id") abstract val id: Int
 }

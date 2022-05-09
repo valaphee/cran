@@ -34,6 +34,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.1-native-mt")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
+    testImplementation("org.openjdk.jmh:jmh-core:1.35")
 }
 
 tasks {

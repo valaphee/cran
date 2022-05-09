@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference
 import com.fasterxml.jackson.annotation.ObjectIdGenerator
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import com.fasterxml.jackson.annotation.SimpleObjectIdResolver
-import java.util.UUID
 
 /**
  * @author Kevin Ludwig
@@ -29,7 +28,7 @@ import java.util.UUID
 @JsonIdentityInfo(property = "id", generator = ObjectIdGenerators.PropertyGenerator::class, resolver = DataPath.IdResolver::class)
 @JsonIdentityReference(alwaysAsId = true)
 class DataPath(
-    override val id: UUID
+    override val id: Int
 ) : Path() {
     private var value: (suspend () -> Any?)? = null
 
@@ -40,7 +39,7 @@ class DataPath(
     }
 
     class IdResolver : SimpleObjectIdResolver() {
-        override fun resolveId(id: ObjectIdGenerator.IdKey) = super.resolveId(id) ?: DataPath(id.key as UUID).also { bindItem(id, it) }
+        override fun resolveId(id: ObjectIdGenerator.IdKey) = super.resolveId(id) ?: DataPath(id.key as Int).also { bindItem(id, it) }
 
         override fun newForDeserialization(context: Any?) = IdResolver()
     }

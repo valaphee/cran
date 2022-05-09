@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow
+package com.valaphee.flow.util
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.flow.DataPath
+import com.valaphee.flow.Node
 import kotlinx.coroutines.CoroutineScope
 
 /**
