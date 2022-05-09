@@ -14,34 +14,43 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.control
+package com.valaphee.flow.loop
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.Node
-import com.valaphee.flow.loop.ForEach
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import org.openjdk.jmh.annotations.Benchmark
+import org.openjdk.jmh.annotations.Fork
 import org.openjdk.jmh.annotations.Level
+import org.openjdk.jmh.annotations.Measurement
 import org.openjdk.jmh.annotations.Scope
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.State
+import org.openjdk.jmh.annotations.TearDown
+import org.openjdk.jmh.annotations.Warmup
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 /**
  * @author Kevin Ludwig
  */
 @State(Scope.Benchmark)
-open class ForEachBenchmark {
+@Warmup(iterations = 2, time = 5)
+@Measurement(iterations = 2, time = 5)
+@Fork(1)
+open class ForBenchmark {
+    lateinit var executorService: ExecutorService
     lateinit var begin: ControlPath
     lateinit var end: ControlPath
 
     @Setup(Level.Trial)
     fun init() {
-        val scope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
+        executorService = Executors.newSingleThreadExecutor()
+        val scope = CoroutineScope(executorService.asCoroutineDispatcher())
 
         val flow = jacksonObjectMapper().readValue<List<Node>>(
             """
@@ -52,33 +61,45 @@ open class ForEachBenchmark {
                     },
                     {
                         "type" : "com.valaphee.flow.Value",
-                        "value" : [ 1, 2, 3, 4, 5 ],
+                        "value" : 0,
                         "out" : 1
                     },
                     {
-                        "type" : "com.valaphee.flow.loop.ForEach",
-                        "in" : 0,
-                        "in_value" : 1,
-                        "out_body" : 2,
+                        "type" : "com.valaphee.flow.Value",
+                        "value" : 1000,
+                        "out" : 2
+                    },
+                    {
+                        "type" : "com.valaphee.flow.Value",
+                        "value" : 1,
                         "out" : 3
                     },
                     {
-                        "type" : "com.valaphee.flow.util.ControlPlug",
-                        "aux" : 2
+                        "type" : "com.valaphee.flow.loop.For",
+                        "in" : 0,
+                        "in_range_start" : 1,
+                        "in_range_end" : 2,
+                        "in_step" : 3,
+                        "out_body" : 4,
+                        "out" : 5
                     },
                     {
                         "type" : "com.valaphee.flow.util.ControlPlug",
-                        "aux" : 3
+                        "aux" : 4
+                    },
+                    {
+                        "type" : "com.valaphee.flow.util.ControlPlug",
+                        "aux" : 5
                     }
                 ]
             """.trimIndent()
         )
         flow.forEach { it.run(scope) }
 
-        val forEach = flow.filterIsInstance<ForEach>().single()
-        forEach.outBody.collect(scope) {}
-        begin = forEach.`in`
-        end = forEach.`out`
+        val `for` = flow.filterIsInstance<For>().single()
+        `for`.outBody.collect(scope) {}
+        begin = `for`.`in`
+        end = `for`.`out`
 
     }
 
@@ -88,5 +109,10 @@ open class ForEachBenchmark {
             begin.emit()
             end.wait()
         }
+    }
+
+    @TearDown
+    fun tearDown() {
+        executorService.shutdown()
     }
 }

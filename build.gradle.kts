@@ -20,6 +20,7 @@ plugins {
     id("com.palantir.git-version") version "0.12.3"
     kotlin("jvm") version "1.6.10"
     `maven-publish`
+    id("me.champeau.jmh") version "0.6.6"
     signing
 }
 
@@ -34,7 +35,9 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.1-native-mt")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
-    testImplementation("org.openjdk.jmh:jmh-core:1.35")
+    jmh("org.openjdk.jmh:jmh-core:1.35")
+    jmh("org.openjdk.jmh:jmh-generator-annprocess:1.35")
+    jmhAnnotationProcessor("org.openjdk.jmh:jmh-generator-annprocess:1.35")
 }
 
 tasks {

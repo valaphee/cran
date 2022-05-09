@@ -18,68 +18,80 @@ package com.valaphee.flow.control
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.valaphee.flow.ControlPath
+import com.valaphee.flow.DataPath
 import com.valaphee.flow.Node
-import com.valaphee.flow.util.ControlPlug
+import com.valaphee.flow.util.DataPlug
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import org.openjdk.jmh.annotations.Benchmark
+import org.openjdk.jmh.annotations.Fork
 import org.openjdk.jmh.annotations.Level
+import org.openjdk.jmh.annotations.Measurement
 import org.openjdk.jmh.annotations.Scope
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.State
+import org.openjdk.jmh.annotations.TearDown
+import org.openjdk.jmh.annotations.Warmup
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 /**
  * @author Kevin Ludwig
  */
-@State(Scope.Benchmark)
-open class BranchBenchmark {
-    lateinit var begin: ControlPath
-    lateinit var end: ControlPath
+@State(Scope.Thread)
+@Warmup(iterations = 2, time = 5)
+@Measurement(iterations = 2, time = 5)
+@Fork(1)
+open class SelectBenchmark {
+    lateinit var executorService: ExecutorService
+    lateinit var value: DataPath
 
     @Setup(Level.Trial)
-    fun init() {
+    fun setup() {
+        executorService = Executors.newSingleThreadExecutor()
+        val scope = CoroutineScope(executorService.asCoroutineDispatcher())
+
         val flow = jacksonObjectMapper().readValue<List<Node>>(
             """
                 [
                     {
-                        "type" : "com.valaphee.flow.util.ControlPlug",
-                        "aux" : 0
+                        "type" : "com.valaphee.flow.Value",
+                        "value" : "true",
+                        "out" : 0
                     },
                     {
                         "type" : "com.valaphee.flow.Value",
-                        "value" : "true",
+                        "value" : "false",
                         "out" : 1
                     },
                     {
-                        "type" : "com.valaphee.flow.control.Branch",
+                        "type" : "com.valaphee.flow.control.Select",
                         "in" : 0,
-                        "in_value" : 1,
-                        "out" : {
-                            "true" : 2
-                        }
+                        "in_value" : {
+                            "true" : 1
+                        },
+                        "out" : 2
                     },
                     {
-                        "type" : "com.valaphee.flow.util.ControlPlug",
+                        "type" : "com.valaphee.flow.util.DataPlug",
                         "aux" : 2
                     }
                 ]
             """.trimIndent()
         )
-        flow.forEach { it.run(CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())) }
+        flow.forEach { it.run(scope) }
 
-        val plugs = flow.filterIsInstance<ControlPlug>().map { it.aux }
-        begin = plugs.single { it.id == 0 }
-        end = plugs.single { it.id == 2 }
+        value = flow.filterIsInstance<DataPlug>().single().aux
     }
 
     @Benchmark
     fun execute() {
-        runBlocking {
-            begin.emit()
-            end.wait()
-        }
+        runBlocking { value.get() }
+    }
+
+    @TearDown
+    fun tearDown() {
+        executorService.shutdown()
     }
 }
