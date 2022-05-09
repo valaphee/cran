@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-rootProject.name = "flow"
+package com.valaphee.flow.spec
 
-include("flow")
-include("flow-api")
-include("flow-gui")
-include("flow-spec")
+/**
+ * @author Kevin Ludwig
+ */
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.SOURCE)
+annotation class Node

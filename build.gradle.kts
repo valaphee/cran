@@ -17,79 +17,38 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.palantir.git-version") version "0.12.3"
-    kotlin("jvm") version "1.6.10"
+    kotlin("jvm") version "1.6.21"
+    kotlin("kapt") version "1.6.21"
     `maven-publish`
     id("me.champeau.jmh") version "0.6.6"
+    id("org.openjfx.javafxplugin") version "0.0.10"
     signing
 }
 
-group = "com.valaphee"
-val versionDetails: groovy.lang.Closure<com.palantir.gradle.gitversion.VersionDetails> by extra
-val details = versionDetails()
-version = "${details.lastTag}.${details.commitDistance}"
+allprojects { repositories { mavenCentral() } }
 
-repositories { mavenCentral() }
+subprojects {
+    apply(plugin = "com.palantir.git-version")
+    apply(plugin = "kotlin")
+    apply(plugin = "signing")
 
-dependencies {
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.1-native-mt")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
-    jmh("org.openjdk.jmh:jmh-core:1.35")
-    jmh("org.openjdk.jmh:jmh-generator-annprocess:1.35")
-    jmhAnnotationProcessor("org.openjdk.jmh:jmh-generator-annprocess:1.35")
-}
+    group = "com.valaphee"
+    val versionDetails: groovy.lang.Closure<com.palantir.gradle.gitversion.VersionDetails> by extra
+    val details = versionDetails()
+    version = "${details.lastTag}.${details.commitDistance}"
 
-tasks {
-    withType<JavaCompile> {
-        sourceCompatibility = "16"
-        targetCompatibility = "16"
-    }
-
-    withType<KotlinCompile>().configureEach { kotlinOptions { jvmTarget = "16" } }
-
-    withType<Test> { useJUnitPlatform() }
-}
-
-java {
-    withJavadocJar()
-    withSourcesJar()
-}
-
-signing {
-    useGpgCmd()
-    sign(publishing.publications)
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            pom.apply {
-                name.set("Flow")
-                description.set("")
-                url.set("https://valaphee.com")
-                scm {
-                    connection.set("https://github.com/valaphee/flow.git")
-                    developerConnection.set("https://github.com/valaphee/flow.git")
-                    url.set("https://github.com/valaphee/flow")
-                }
-                licenses {
-                    license {
-                        name.set("Apache License 2.0")
-                        url.set("https://raw.githubusercontent.com/valaphee/flow/master/LICENSE.txt")
-                    }
-                }
-                developers {
-                    developer {
-                        id.set("valaphee")
-                        name.set("Valaphee")
-                        email.set("iam@valaphee.com")
-                        roles.add("owner")
-                    }
-                }
-            }
-
-            from(components["java"])
+    tasks {
+        withType<JavaCompile> {
+            sourceCompatibility = "16"
+            targetCompatibility = "16"
         }
+
+        withType<KotlinCompile>().configureEach { kotlinOptions { jvmTarget = "16" } }
+
+        withType<Test> { useJUnitPlatform() }
     }
+
+    signing { useGpgCmd() }
 }

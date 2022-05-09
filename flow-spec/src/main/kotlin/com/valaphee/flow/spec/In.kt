@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-rootProject.name = "flow"
+package com.valaphee.flow.spec
 
-include("flow")
-include("flow-api")
-include("flow-gui")
-include("flow-spec")
+/**
+ * @author Kevin Ludwig
+ */
+@Target(AnnotationTarget.PROPERTY_GETTER)
+@Retention(AnnotationRetention.SOURCE)
+annotation class In(
+    val value: String = ""
+)

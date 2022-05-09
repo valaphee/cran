@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 
-rootProject.name = "flow"
+package com.valaphee.flow.math
 
-include("flow")
-include("flow-api")
-include("flow-gui")
-include("flow-spec")
+import com.valaphee.flow.DataPath
+import com.valaphee.flow.LazyNode
+
+/**
+ * @author Kevin Ludwig
+ */
+abstract class MathNode : LazyNode() {
+    abstract val inA: DataPath
+    abstract val inB: DataPath
+    abstract val out: DataPath
+}

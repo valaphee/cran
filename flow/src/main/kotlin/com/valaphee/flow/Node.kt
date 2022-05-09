@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-rootProject.name = "flow"
+package com.valaphee.flow
 
-include("flow")
-include("flow-api")
-include("flow-gui")
-include("flow-spec")
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+import kotlinx.coroutines.CoroutineScope
+
+/**
+ * @author Kevin Ludwig
+ */
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "type")
+abstract class Node {
+    abstract fun run(scope: CoroutineScope)
+}

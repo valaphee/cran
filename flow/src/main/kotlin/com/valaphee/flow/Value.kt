@@ -14,9 +14,19 @@
  * limitations under the License.
  */
 
-rootProject.name = "flow"
+package com.valaphee.flow
 
-include("flow")
-include("flow-api")
-include("flow-gui")
-include("flow-spec")
+import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.coroutines.CoroutineScope
+
+/**
+ * @author Kevin Ludwig
+ */
+class Value(
+    @get:JsonProperty("value") val value: Any?,
+    @get:JsonProperty("out") val out: DataPath
+) : Node() {
+    override fun run(scope: CoroutineScope) {
+        out.set { value }
+    }
+}

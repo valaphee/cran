@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-rootProject.name = "flow"
+package com.valaphee.flow
 
-include("flow")
-include("flow-api")
-include("flow-gui")
-include("flow-spec")
+/**
+ * @author Kevin Ludwig
+ */
+abstract class EagerNode : Node() {
+    abstract val `in`: Path
+}

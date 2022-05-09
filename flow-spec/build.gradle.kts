@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-rootProject.name = "flow"
+plugins { kotlin("kapt") }
 
-include("flow")
-include("flow-api")
-include("flow-gui")
-include("flow-spec")
+kapt { generateStubs = true }
+
+dependencies {
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
+    implementation("com.google.auto.service:auto-service:1.0-rc4")
+    kapt("com.google.auto.service:auto-service:1.0-rc4")
+}
