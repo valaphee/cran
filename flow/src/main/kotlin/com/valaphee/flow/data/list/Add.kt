@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.list
+package com.valaphee.flow.data.list
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.ControlPath
@@ -28,7 +28,7 @@ import kotlinx.coroutines.CoroutineScope
 /**
  * @author Kevin Ludwig
  */
-@Node("List: Add")
+@Node("Data/List/Add")
 class Add(
     @get:In (""    ) @get:JsonProperty("in"     ) override val `in`  : ControlPath,
     @get:In (""    ) @get:JsonProperty("in_list")          val inList: DataPath,

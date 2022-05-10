@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.math
+package com.valaphee.flow.math.scalar
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
+import com.valaphee.flow.OperatorABNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
@@ -28,12 +29,12 @@ import java.math.BigInteger
 /**
  * @author Kevin Ludwig
  */
-@Node("Divide")
+@Node("Math/Scalar/Divide")
 class Divide(
     @get:In ("A")     @get:JsonProperty("in_a") override val inA: DataPath,
     @get:In ("B")     @get:JsonProperty("in_b") override val inB: DataPath,
-    @get:Out("A / B") @get:JsonProperty("out" ) override val out: DataPath
-) : MathNode() {
+    @get:Out("A ÷ B") @get:JsonProperty("out" ) override val out: DataPath
+) : OperatorABNode() {
     override fun run(scope: CoroutineScope) {
         out.set {
             val inA = inA.get()

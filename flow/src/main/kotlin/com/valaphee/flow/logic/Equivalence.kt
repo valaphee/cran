@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.loop
+package com.valaphee.flow.logic
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
-import com.valaphee.flow.EagerNode
+import com.valaphee.flow.OperatorABNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
@@ -28,17 +27,17 @@ import kotlinx.coroutines.CoroutineScope
 /**
  * @author Kevin Ludwig
  */
-@Node("While")
-class While(
-    @get:In (""    ) @get:JsonProperty("in"      ) override val `in`   : ControlPath,
-    @get:In (""    ) @get:JsonProperty("in_value")          val inValue: DataPath,
-    @get:Out("Body") @get:JsonProperty("out_body")          val outBody: ControlPath,
-    @get:Out("Exit") @get:JsonProperty("out"     )          val out    : ControlPath,
-) : EagerNode() {
+@Node("Logic/Equivalence")
+class Equivalence(
+    @get:In ("A")     @get:JsonProperty("in_a") override val inA: DataPath,
+    @get:In ("B")     @get:JsonProperty("in_b") override val inB: DataPath,
+    @get:Out("A = B") @get:JsonProperty("out" ) override val out: DataPath
+) : OperatorABNode() {
     override fun run(scope: CoroutineScope) {
-        `in`.collect(scope) {
-            while (inValue.get() as Boolean) outBody.emit()
-            out.emit()
+        out.set {
+            val inA = inA.get()
+            val inB = inB.get()
+            inA != inB
         }
     }
 }

@@ -20,6 +20,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.Node
+import com.valaphee.flow.control.ForEach
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
@@ -65,7 +66,7 @@ open class ForEachBenchmark {
                         "out" : 1
                     },
                     {
-                        "type" : "com.valaphee.flow.loop.ForEach",
+                        "type" : "com.valaphee.flow.control.ForEach",
                         "in" : 0,
                         "in_value" : 1,
                         "out_body" : 2,

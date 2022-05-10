@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.loop
+package com.valaphee.flow.data.list
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.ControlPath
@@ -28,16 +28,17 @@ import kotlinx.coroutines.CoroutineScope
 /**
  * @author Kevin Ludwig
  */
-@Node("For Each")
-class ForEach(
-    @get:In (""    ) @get:JsonProperty("in"      ) override val `in`   : ControlPath,
-    @get:In (""    ) @get:JsonProperty("in_value")          val inValue: DataPath,
-    @get:Out("Body") @get:JsonProperty("out_body")          val outBody: ControlPath,
-    @get:Out("Exit") @get:JsonProperty("out"     )          val out    : ControlPath,
+@Node("Data/List/Remove")
+class Remove(
+    @get:In (""    ) @get:JsonProperty("in"     ) override val `in`  : ControlPath,
+    @get:In (""    ) @get:JsonProperty("in_list")          val inList: DataPath,
+    @get:In ("Item") @get:JsonProperty("in_item")          val inItem: DataPath,
+    @get:Out(""    ) @get:JsonProperty("out"    )          val out   : ControlPath
 ) : EagerNode() {
     override fun run(scope: CoroutineScope) {
         `in`.collect(scope) {
-            (inValue.get() as List<*>).forEach { _ -> outBody.emit(/*it*/) }
+            @Suppress("UNCHECKED_CAST")
+            (inList.get() as MutableList<Any?>) -= inItem.get()
             out.emit()
         }
     }

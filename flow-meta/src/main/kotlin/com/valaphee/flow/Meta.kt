@@ -14,10 +14,19 @@
  * limitations under the License.
  */
 
-rootProject.name = "flow"
+package com.valaphee.flow
 
-include("flow")
-include("flow-api")
-include("flow-gui")
-include("flow-spec")
-include("flow-meta")
+import com.fasterxml.jackson.annotation.JsonProperty
+
+/**
+ * @author Kevin Ludwig
+ */
+class Meta(
+    @get:JsonProperty("name" ) val name : String,
+    @get:JsonProperty("nodes") val nodes: List<Node>
+) {
+    class Node(
+        @get:JsonProperty("x") val x: Double,
+        @get:JsonProperty("y") val y: Double
+    )
+}

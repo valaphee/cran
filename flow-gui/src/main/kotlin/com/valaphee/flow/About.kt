@@ -19,9 +19,6 @@ package com.valaphee.flow
 import javafx.geometry.Pos
 import javafx.scene.image.Image
 import javafx.scene.text.TextAlignment
-import jfxtras.styles.jmetro.JMetro
-import jfxtras.styles.jmetro.JMetroStyleClass
-import jfxtras.styles.jmetro.Style
 import tornadofx.View
 import tornadofx.hbox
 import tornadofx.imageview
@@ -32,12 +29,11 @@ import tornadofx.label
  */
 class About : View("About") {
     override val root = hbox {
+        // Properties
         setPrefSize(300.0, 100.0)
         alignment = Pos.CENTER
 
-        JMetro(this, Style.DARK)
-        styleClass.add(JMetroStyleClass.BACKGROUND)
-
+        // Children
         imageview(Image(About::class.java.getResourceAsStream("/app.png")))
         label(
             """

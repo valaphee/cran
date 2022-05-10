@@ -20,6 +20,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.Node
+import com.valaphee.flow.control.For
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
@@ -75,7 +76,7 @@ open class ForBenchmark {
                         "out" : 3
                     },
                     {
-                        "type" : "com.valaphee.flow.loop.For",
+                        "type" : "com.valaphee.flow.control.For",
                         "in" : 0,
                         "in_range_start" : 1,
                         "in_range_end" : 2,

@@ -27,7 +27,8 @@ import java.util.concurrent.Executors
  * @author Kevin Ludwig
  */
 class Graph(
-    @get:JsonProperty("id"   ) val id   : UUID = UUID.randomUUID(),
+    @get:JsonProperty("id"   ) val id   : UUID,
+    @get:JsonProperty("meta" ) val meta : Meta?,
     @get:JsonProperty("graph") val graph: List<Node>
 ) : CoroutineScope {
     @get:JsonIgnore override val coroutineContext get() = Executors.newSingleThreadExecutor().asCoroutineDispatcher()

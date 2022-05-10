@@ -27,6 +27,7 @@ import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
+import javax.tools.Diagnostic
 import javax.tools.StandardLocation
 
 /**
@@ -51,17 +52,32 @@ class SpecGenerator : AbstractProcessor() {
                             val out = getter.getAnnotation(Out::class.java)
                             val const = getter.getAnnotation(Const::class.java)
                             val json = getter.getAnnotation(JsonProperty::class.java)
-                            if (`in` != null) if (out != null) error(`class`.qualifiedName) else if (const != null) error(`class`.qualifiedName) else {
+                            if (`in` != null) if (out != null) {
+                                processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @In or @Out is allowed, not both.")
+                                return true
+                            } else if (const != null) {
+                                processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @In or @Const is allowed, not both.")
+                                return true
+                            } else {
                                 Spec.Node.Port(`in`.value, when {
                                     type.contains("com.valaphee.flow.ControlPath") -> Spec.Node.Port.Type.InControl
                                     type.contains("com.valaphee.flow.DataPath") -> Spec.Node.Port.Type.InData
-                                    else -> error(type)
+                                    else -> {
+                                        processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @In type $type.")
+                                        return true
+                                    }
                                 }, json.value)
-                            } else if (out != null) if (const != null) error(`class`.qualifiedName) else {
+                            } else if (out != null) if (const != null) {
+                                processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @Out or @Const is allowed, not both.")
+                                return true
+                            } else {
                                 Spec.Node.Port(out.value, when {
                                     type.contains("com.valaphee.flow.ControlPath") -> Spec.Node.Port.Type.OutControl
                                     type.contains("com.valaphee.flow.DataPath") -> Spec.Node.Port.Type.OutData
-                                    else -> error(type)
+                                    else -> {
+                                        processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @Out type $type.")
+                                        return true
+                                    }
                                 }, json.value)
                             } else if (const != null) Spec.Node.Port(const.value, Spec.Node.Port.Type.Const, json.value) else null
                         } else null

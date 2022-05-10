@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-rootProject.name = "flow"
+package com.valaphee.flow
 
-include("flow")
-include("flow-api")
-include("flow-gui")
-include("flow-spec")
-include("flow-meta")
+/**
+ * @author Kevin Ludwig
+ */
+abstract class OperatorXNode : LazyNode() {
+    abstract val `in`: DataPath
+    abstract val out: DataPath
+}

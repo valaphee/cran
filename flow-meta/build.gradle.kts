@@ -14,16 +14,7 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.math
-
-import com.valaphee.flow.DataPath
-import com.valaphee.flow.LazyNode
-
-/**
- * @author Kevin Ludwig
- */
-abstract class MathNode : LazyNode() {
-    abstract val inA: DataPath
-    abstract val inB: DataPath
-    abstract val out: DataPath
+dependencies {
+    api("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
 }

@@ -28,14 +28,17 @@ import kotlinx.coroutines.CoroutineScope
 /**
  * @author Kevin Ludwig
  */
-@Node("Control/Branch")
-class Branch(
-    @get:In (""       ) @get:JsonProperty("in"         ) override val `in`      : ControlPath,
-    @get:In (""       ) @get:JsonProperty("in_value"   )          val inValue   : DataPath,
-    @get:Out(""       ) @get:JsonProperty("out"        )          val out       : Map<Any?, ControlPath>,
-    @get:Out("Default") @get:JsonProperty("out_default")          val outDefault: ControlPath?
+@Node("Control/For Each")
+class ForEach(
+    @get:In (""    ) @get:JsonProperty("in"      ) override val `in`   : ControlPath,
+    @get:In (""    ) @get:JsonProperty("in_value")          val inValue: DataPath,
+    @get:Out("Body") @get:JsonProperty("out_body")          val outBody: ControlPath,
+    @get:Out("Exit") @get:JsonProperty("out"     )          val out    : ControlPath,
 ) : EagerNode() {
     override fun run(scope: CoroutineScope) {
-        `in`.collect(scope) { (out[inValue.get()] ?: outDefault)?.emit() }
+        `in`.collect(scope) {
+            (inValue.get() as List<*>).forEach { _ -> outBody.emit(/*it*/) }
+            out.emit()
+        }
     }
 }

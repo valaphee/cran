@@ -24,6 +24,7 @@ import javafx.scene.paint.Color
 import javafx.scene.text.Text
 import tornadofx.circle
 import tornadofx.label
+import tornadofx.onChange
 import tornadofx.paddingLeft
 import tornadofx.paddingTop
 import tornadofx.polygon
@@ -40,28 +41,36 @@ class ConnectorShape(
 
     init {
         setConnector(connector)
-
-        when (connector.type) {
-            "control" -> polygon(
-                0.0 + if (connector.isInput) -2.0 else -4.0, -4.0,
-                8.0 + if (connector.isInput) -2.0 else -4.0,  0.0,
-                0.0 + if (connector.isInput) -2.0 else -4.0,  4.0,
-                0.0 + if (connector.isInput) -2.0 else -4.0, -4.0
-            ) { fill = Color.WHITE }
-            "data" -> circle(4.0 + if (connector.isInput) -2.0 else -4.0, 0.0, 4.0) { fill = Color.WHITE }
-        }
-        val (spec, _) = @Suppress("UNCHECKED_CAST") (connector.valueObject.value as Pair<Spec.Node.Port, Any?>)
-        label(spec.name) {
-            paddingLeft = if (connector.isInput) 8.0 else -Text(text).layoutBounds.width - 8.0
-            paddingTop = -9.0
-            textFill = Color.WHITE
-        }
     }
 
     override fun getConnector() = connector
 
     override fun setConnector(connector: Connector) {
         this.connector = connector
+
+        fun content(value: Pair<Spec.Node.Port, Any?>?) {
+            children.clear()
+            value?.let {
+                val (spec, _) = it
+                when (connector.type) {
+                    "control" -> polygon(
+                        0.0 + if (connector.isInput) -2.0 else -4.0, -4.0,
+                        8.0 + if (connector.isInput) -2.0 else -4.0, 0.0,
+                        0.0 + if (connector.isInput) -2.0 else -4.0, 4.0,
+                        0.0 + if (connector.isInput) -2.0 else -4.0, -4.0
+                    ) { fill = Color.WHITE }
+                    "data" -> circle(4.0 + if (connector.isInput) -2.0 else -4.0, 0.0, 4.0) { fill = Color.WHITE }
+                }
+                label(spec.name) {
+                    paddingLeft = if (connector.isInput) 8.0 else -Text(text).layoutBounds.width - 8.0
+                    paddingTop = -9.0
+                    textFill = Color.WHITE
+                }
+            }
+        }
+
+        content(@Suppress("UNCHECKED_CAST") (connector.valueObject.value as Pair<Spec.Node.Port, Any?>?))
+        connector.valueObject.valueProperty().onChange { content(@Suppress("UNCHECKED_CAST") (it as Pair<Spec.Node.Port, Any?>?)) }
     }
 
     override fun radiusProperty() = radiusProperty
