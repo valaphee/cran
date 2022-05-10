@@ -16,23 +16,19 @@
 
 package com.valaphee.flow
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.http.ContentType
+import io.ktor.serialization.jackson.JacksonConverter
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
-import java.util.UUID
-import java.util.concurrent.Executors
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
-/**
- * @author Kevin Ludwig
- */
-class Graph(
-    @get:JsonProperty("id"   ) val id   : UUID = UUID.randomUUID(),
-    @get:JsonProperty("graph") val graph: List<Node>
-) : CoroutineScope {
-    @get:JsonIgnore override val coroutineContext get() = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-
-    init {
-        graph.forEach { it.run(this) }
-    }
+val MainScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+val ObjectMapper = jacksonObjectMapper()
+val HttpClient = HttpClient(OkHttp) {
+    expectSuccess = false
+    install(ContentNegotiation) { register(ContentType.Application.Json, JacksonConverter(ObjectMapper)) }
 }

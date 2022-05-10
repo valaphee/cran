@@ -17,15 +17,19 @@
 package com.valaphee.flow
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.flow.spec.Const
+import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.Out
 import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
  */
+@Node("Value")
 class Value(
-    @get:JsonProperty("value") val value: Any?,
-    @get:JsonProperty("out") val out: DataPath
-) : Node() {
+    @get:Const   @get:JsonProperty("value") val value: Any?,
+    @get:Out("") @get:JsonProperty("out"  ) val out  : DataPath
+) : LazyNode() {
     override fun run(scope: CoroutineScope) {
         out.set { value }
     }

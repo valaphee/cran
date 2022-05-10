@@ -28,7 +28,7 @@ import kotlinx.coroutines.CoroutineScope
 /**
  * @author Kevin Ludwig
  */
-@Node
+@Node("List: Remove")
 class Remove(
     @get:In (""    ) @get:JsonProperty("in"     ) override val `in`  : ControlPath,
     @get:In (""    ) @get:JsonProperty("in_list")          val inList: DataPath,

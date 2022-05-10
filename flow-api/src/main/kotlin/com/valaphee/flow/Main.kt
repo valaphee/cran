@@ -16,6 +16,9 @@
 
 package com.valaphee.flow
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.valaphee.flow.spec.Spec
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.application.call
@@ -48,12 +51,16 @@ fun main(arguments: Array<String>) {
     System.setOut(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.INFO).buildPrintStream())
     System.setErr(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.ERROR).buildPrintStream())
 
+    val spec = jacksonObjectMapper().readValue<Spec>(Node::class.java.getResource("/flow-spec.json")!!)
     val graphs = mutableMapOf<UUID, Graph>()
+
     embeddedServer(Netty, port, host, emptyList()) {
         install(Compression)
         install(ContentNegotiation) { jackson() }
 
         routing {
+            get("/spec") { call.respond(spec) }
+
             post("/graph") {
                 val graph = call.receive<Graph>()
                 call.respond(if (graphs.containsKey(graph.id)) HttpStatusCode.BadRequest else {

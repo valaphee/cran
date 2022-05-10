@@ -22,10 +22,12 @@ import com.fasterxml.jackson.annotation.JsonProperty
  * @author Kevin Ludwig
  */
 class Spec(
-    @get:JsonProperty("nodes") val nodes: Map<String, Node>
+    @get:JsonProperty("nodes") val nodes: List<Node>
 ) {
     class Node(
+        @get:JsonProperty("name" ) val name : String,
         @get:JsonProperty("ports") val ports: List<Port>,
+        @get:JsonProperty("json" ) val json : String
     ) {
         class Port(
             @get:JsonProperty("name") val name: String,
@@ -33,10 +35,11 @@ class Spec(
             @get:JsonProperty("json") val json: String,
         ) {
             enum class Type {
-                InControl,
-                OutControl,
-                InData,
-                OutData
+                @JsonProperty("in_control" )  InControl,
+                @JsonProperty("out_control") OutControl,
+                @JsonProperty("in_data"    )  InData,
+                @JsonProperty("out_data"   ) OutData,
+                @JsonProperty("const"      )    Const
             }
         }
     }

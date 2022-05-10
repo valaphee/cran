@@ -27,7 +27,7 @@ import kotlinx.coroutines.CoroutineScope
 /**
  * @author Kevin Ludwig
  */
-@Node
+@Node("Select")
 class Select(
     @get:In (""       ) @get:JsonProperty("in"         ) val `in`     : DataPath,
     @get:In (""       ) @get:JsonProperty("in_value"   ) val inValue  : Map<Any?, DataPath>,

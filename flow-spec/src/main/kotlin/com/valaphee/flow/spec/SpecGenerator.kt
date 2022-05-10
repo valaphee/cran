@@ -34,7 +34,7 @@ import javax.tools.StandardLocation
  */
 @AutoService(Processor::class)
 class SpecGenerator : AbstractProcessor() {
-    override fun getSupportedAnnotationTypes() = mutableSetOf(Node::class.java.name, In::class.java.name, Out::class.java.name)
+    override fun getSupportedAnnotationTypes() = mutableSetOf(Node::class.java.name)
 
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latest()
 
@@ -43,30 +43,32 @@ class SpecGenerator : AbstractProcessor() {
         roundEnvironment?.getElementsAnnotatedWith(Node::class.java)?.mapNotNull { `class` ->
             if (`class`.kind == ElementKind.CLASS && `class` is TypeElement) {
                 if (!`class`.modifiers.contains(Modifier.ABSTRACT)) {
-                    `class`.qualifiedName.toString() to Spec.Node(`class`.enclosedElements.mapNotNull { getter ->
+                    val node = `class`.getAnnotation(Node::class.java)
+                     Spec.Node(node.value, `class`.enclosedElements.mapNotNull { getter ->
                         if (getter.kind == ElementKind.METHOD && getter is ExecutableElement) {
                             val type = getter.returnType.toString()
                             val `in` = getter.getAnnotation(In::class.java)
                             val out = getter.getAnnotation(Out::class.java)
+                            val const = getter.getAnnotation(Const::class.java)
                             val json = getter.getAnnotation(JsonProperty::class.java)
-                            if (`in` != null) if (out != null) error(`class`.qualifiedName) else {
+                            if (`in` != null) if (out != null) error(`class`.qualifiedName) else if (const != null) error(`class`.qualifiedName) else {
                                 Spec.Node.Port(`in`.value, when {
                                     type.contains("com.valaphee.flow.ControlPath") -> Spec.Node.Port.Type.InControl
                                     type.contains("com.valaphee.flow.DataPath") -> Spec.Node.Port.Type.InData
                                     else -> error(type)
                                 }, json.value)
-                            } else if (out != null) {
+                            } else if (out != null) if (const != null) error(`class`.qualifiedName) else {
                                 Spec.Node.Port(out.value, when {
                                     type.contains("com.valaphee.flow.ControlPath") -> Spec.Node.Port.Type.OutControl
                                     type.contains("com.valaphee.flow.DataPath") -> Spec.Node.Port.Type.OutData
                                     else -> error(type)
                                 }, json.value)
-                            } else null
+                            } else if (const != null) Spec.Node.Port(const.value, Spec.Node.Port.Type.Const, json.value) else null
                         } else null
-                    })
+                    }, `class`.qualifiedName.toString())
                 } else null
             } else null
-        }?.toMap()?.let { processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", "flow-spec.json").openOutputStream().use { stream ->  jacksonObjectMapper().writeValue(stream, it) } }
+        }?.let { processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", "flow-spec.json").openOutputStream().use { stream ->  jacksonObjectMapper().writeValue(stream, Spec(it)) } }
         return true
     }
 }

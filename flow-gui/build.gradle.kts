@@ -20,6 +20,7 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":flow-spec"))
     implementation("de.codecentric.centerdevice:javafxsvg:1.3.0")
     implementation("io.ktor:ktor-client-content-negotiation:2.0.1")
     implementation("io.ktor:ktor-client-okhttp:2.0.1")
@@ -29,6 +30,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:1.6.1")
     implementation("org.jfxtras:jmetro:11.6.15")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
+    implementation("eu.mihosoft.vrl.workflow:vworkflows-fx:0.2.5.0")
 }
 
 tasks {

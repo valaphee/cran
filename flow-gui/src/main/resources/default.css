@@ -1,0 +1,76 @@
+/*
+    Document   : default.css
+    Created on : 08.10.2012, 10:17:51
+    Author     : Michael Hoffer  &lt;info@michaelhoffer.de&gt;
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+.connector {
+        -fx-fill : radial-gradient(center 50% 25%,
+                                   radius 75%,
+                                   rgb(122,255,77) 0%,
+                                   rgb(0,102,0) 100%);
+
+        -fx-effect: dropshadow(gaussian,
+                               rgba(0, 0, 0, 0.65),
+                               10, 0.0, 5, 5);
+}
+
+.vflow-background {
+    -fx-background-color: linear-gradient(to bottom, rgb(10,32,60), rgb(42,52,120));
+}
+
+.window {
+    -fx-background-color: rgba(120,140,255,0.2);
+    -fx-border-color: rgba(120,140,255,0.42);
+    -fx-border-width: 2;
+}
+
+.vnode-connector {
+    -fx-fill: rgba(0,0,0,0.75);
+    -fx-stroke: rgba(120, 140, 255, 0.42);
+    -fx-stroke-width: 3px;
+}
+
+.vnode-connector-control {
+    -fx-fill: rgba(255,255,0,0.75);
+    -fx-stroke: rgba(120, 140, 255, 0.42);
+    -fx-stroke-width: 3px;
+}
+
+.vnode-connector-event {
+    -fx-fill: rgba(255,100,255,0.75);
+    -fx-stroke: rgba(120, 140, 255, 0.42);
+    -fx-stroke-width: 3px;
+}
+
+.vnode-connector-data {
+    -fx-fill: rgba(10,10,10,0.75);
+    -fx-stroke: rgba(120, 140, 255, 0.42);
+    -fx-stroke-width: 3px;
+}
+
+.vnode-connection {
+    -fx-stroke: rgba(120,140,255,0.2);
+    -fx-stroke-width: 5px;
+}
+
+.vnode-new-connection {
+    -fx-stroke: rgba(120,140,255,0.2);
+    -fx-stroke-width: 5px;
+}
+
+.window-titlebar {
+
+    -fx-background-color: rgba(20,20,45,0.4);
+    -fx-border-color: rgba(120,140,255,0.42);
+    -fx-border-width: 0;
+    -fx-padding: 6 4 3 4;
+    -fx-background-insets: 2 2 -2 2;
+
+    -fx-alignment: center;
+
+    /*-fx-stroke: rgba(255,255,255,50);*/
+    -fx-fill: rgba(255,255,255,50);
+}

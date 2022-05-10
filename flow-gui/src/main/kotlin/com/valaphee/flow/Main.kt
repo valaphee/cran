@@ -16,67 +16,101 @@
 
 package com.valaphee.flow
 
+import com.valaphee.flow.graph.Graph
+import com.valaphee.flow.spec.Spec
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
+import io.ktor.client.call.body
+import io.ktor.client.request.delete
+import io.ktor.client.request.get
 import javafx.beans.property.SimpleListProperty
+import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.image.Image
+import javafx.scene.input.KeyCode
 import javafx.scene.layout.Priority
 import jfxtras.styles.jmetro.JMetro
 import jfxtras.styles.jmetro.JMetroStyleClass
-import jfxtras.styles.jmetro.Style
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import tornadofx.App
 import tornadofx.View
-import tornadofx.action
+import tornadofx.bindSelected
+import tornadofx.dynamicContent
 import tornadofx.hbox
-import tornadofx.item
+import tornadofx.hgrow
 import tornadofx.launch
 import tornadofx.listview
-import tornadofx.menu
-import tornadofx.menubar
-import tornadofx.tab
-import tornadofx.tabpane
+import tornadofx.pane
+import tornadofx.scrollpane
+import tornadofx.splitpane
 import tornadofx.toObservable
-import tornadofx.vbox
-import tornadofx.vgrow
 import kotlin.system.exitProcess
 
 /**
  * @author Kevin Ludwig
  */
 class Main : View("Flow") {
-    private val graphsProperty = SimpleListProperty(mutableListOf<String>().toObservable())
+    private val spec = runBlocking { HttpClient.get("http://localhost:8080/spec").body<Spec>() }
 
-    override val root = vbox {
-        JMetro(this, Style.DARK)
+    private val graphsProperty = SimpleListProperty(mutableListOf<Graph>().toObservable())
+    private val graphProperty = SimpleObjectProperty<Graph>()
+
+    override val root = hbox {
+        JMetro(this, jfxtras.styles.jmetro.Style.DARK)
         styleClass.add(JMetroStyleClass.BACKGROUND)
 
         // Properties
         setPrefSize(1000.0, 800.0)
 
         // Children
-        menubar {
-            menu("File") { item("Exit") { action { close() } } }
-            menu("Help") { item("About") { action { find<About>().openModal(resizable = false) } } }
-        }
-        hbox {
-            // Properties
-            vgrow = Priority.ALWAYS
+        splitpane {
+            // Parent Properties
+            hgrow = Priority.ALWAYS
 
-            // Children
             listview(graphsProperty) {
+                // Value
+                bindSelected(graphProperty)
 
+                // Events
+                setOnKeyPressed {
+                    when (it.code) {
+                        KeyCode.DELETE -> {
+                            if (!selectionModel.isEmpty) {
+                                MainScope.launch { delete(selectionModel.selectedItems) }
+                                it.consume()
+                            }
+                        }
+                        KeyCode.F5 -> {
+                            MainScope.launch { this@Main.refresh() }
+                            it.consume()
+                        }
+                        else -> Unit
+                    }
+                }
+
+                // Initialization
+                MainScope.launch { this@Main.refresh() }
             }
-            tabpane {
-                tab("Graph") {}
-                tab("JSON") {}
-            }
+            scrollpane { pane { dynamicContent(graphProperty) { it?.flow(this, spec) } } }
         }
+    }
+
+    private suspend fun refresh() {
+        HttpClient.get("http://localhost:8080/graph/").body<List<Graph>>().also { withContext(Dispatchers.Main) { graphsProperty.setAll(it) } }
+    }
+
+    private suspend fun delete(graphs: List<Graph>) {
+        graphs.map { coroutineScope { launch { HttpClient.delete("http://localhost:8080/graph/${it.id}") } } }.joinAll()
     }
 }
 
 /**
  * @author Kevin Ludwig
  */
-class MainApp : App(Image(MainApp::class.java.getResourceAsStream("/app.png")), Main::class)
+class MainApp : App(Image(MainApp::class.java.getResourceAsStream("/app.png")), Main::class, Style::class)
 
 fun main(arguments: Array<String>) {
     SvgImageLoaderFactory.install()

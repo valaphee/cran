@@ -28,7 +28,7 @@ import java.math.BigInteger
 /**
  * @author Kevin Ludwig
  */
-@Node
+@Node("Divide")
 class Divide(
     @get:In ("A")     @get:JsonProperty("in_a") override val inA: DataPath,
     @get:In ("B")     @get:JsonProperty("in_b") override val inB: DataPath,

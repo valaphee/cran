@@ -21,4 +21,6 @@ package com.valaphee.flow.spec
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Node
+annotation class Node(
+    val value: String
+)

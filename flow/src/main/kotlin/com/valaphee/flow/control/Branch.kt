@@ -28,7 +28,7 @@ import kotlinx.coroutines.CoroutineScope
 /**
  * @author Kevin Ludwig
  */
-@Node
+@Node("Branch")
 class Branch(
     @get:In (""       ) @get:JsonProperty("in"         ) override val `in`      : ControlPath,
     @get:In (""       ) @get:JsonProperty("in_value"   )          val inValue   : DataPath,

@@ -28,7 +28,7 @@ import kotlinx.coroutines.CoroutineScope
 /**
  * @author Kevin Ludwig
  */
-@Node
+@Node("List: Add")
 class Add(
     @get:In (""    ) @get:JsonProperty("in"     ) override val `in`  : ControlPath,
     @get:In (""    ) @get:JsonProperty("in_list")          val inList: DataPath,

@@ -14,25 +14,21 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow
+package com.valaphee.flow.graph
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonProperty
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
-import java.util.UUID
-import java.util.concurrent.Executors
+import eu.mihosoft.vrl.workflow.VFlow
+import eu.mihosoft.vrl.workflow.VNode
+import eu.mihosoft.vrl.workflow.fx.FXSkinFactory
+import javafx.scene.Parent
 
 /**
  * @author Kevin Ludwig
  */
-class Graph(
-    @get:JsonProperty("id"   ) val id   : UUID = UUID.randomUUID(),
-    @get:JsonProperty("graph") val graph: List<Node>
-) : CoroutineScope {
-    @get:JsonIgnore override val coroutineContext get() = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+class SkinFactory(
+    parent: Parent,
+    parentFactory: FXSkinFactory?
+) : FXSkinFactory(parent, parentFactory) {
+    constructor(parent: Parent) : this(parent, null)
 
-    init {
-        graph.forEach { it.run(this) }
-    }
+    override fun createSkin(node: VNode, flow: VFlow) = NodeSkin(this, fxParent, node, flow)
 }

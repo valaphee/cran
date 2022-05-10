@@ -14,25 +14,13 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow
-
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonProperty
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
-import java.util.UUID
-import java.util.concurrent.Executors
+package com.valaphee.flow.spec
 
 /**
  * @author Kevin Ludwig
  */
-class Graph(
-    @get:JsonProperty("id"   ) val id   : UUID = UUID.randomUUID(),
-    @get:JsonProperty("graph") val graph: List<Node>
-) : CoroutineScope {
-    @get:JsonIgnore override val coroutineContext get() = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-
-    init {
-        graph.forEach { it.run(this) }
-    }
-}
+@Target(AnnotationTarget.PROPERTY_GETTER)
+@Retention(AnnotationRetention.SOURCE)
+annotation class Const(
+    val value: String = ""
+)

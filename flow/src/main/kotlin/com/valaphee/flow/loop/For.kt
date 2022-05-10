@@ -28,7 +28,7 @@ import kotlinx.coroutines.CoroutineScope
 /**
  * @author Kevin Ludwig
  */
-@Node
+@Node("For")
 class For(
     @get:In (""     ) @get:JsonProperty("in"            ) override val `in`        : ControlPath,
     @get:In ("Start") @get:JsonProperty("in_range_start")          val inRangeStart: DataPath,

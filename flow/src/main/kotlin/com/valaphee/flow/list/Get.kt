@@ -27,7 +27,7 @@ import kotlinx.coroutines.CoroutineScope
 /**
  * @author Kevin Ludwig
  */
-@Node
+@Node("List: Get")
 class Get(
     @get:In (""     ) @get:JsonProperty("in_list" ) val inList : DataPath,
     @get:In ("Index") @get:JsonProperty("in_index") val inIndex: DataPath,
