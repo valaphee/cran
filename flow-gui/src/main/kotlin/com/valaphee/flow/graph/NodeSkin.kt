@@ -70,9 +70,9 @@ class NodeSkin(
 
         val connectorShape = getConnectorShape(connector)
         if (connector.type == "const") {
-            connectorShape.node.setOnMousePressed {  }
-            connectorShape.node.setOnMouseDragged {  }
-            connectorShape.node.setOnMouseReleased {  }
+            connectorShape.node.setOnMousePressed { }
+            connectorShape.node.setOnMouseDragged { }
+            connectorShape.node.setOnMouseReleased { }
         }
     }
 

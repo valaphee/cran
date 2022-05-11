@@ -45,7 +45,7 @@ class SpecGenerator : AbstractProcessor() {
             if (`class`.kind == ElementKind.CLASS && `class` is TypeElement) {
                 if (!`class`.modifiers.contains(Modifier.ABSTRACT)) {
                     val node = `class`.getAnnotation(Node::class.java)
-                     Spec.Node(node.value, `class`.enclosedElements.mapNotNull { getter ->
+                    Spec.Node(node.value, `class`.enclosedElements.mapNotNull { getter ->
                         if (getter.kind == ElementKind.METHOD && getter is ExecutableElement) {
                             val type = getter.returnType.toString()
                             val `in` = getter.getAnnotation(In::class.java)
@@ -59,32 +59,36 @@ class SpecGenerator : AbstractProcessor() {
                                 processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @In or @Const is allowed, not both.")
                                 return true
                             } else {
-                                Spec.Node.Port(`in`.value, when {
-                                    type.contains("com.valaphee.flow.ControlPath") -> Spec.Node.Port.Type.InControl
-                                    type.contains("com.valaphee.flow.DataPath") -> Spec.Node.Port.Type.InData
-                                    else -> {
-                                        processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @In type $type.")
-                                        return true
-                                    }
-                                }, type.contains("Map"), false, json.value)
+                                Spec.Node.Port(
+                                    `in`.value, when {
+                                        type.contains("com.valaphee.flow.ControlPath") -> Spec.Node.Port.Type.InControl
+                                        type.contains("com.valaphee.flow.DataPath") -> Spec.Node.Port.Type.InData
+                                        else -> {
+                                            processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @In type $type.")
+                                            return true
+                                        }
+                                    }, type.contains("Map"), false, json.value
+                                )
                             } else if (out != null) if (const != null) {
                                 processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @Out or @Const is allowed, not both.")
                                 return true
                             } else {
-                                Spec.Node.Port(out.value, when {
-                                    type.contains("com.valaphee.flow.ControlPath") -> Spec.Node.Port.Type.OutControl
-                                    type.contains("com.valaphee.flow.DataPath") -> Spec.Node.Port.Type.OutData
-                                    else -> {
-                                        processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @Out type $type.")
-                                        return true
-                                    }
-                                }, type.contains("Map"), `out`.optional, json.value)
+                                Spec.Node.Port(
+                                    out.value, when {
+                                        type.contains("com.valaphee.flow.ControlPath") -> Spec.Node.Port.Type.OutControl
+                                        type.contains("com.valaphee.flow.DataPath") -> Spec.Node.Port.Type.OutData
+                                        else -> {
+                                            processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @Out type $type.")
+                                            return true
+                                        }
+                                    }, type.contains("Map"), `out`.optional, json.value
+                                )
                             } else if (const != null) Spec.Node.Port(const.value, Spec.Node.Port.Type.Const, false, false, json.value) else null
                         } else null
                     }, `class`.qualifiedName.toString())
                 } else null
             } else null
-        }?.let { processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", "spec.json").openOutputStream().use { stream ->  jacksonObjectMapper().writeValue(stream, Spec(it)) } }
+        }?.let { processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", "spec.json").openOutputStream().use { stream -> jacksonObjectMapper().writeValue(stream, Spec(it)) } }
         return true
     }
 }

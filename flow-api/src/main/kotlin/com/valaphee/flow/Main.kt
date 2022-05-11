@@ -72,7 +72,7 @@ fun main(arguments: Array<String>) {
             }
             delete("/v1/graph/{id}") {
                 val id = UUID.fromString(call.parameters["id"])
-                if (graphs.containsKey(id))  {
+                if (graphs.containsKey(id)) {
                     call.respond(HttpStatusCode.OK)
                     graphs.remove(id)!!.shutdown()
                 } else call.respond(HttpStatusCode.NotFound)

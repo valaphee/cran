@@ -89,7 +89,6 @@ open class ForEachBenchmark {
         forEach.outBody.collect(scope) {}
         begin = forEach.`in`
         end = forEach.`out`
-
     }
 
     @Benchmark

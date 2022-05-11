@@ -101,7 +101,6 @@ open class ForBenchmark {
         `for`.outBody.collect(scope) {}
         begin = `for`.`in`
         end = `for`.`out`
-
     }
 
     @Benchmark
