@@ -80,7 +80,7 @@ open class BranchBenchmark {
                 ]
             """.trimIndent()
         )
-        flow.forEach { it.run(scope) }
+        flow.forEach { it.initialize(scope) }
 
         val plugs = flow.filterIsInstance<ControlPlug>().map { it.aux }
         begin = plugs.single { it.id == 0 }

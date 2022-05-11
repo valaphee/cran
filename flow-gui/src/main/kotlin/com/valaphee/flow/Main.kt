@@ -23,6 +23,11 @@ import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 import javafx.beans.property.SimpleListProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.ObservableList
@@ -126,8 +131,15 @@ class Main : View("Flow") {
                 }
 
                 fun contextMenu(selectedComponents: ObservableList<out Graph>) = ContextMenu().apply {
-                    if (selectedComponents.isEmpty()) item("New") { action { graphsProperty.value += Graph() } }
-                    else item("Remove") { action { MainScope.launch { delete(selectedComponents) } } }
+                    if (selectedComponents.isEmpty()) item("New Graph") { action { graphsProperty.value += Graph() } }
+                    else item("Delete") {
+                        action {
+                            ApiScope.launch {
+                                delete(selectedComponents)
+                                this@Main.refresh()
+                            }
+                        }
+                    }
                 }
 
                 contextMenu = contextMenu(selectionModel.selectedItems)
@@ -137,11 +149,14 @@ class Main : View("Flow") {
                 setOnKeyPressed {
                     when (it.code) {
                         KeyCode.DELETE -> if (!selectionModel.isEmpty) {
-                            MainScope.launch { delete(selectionModel.selectedItems) }
+                            ApiScope.launch {
+                                delete(selectionModel.selectedItems)
+                                this@Main.refresh()
+                            }
                             it.consume()
                         }
                         KeyCode.F5 -> {
-                            MainScope.launch { this@Main.refresh() }
+                            ApiScope.launch { this@Main.refresh() }
                             it.consume()
                         }
                         else -> Unit
@@ -149,7 +164,7 @@ class Main : View("Flow") {
                 }
 
                 // Initialization
-                MainScope.launch { this@Main.refresh() }
+                ApiScope.launch { this@Main.refresh() }
             }
             tabpane {
                 vgrow = Priority.ALWAYS
@@ -200,10 +215,38 @@ class Main : View("Flow") {
                 }
             }
         }
+
+        // Events
+        setOnKeyPressed {
+            when (it.code) {
+                KeyCode.S -> if (it.isControlDown) {
+                    graphProperty.get()?.let {
+                        ApiScope.launch {
+                            delete(listOf(it))
+                            launch {
+                                if (HttpClient.post("http://localhost:8080/v1/graph") {
+                                        contentType(ContentType.Application.Json)
+                                        setBody(it)
+                                    }.status == HttpStatusCode.OK) {
+                                    refresh()
+                                }
+                            }
+                        }
+                    }
+                }
+                else -> Unit
+            }
+        }
     }
 
     private suspend fun refresh() {
-        HttpClient.get("http://localhost:8080/v1/graph/").body<List<Graph>>().also { withContext(Dispatchers.Main) { graphsProperty.setAll(it) } }
+        HttpClient.get("http://localhost:8080/v1/graph/").body<List<Graph>>().also {
+            withContext(Dispatchers.Main) {
+                val id = graphProperty.get()?.id
+                graphsProperty.setAll(it)
+                graphProperty.set(it.singleOrNull { it.id == id })
+            }
+        }
     }
 
     private suspend fun delete(graphs: List<Graph>) {

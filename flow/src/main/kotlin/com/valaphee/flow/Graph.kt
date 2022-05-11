@@ -14,28 +14,15 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.logic
+package com.valaphee.flow
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.DataPath
-import com.valaphee.flow.LazyNode
-import com.valaphee.flow.spec.In
-import com.valaphee.flow.spec.Node
-import com.valaphee.flow.spec.Out
-import kotlinx.coroutines.CoroutineScope
+import java.util.UUID
 
 /**
  * @author Kevin Ludwig
  */
-@Node("Logic/Not")
-class Not(
-    @get:In ("X" ) @get:JsonProperty("in" ) val `in`: DataPath,
-    @get:Out("¬X") @get:JsonProperty("out") val out : DataPath
-) : LazyNode() {
-    override fun initialize(scope: CoroutineScope) {
-        out.set {
-            val `in` = `in`.get()
-            if (`in` is Boolean) `in`.not() else error("~$`in`")
-        }
-    }
+abstract class Graph {
+    @get:JsonProperty("id"   ) abstract val id   : UUID
+    @get:JsonProperty("graph") abstract val graph: List<Node>
 }

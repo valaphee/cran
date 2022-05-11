@@ -16,21 +16,31 @@
 
 package com.valaphee.flow
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.spec.Const
-import com.valaphee.flow.spec.Node
-import com.valaphee.flow.spec.Out
+import com.valaphee.flow.meta.Meta
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
+import java.util.UUID
+import java.util.concurrent.Executors
 
 /**
  * @author Kevin Ludwig
  */
-@Node("Value")
-class Value(
-    @get:Const @get:JsonProperty("value") val value: Any?    ,
-    @get:Out   @get:JsonProperty("out"  ) val out  : DataPath
-) : LazyNode() {
-    override fun initialize(scope: CoroutineScope) {
-        out.set { value }
+class GraphImpl(
+                               override val id   : UUID,
+    @get:JsonProperty("meta" )          val meta : Meta?,
+                               override val graph: List<Node>
+) : Graph(), CoroutineScope {
+    @JsonIgnore private val executor = Executors.newSingleThreadExecutor()
+    @get:JsonIgnore override val coroutineContext get() = executor.asCoroutineDispatcher()
+
+    fun initialize() {
+        graph.forEach { it.initialize(this) }
+        graph.forEach { it.postInitialize() }
+    }
+
+    fun shutdown() {
+        executor.shutdown()
     }
 }

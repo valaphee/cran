@@ -9,7 +9,7 @@
         "Control/For": {
             "icon": "/control/loop.png"
         },
-        "Control/For Each": {
+        "Control/For-each": {
             "icon": "/control/loop.png"
         },
         "Control/Select": {
@@ -41,6 +41,15 @@
         },
         "Data/Map/Set": {
             "icon": "/data/map/set.png"
+        },
+        "Debug": {
+            "icon": "/debug.png"
+        },
+        "Debug/Log": {
+            "icon": "/debug.png"
+        },
+        "Entry": {
+            "icon": "/entry.png"
         },
         "Logic/And": {
             "icon": "/logic/and.png"
@@ -110,6 +119,15 @@
         },
         "Math/Scalar/Subtract": {
             "icon": "/math/scalar/subtract.png"
+        },
+        "Time": {
+            "icon": "/time.png"
+        },
+        "Time/Clock": {
+            "icon": "/time.png"
+        },
+        "Time/Delay": {
+            "icon": "/time.png"
         },
         "Value": {
             "icon": "/value.png"

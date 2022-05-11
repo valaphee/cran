@@ -83,7 +83,7 @@ open class ForEachBenchmark {
                 ]
             """.trimIndent()
         )
-        flow.forEach { it.run(scope) }
+        flow.forEach { it.initialize(scope) }
 
         val forEach = flow.filterIsInstance<ForEach>().single()
         forEach.outBody.collect(scope) {}

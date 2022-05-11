@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.logic
+package com.valaphee.flow.debug
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
-import com.valaphee.flow.LazyNode
+import com.valaphee.flow.EagerNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
@@ -27,15 +28,16 @@ import kotlinx.coroutines.CoroutineScope
 /**
  * @author Kevin Ludwig
  */
-@Node("Logic/Not")
-class Not(
-    @get:In ("X" ) @get:JsonProperty("in" ) val `in`: DataPath,
-    @get:Out("¬X") @get:JsonProperty("out") val out : DataPath
-) : LazyNode() {
+@Node("Debug/Log")
+class Log(
+    @get:In  @get:JsonProperty("in"      ) override val `in`   : ControlPath,
+    @get:In  @get:JsonProperty("in_value")          val inValue: DataPath,
+    @get:Out @get:JsonProperty("out"     )          val out    : ControlPath,
+) : EagerNode() {
     override fun initialize(scope: CoroutineScope) {
-        out.set {
-            val `in` = `in`.get()
-            if (`in` is Boolean) `in`.not() else error("~$`in`")
+        `in`.collect(scope) {
+            println(inValue.get())
+            out.emit()
         }
     }
 }

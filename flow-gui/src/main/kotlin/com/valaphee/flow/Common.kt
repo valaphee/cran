@@ -34,7 +34,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.runBlocking
 
-val MainScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+val ApiScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 val ObjectMapper: ObjectMapper = jacksonObjectMapper().setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
 val HttpClient = HttpClient(OkHttp) {
     expectSuccess = false

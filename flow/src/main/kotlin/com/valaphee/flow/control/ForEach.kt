@@ -28,14 +28,14 @@ import kotlinx.coroutines.CoroutineScope
 /**
  * @author Kevin Ludwig
  */
-@Node("Control/For Each")
+@Node("Control/For-each")
 class ForEach(
-    @get:In (""    ) @get:JsonProperty("in"      ) override val `in`   : ControlPath,
-    @get:In (""    ) @get:JsonProperty("in_value")          val inValue: DataPath   ,
+    @get:In          @get:JsonProperty("in"      ) override val `in`   : ControlPath,
+    @get:In          @get:JsonProperty("in_value")          val inValue: DataPath   ,
     @get:Out("Body") @get:JsonProperty("out_body")          val outBody: ControlPath,
     @get:Out("Exit") @get:JsonProperty("out"     )          val out    : ControlPath,
 ) : EagerNode() {
-    override fun run(scope: CoroutineScope) {
+    override fun initialize(scope: CoroutineScope) {
         `in`.collect(scope) {
             (inValue.get() as List<*>).forEach { _ -> outBody.emit(/*it*/) }
             out.emit()

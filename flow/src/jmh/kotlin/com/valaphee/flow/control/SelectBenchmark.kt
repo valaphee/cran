@@ -80,7 +80,7 @@ open class SelectBenchmark {
                 ]
             """.trimIndent()
         )
-        flow.forEach { it.run(scope) }
+        flow.forEach { it.initialize(scope) }
 
         value = flow.filterIsInstance<DataPlug>().single().aux
     }

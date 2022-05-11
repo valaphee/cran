@@ -29,11 +29,11 @@ import kotlinx.coroutines.CoroutineScope
  */
 @Node("Data/List/Get")
 class Get(
-    @get:In (""     ) @get:JsonProperty("in_list" ) val inList : DataPath,
+    @get:In           @get:JsonProperty("in_list" ) val inList : DataPath,
     @get:In ("Index") @get:JsonProperty("in_index") val inIndex: DataPath,
-    @get:Out(""     ) @get:JsonProperty("out"     ) val out    : DataPath
+    @get:Out          @get:JsonProperty("out"     ) val out    : DataPath
 ) : LazyNode() {
-    override fun run(scope: CoroutineScope) {
+    override fun initialize(scope: CoroutineScope) {
         out.set {
             @Suppress("UNCHECKED_CAST")
             (inList.get() as MutableList<Any?>)[inIndex.get() as Int]

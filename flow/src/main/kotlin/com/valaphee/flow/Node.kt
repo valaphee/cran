@@ -24,5 +24,7 @@ import kotlinx.coroutines.CoroutineScope
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "type")
 abstract class Node {
-    abstract fun run(scope: CoroutineScope)
+    open fun initialize(scope: CoroutineScope) = Unit
+
+    open fun postInitialize() = Unit
 }

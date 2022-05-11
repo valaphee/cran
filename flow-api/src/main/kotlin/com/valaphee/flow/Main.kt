@@ -61,15 +61,22 @@ fun main(arguments: Array<String>) {
             val spec = jacksonObjectMapper().readValue<Spec>(Node::class.java.getResource("/spec.json")!!)
             get("/v1/spec") { call.respond(spec) }
 
-            val graphs = mutableMapOf<UUID, Graph>()
+            val graphs = mutableMapOf<UUID, GraphImpl>()
             post("/v1/graph") {
-                val graph = call.receive<Graph>()
-                call.respond(if (graphs.containsKey(graph.id)) HttpStatusCode.BadRequest else {
+                val graph = call.receive<GraphImpl>()
+                if (graphs.containsKey(graph.id)) call.respond(HttpStatusCode.BadRequest) else {
+                    call.respond(HttpStatusCode.OK)
                     graphs[graph.id] = graph
-                    HttpStatusCode.OK
-                })
+                    graph.initialize()
+                }
             }
-            delete("/v1/graph/{id}") { call.respond(if (graphs.remove(UUID.fromString(call.parameters["id"])) != null) HttpStatusCode.OK else HttpStatusCode.NotFound) }
+            delete("/v1/graph/{id}") {
+                val id = UUID.fromString(call.parameters["id"])
+                if (graphs.containsKey(id))  {
+                    call.respond(HttpStatusCode.OK)
+                    graphs.remove(id)!!.shutdown()
+                } else call.respond(HttpStatusCode.NotFound)
+            }
             get("/v1/graph/") { call.respond(graphs.values) }
         }
     }.start(true)

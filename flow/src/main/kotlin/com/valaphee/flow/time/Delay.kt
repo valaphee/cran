@@ -14,28 +14,32 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.logic
+package com.valaphee.flow.time
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
-import com.valaphee.flow.LazyNode
+import com.valaphee.flow.EagerNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 
 /**
  * @author Kevin Ludwig
  */
-@Node("Logic/Not")
-class Not(
-    @get:In ("X" ) @get:JsonProperty("in" ) val `in`: DataPath,
-    @get:Out("¬X") @get:JsonProperty("out") val out : DataPath
-) : LazyNode() {
+@Node("Time/Delay")
+class Delay(
+    @get:In           @get:JsonProperty("in"      ) override val `in`   : ControlPath,
+    @get:In ("Delay") @get:JsonProperty("in_delay")          val inDelay: DataPath   ,
+    @get:Out          @get:JsonProperty("out"     )          val out    : ControlPath
+) : EagerNode() {
     override fun initialize(scope: CoroutineScope) {
-        out.set {
-            val `in` = `in`.get()
-            if (`in` is Boolean) `in`.not() else error("~$`in`")
+        `in`.collect(scope) {
+            val inDelay = inDelay.get()
+            if (inDelay is Number) delay(inDelay.toLong()) else error("$inDelay")
+            out.emit()
         }
     }
 }

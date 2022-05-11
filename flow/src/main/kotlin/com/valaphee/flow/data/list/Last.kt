@@ -29,10 +29,10 @@ import kotlinx.coroutines.CoroutineScope
  */
 @Node("Data/List/Last")
 class Last(
-    @get:In (""     ) @get:JsonProperty("in_list" ) val inList : DataPath,
-    @get:Out(""     ) @get:JsonProperty("out"     ) val out    : DataPath
+    @get:In           @get:JsonProperty("in_list" ) val inList : DataPath,
+    @get:Out          @get:JsonProperty("out"     ) val out    : DataPath
 ) : LazyNode() {
-    override fun run(scope: CoroutineScope) {
+    override fun initialize(scope: CoroutineScope) {
         out.set {
             @Suppress("UNCHECKED_CAST")
             (inList.get() as MutableList<Any?>).last()

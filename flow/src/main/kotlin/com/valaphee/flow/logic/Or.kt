@@ -33,7 +33,7 @@ class Or(
     @get:In ("B")     @get:JsonProperty("in_b") val inB: DataPath,
     @get:Out("A ∨ B") @get:JsonProperty("out" ) val out: DataPath
 ) : LazyNode() {
-    override fun run(scope: CoroutineScope) {
+    override fun initialize(scope: CoroutineScope) {
         out.set {
             val inA = inA.get()
             val inB = inB.get()

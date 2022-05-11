@@ -35,7 +35,7 @@ class Absolute(
     @get:In ("X"  ) @get:JsonProperty("in" ) val `in`: DataPath,
     @get:Out("|X|") @get:JsonProperty("out") val out : DataPath
 ) : LazyNode() {
-    override fun run(scope: CoroutineScope) {
+    override fun initialize(scope: CoroutineScope) {
         out.set {
             val `in` = `in`.get()
             when (`in`) {

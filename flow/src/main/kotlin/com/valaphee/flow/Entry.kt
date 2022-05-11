@@ -16,25 +16,17 @@
 
 package com.valaphee.flow
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.meta.Meta
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
-import java.util.UUID
-import java.util.concurrent.Executors
+import com.valaphee.flow.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-class Graph(
-    @get:JsonProperty("id"   ) val id   : UUID,
-    @get:JsonProperty("meta" ) val meta : Meta?,
-    @get:JsonProperty("graph") val graph: List<Node>
-) : CoroutineScope {
-    @get:JsonIgnore override val coroutineContext get() = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-
-    init {
-        graph.forEach { it.run(this) }
+@com.valaphee.flow.spec.Node("Entry")
+class Entry(
+    @get:Out @get:JsonProperty("out") val out: ControlPath,
+) : Node() {
+    override fun postInitialize() {
+        out.emit()
     }
 }
