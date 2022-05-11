@@ -35,6 +35,8 @@ import javafx.collections.ObservableList
 import javafx.geometry.Side
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.ListCell
+import javafx.scene.control.Menu
+import javafx.scene.control.MenuItem
 import javafx.scene.control.SplitPane
 import javafx.scene.control.TabPane
 import javafx.scene.control.TextField
@@ -57,6 +59,7 @@ import tornadofx.chooseFile
 import tornadofx.contextmenu
 import tornadofx.customitem
 import tornadofx.dynamicContent
+import tornadofx.imageview
 import tornadofx.importStylesheet
 import tornadofx.item
 import tornadofx.launch
@@ -116,9 +119,17 @@ class Main : View("Flow") {
             }
             menu("Help") { item("About") { action { find<About>().openModal(resizable = false) } } }
         }
+        /*hbox {
+            // Parent Properties
+            vgrow = Priority.ALWAYS*/
+
+        // Children
         splitpane {
             // Parent Properties
+            /*hgrow = Priority.ALWAYS*/
             vgrow = Priority.ALWAYS
+
+            // Properties
             setDividerPositions(0.25)
 
             // Children
@@ -143,7 +154,7 @@ class Main : View("Flow") {
                         override fun updateItem(item: Graph?, empty: Boolean) {
                             super.updateItem(item, empty)
 
-                            text = if (empty || item == null) "" else item.meta?.name ?: item.id.toString()
+                            text = if (empty || item == null) "" else item.meta.name
                         }
                     }
                 }
@@ -185,8 +196,6 @@ class Main : View("Flow") {
                 ApiScope.launch { this@Main.refresh() }
             }
             tabpane {
-                vgrow = Priority.ALWAYS
-
                 // Properties
                 side = Side.BOTTOM
                 tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
@@ -201,25 +210,44 @@ class Main : View("Flow") {
                             customitem(hideOnClick = false) { search = textfield { textProperty().onChange { searchProperty.set(it) } } }
                             setOnKeyPressed { search.requestFocus() }
 
-                            val items = items.toMutableList()
-                            Spec.nodes.forEach {
-                                item(it.name) {
-                                    action {
-                                        val local = sceneToLocal(x, y)
-                                        graphProperty.get().newNode(it, Meta.Node(local.x, local.y))
+                            val treeItems = mutableListOf<MenuItem>()
+                            val nodeItems = mutableMapOf<String, MenuItem>()
+                            Spec.nodes.forEach { node ->
+                                val name = node.name.split('/')
+                                val path = StringBuilder()
+                                var item: MenuItem? = null
+                                name.forEachIndexed { i, element ->
+                                    path.append("${element}/")
+                                    val icon = Manifest.nodes[path.toString().removeSuffix("/")]?.let { this::class.java.getResourceAsStream(it.icon)?.let { imageview(Image(it, 16.0, 16.0, false, false)) } }
+                                    item = when (val _item = item) {
+                                        null -> treeItems.find { it.text == element } ?: if (i == name.lastIndex) MenuItem(element, icon).apply {
+                                            treeItems += this
+                                            nodeItems[node.name] = this
+
+                                            action {
+                                                val local = sceneToLocal(x - currentWindow!!.x, y - currentWindow!!.y)
+                                                graphProperty.get().newNode(node, Meta.Node(local.x, local.y))
+                                            }
+                                        } else Menu(element, icon).apply { treeItems += this }
+                                        is Menu -> _item.items.find { it.text == element } ?: if (i == name.lastIndex) MenuItem(element, icon).apply {
+                                            _item.items += this
+                                            nodeItems[node.name] = this
+
+                                            action {
+                                                val local = sceneToLocal(x - currentWindow!!.x, y - currentWindow!!.y)
+                                                graphProperty.get().newNode(node, Meta.Node(local.x, local.y))
+                                            }
+                                        } else Menu(element, icon).apply { _item.items += this }
+                                        else -> error("")
                                     }
                                 }
                             }
-                            searchProperty.onChange { search ->
+
+                            val items = items.toMutableList()
+                            this.items.addAll(treeItems)
+                            searchProperty.onChange { _search ->
                                 this.items.setAll(items)
-                                (if (search!!.isEmpty()) Spec.nodes else Spec.nodes.filter { it.name.contains(search, true) }).forEach {
-                                    item(it.name) {
-                                        action {
-                                            val local = sceneToLocal(x, y)
-                                            graphProperty.get().newNode(it, Meta.Node(local.x, local.y))
-                                        }
-                                    }
-                                }
+                                this.items.addAll(if (_search!!.isEmpty()) treeItems else nodeItems.filterKeys { it.contains(_search, true) }.values)
                             }
                         }
                     }
@@ -229,9 +257,11 @@ class Main : View("Flow") {
                     textarea(jsonProperty) { style { font = Font.font("monospaced", 10.0) } }
 
                     // Events
-                    setOnSelectionChanged { jsonProperty.set(ObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(graphProperty.get())) }
+                    setOnSelectionChanged { jsonProperty.set(graphProperty.get()?.let { ObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it) } ?: "") }
                 }
             }
+            /*}
+            drawer(Side.RIGHT)*/
         }
 
         // Events

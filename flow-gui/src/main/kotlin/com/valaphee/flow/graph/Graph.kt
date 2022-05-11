@@ -45,7 +45,7 @@ class Graph(
                     val (spec, _const) = input.valueObject.value as Pair<com.valaphee.flow.spec.Spec.Node.Port, Any?>
                     input.localId to (connections.singleOrNull { it.value.value.contains(input) }?.index ?: _const?.let {
                         if (input.type != "const") {
-                            const += mapOf("type" to "com.valaphee.flow.Value", "value" to it, "out" to index, "embed" to true)
+                            const += mapOf("type" to "com.valaphee.flow.Value", "value" to it, "out" to index, "local" to true)
                             index++
                         } else it
                     } ?: if (spec.optional) null else index++)
@@ -59,7 +59,7 @@ class Graph(
     @get:JsonIgnore val flow: VFlow = FlowFactory.newFlow().apply {
         isVisible = true
 
-        val (const, other) = graph.partition { it["type"] == "com.valaphee.flow.Value" && it.getOrDefault("embed", false) as Boolean }
+        val (const, other) = graph.partition { it["type"] == "com.valaphee.flow.Value" && it.getOrDefault("local", false) as Boolean }
         val _const = const.associate { it["out"] as Int to it["value"] }
         val connectors = other.mapIndexed { i, node ->
             val type = node.remove("type") as String

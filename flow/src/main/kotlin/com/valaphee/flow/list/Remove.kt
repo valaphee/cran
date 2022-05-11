@@ -33,7 +33,7 @@ class Remove(
     @get:In          @get:JsonProperty("in_list")  val inList : DataPath,
     @get:In ("Item") @get:JsonProperty("in_item")  val inItem : DataPath,
     @get:Out         @get:JsonProperty("out_list") val outList: DataPath,
-) : /*EagerNode*/LazyNode() {
+) : LazyNode() {
     override fun initialize(scope: CoroutineScope) {
         outList.set { inList.getOrThrow<List<Any?>>() - inItem.get() }
     }
