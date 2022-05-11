@@ -18,6 +18,7 @@ package com.valaphee.flow.logic
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
+import com.valaphee.flow.DataPathException
 import com.valaphee.flow.LazyNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
@@ -38,7 +39,7 @@ class LessThanOrEqual(
             val inA = inA.get()
             val inB = inB.get()
             val result = Compare.compare(inA, inB)
-            if (result != Int.MAX_VALUE) result <= 0 else error("$inA ≤ $inB")
+            if (result != Int.MAX_VALUE) result <= 0 else DataPathException.invalidTypeInExpression("$inA ≤ $inB")
         }
     }
 }

@@ -18,6 +18,7 @@ package com.valaphee.flow.math.scalar
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
+import com.valaphee.flow.DataPathException
 import com.valaphee.flow.LazyNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
@@ -41,72 +42,72 @@ class Add(
             val inB = inB.get()
             when (inA) {
                 is Byte -> when (inB) {
-                    is Byte -> inA + inB
-                    is Short -> inA + inB
-                    is Int -> inA + inB
-                    is Long -> inA + inB
-                    is Float -> inA + inB
+                    is Byte   -> inA + inB
+                    is Short  -> inA + inB
+                    is Int    -> inA + inB
+                    is Long   -> inA + inB
+                    is Float  -> inA + inB
                     is Double -> inA + inB
-                    else -> error("$inA + $inB")
+                    else      -> DataPathException.invalidTypeInExpression("$inA + $inB")
                 }
                 is Short -> when (inB) {
-                    is Byte -> inA + inB
-                    is Short -> inA + inB
-                    is Int -> inA + inB
-                    is Long -> inA + inB
-                    is Float -> inA + inB
+                    is Byte   -> inA + inB
+                    is Short  -> inA + inB
+                    is Int    -> inA + inB
+                    is Long   -> inA + inB
+                    is Float  -> inA + inB
                     is Double -> inA + inB
-                    else -> error("$inA + $inB")
+                    else      -> DataPathException.invalidTypeInExpression("$inA + $inB")
                 }
                 is Int -> when (inB) {
-                    is Byte -> inA + inB
-                    is Short -> inA + inB
-                    is Int -> inA + inB
-                    is Long -> inA + inB
-                    is Float -> inA + inB
+                    is Byte   -> inA + inB
+                    is Short  -> inA + inB
+                    is Int    -> inA + inB
+                    is Long   -> inA + inB
+                    is Float  -> inA + inB
                     is Double -> inA + inB
-                    else -> error("$inA + $inB")
+                    else      -> DataPathException.invalidTypeInExpression("$inA + $inB")
                 }
                 is Long -> when (inB) {
-                    is Byte -> inA + inB
-                    is Short -> inA + inB
-                    is Int -> inA + inB
-                    is Long -> inA + inB
-                    is Float -> inA + inB
+                    is Byte   -> inA + inB
+                    is Short  -> inA + inB
+                    is Int    -> inA + inB
+                    is Long   -> inA + inB
+                    is Float  -> inA + inB
                     is Double -> inA + inB
-                    else -> error("$inA + $inB")
+                    else      -> DataPathException.invalidTypeInExpression("$inA + $inB")
                 }
                 is BigInteger -> when (inB) {
-                    is BigInteger -> inA + inB
+                    is BigInteger -> inA                + inB
                     is BigDecimal -> inA.toBigDecimal() + inB
-                    is Number -> inA + BigInteger.valueOf(inB.toLong())
-                    else -> error("$inA + $inB")
+                    is Number     -> inA                + BigInteger.valueOf(inB.toLong())
+                    else          -> DataPathException.invalidTypeInExpression("$inA + $inB")
                 }
                 is Float -> when (inB) {
-                    is Byte -> inA + inB
-                    is Short -> inA + inB
-                    is Int -> inA + inB
-                    is Long -> inA + inB
-                    is Float -> inA + inB
+                    is Byte   -> inA + inB
+                    is Short  -> inA + inB
+                    is Int    -> inA + inB
+                    is Long   -> inA + inB
+                    is Float  -> inA + inB
                     is Double -> inA + inB
-                    else -> error("$inA + $inB")
+                    else      -> DataPathException.invalidTypeInExpression("$inA + $inB")
                 }
                 is Double -> when (inB) {
-                    is Byte -> inA + inB
-                    is Short -> inA + inB
-                    is Int -> inA + inB
-                    is Long -> inA + inB
-                    is Float -> inA + inB
+                    is Byte   -> inA + inB
+                    is Short  -> inA + inB
+                    is Int    -> inA + inB
+                    is Long   -> inA + inB
+                    is Float  -> inA + inB
                     is Double -> inA + inB
-                    else -> error("$inA + $inB")
+                    else      -> DataPathException.invalidTypeInExpression("$inA + $inB")
                 }
                 is BigDecimal -> when (inB) {
                     is BigInteger -> inA + inB.toBigDecimal()
                     is BigDecimal -> inA + inB
-                    is Number -> inA + BigDecimal.valueOf(inB.toDouble())
-                    else -> error("$inA + $inB")
+                    is Number     -> inA + BigDecimal.valueOf(inB.toDouble())
+                    else          -> DataPathException.invalidTypeInExpression("$inA + $inB")
                 }
-                else -> error("$inA + $inB")
+                else -> DataPathException.invalidTypeInExpression("$inA + $inB")
             }
         }
     }

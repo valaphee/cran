@@ -18,6 +18,7 @@ package com.valaphee.flow.math.scalar
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
+import com.valaphee.flow.DataPathException
 import com.valaphee.flow.LazyNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
@@ -39,15 +40,15 @@ class Absolute(
         out.set {
             val `in` = `in`.get()
             when (`in`) {
-                is Byte -> `in`.toInt().absoluteValue
-                is Short -> `in`.toInt().absoluteValue
-                is Int -> `in`.absoluteValue
-                is Long -> `in`.absoluteValue
+                is Byte       -> `in`.toInt().absoluteValue
+                is Short      -> `in`.toInt().absoluteValue
+                is Int        -> `in`.absoluteValue
+                is Long       -> `in`.absoluteValue
                 is BigInteger -> `in`.abs()
-                is Float -> `in`.absoluteValue
-                is Double -> `in`.absoluteValue
+                is Float      -> `in`.absoluteValue
+                is Double     -> `in`.absoluteValue
                 is BigDecimal -> `in`.abs()
-                else -> error("|$`in`|")
+                else          -> DataPathException.invalidTypeInExpression("|$`in`|")
             }
         }
     }

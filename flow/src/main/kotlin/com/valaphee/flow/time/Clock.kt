@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.EagerNode
+import com.valaphee.flow.getOrThrow
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
@@ -43,17 +44,15 @@ class Clock(
 
     override fun initialize(scope: CoroutineScope) {
         `in`.collect(scope) {
-            val inDelay = inDelay.get()
-            val inPeriod = inPeriod.get()
-            if (inDelay is Number && inPeriod is Number) {
-                delay(inDelay.toLong())
-                running.set(true)
-                while (running.get()) {
-                    out.emit()
-                    delay(inPeriod.toLong())
-                }
-                running.set(false)
-            } else error("$inDelay")
+            val inDelay = inDelay.getOrThrow<Number>().toLong()
+            val inPeriod = inPeriod.getOrThrow<Number>().toLong()
+            delay(inDelay)
+            running.set(true)
+            while (running.get()) {
+                out.emit()
+                delay(inPeriod)
+            }
+            running.set(false)
         }
         inCancel.collect(scope) { running.set(false) }
     }

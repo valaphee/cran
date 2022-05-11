@@ -36,11 +36,15 @@ class DataPath(
     suspend fun get() = value ?: getValue!!.invoke()
 
     fun set(value: Any?) {
+        if (this.value != null || getValue != null) throw DataPathException.AlreadySet
+
         this.value = value
     }
 
-    fun set(value: suspend () -> Any?) {
-        getValue = value
+    fun set(getValue: suspend () -> Any?) {
+        if (value != null || this.getValue != null) throw DataPathException.AlreadySet
+
+        this.getValue = getValue
     }
 
     class IdResolver : SimpleObjectIdResolver() {
@@ -48,4 +52,9 @@ class DataPath(
 
         override fun newForDeserialization(context: Any?) = IdResolver()
     }
+}
+
+suspend inline fun <reified T> DataPath.getOrThrow(): T {
+    val value = get()
+    return if (value is T) value else throw DataPathException.InvalidType
 }

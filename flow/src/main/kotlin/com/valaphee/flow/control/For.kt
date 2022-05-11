@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.EagerNode
+import com.valaphee.flow.getOrThrow
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
@@ -39,7 +40,7 @@ class For(
 ) : EagerNode() {
     override fun initialize(scope: CoroutineScope) {
         `in`.collect(scope) {
-            IntProgression.fromClosedRange((inRangeStart.get() as Number).toInt(), (inRangeEnd.get() as Number).toInt(), (inStep.get() as Number).toInt()).forEach { _ -> outBody.emit() }
+            IntProgression.fromClosedRange((inRangeStart.getOrThrow<Number>()).toInt(), (inRangeEnd.getOrThrow<Number>()).toInt(), (inStep.getOrThrow<Number>()).toInt()).forEach { _ -> outBody.emit() }
             out.emit()
         }
     }

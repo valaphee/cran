@@ -19,6 +19,7 @@ package com.valaphee.flow.graph
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.valaphee.flow.ObjectMapper
 import com.valaphee.flow.spec.Spec
+import eu.mihosoft.vrl.workflow.ConnectionEvent
 import eu.mihosoft.vrl.workflow.Connector
 import eu.mihosoft.vrl.workflow.VFlow
 import eu.mihosoft.vrl.workflow.fx.ConnectorShape
@@ -28,6 +29,9 @@ import javafx.geometry.Pos
 import javafx.scene.layout.HBox
 import javafx.scene.paint.Color
 import javafx.scene.text.Text
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import tornadofx.circle
 import tornadofx.label
 import tornadofx.onChange
@@ -51,6 +55,8 @@ class ConnectorShape(
 
     init {
         setConnector(connector)
+
+        CoroutineScope(Dispatchers.Main).launch { toFront() }
     }
 
     override fun getConnector() = connector
@@ -62,9 +68,11 @@ class ConnectorShape(
             children.clear()
 
             value?.let { (spec, const) ->
+                spacing = 4.0
+
                 if (connector.isInput) {
                     // Properties
-                    paddingLeft = -4
+                    paddingLeft = -4.0
                     alignment = Pos.CENTER_LEFT
 
                     // Children
@@ -76,15 +84,23 @@ class ConnectorShape(
                             0.0, -4.0
                         ) { fill = Color.WHITE }
                         "data", "const" -> circle(4.0, 0.0, 4.0) { fill = Color.WHITE }
+                        else -> error(connector.type)
                     }
                     label(spec.name) {
                         minWidth = Text(text).layoutBounds.width
                         textFill = Color.WHITE
                     }
-                    if (connector.type == "data" && !flow.getConnections(connector.type).isInputConnected(connector) || connector.type == "const") {
+                    if (connector.type == "data" || connector.type == "const") {
                         textfield(const?.let { ObjectMapper.writeValueAsString(it) } ?: "") {
                             // Properties
                             minWidth = 100.0
+                            isVisible = !flow.getConnections(connector.type).isInputConnected(connector) || connector.type == "const"
+                            connector.addConnectionEventListener {
+                                when (it.eventType) {
+                                    ConnectionEvent.ADD -> isVisible = false
+                                    ConnectionEvent.REMOVE -> isVisible = true
+                                }
+                            }
 
                             // Events
                             focusedProperty().onChange {
@@ -97,11 +113,10 @@ class ConnectorShape(
                     } else Unit
                 } else {
                     // Properties
-                    paddingRight = -4
+                    paddingRight = -4.0
                     alignment = Pos.CENTER_RIGHT
 
                     // Children
-                    const?.let { textfield(ObjectMapper.writeValueAsString(it)) }
                     label(spec.name) {
                         minWidth = Text(text).layoutBounds.width
                         textFill = Color.WHITE
@@ -113,8 +128,8 @@ class ConnectorShape(
                             0.0,  4.0,
                             0.0, -4.0
                         ) { fill = Color.WHITE }
-                        "data", "const" -> circle(4.0, 0.0, 4.0) { fill = Color.WHITE }
-                        else -> Unit
+                        "data" -> circle(4.0, 0.0, 4.0) { fill = Color.WHITE }
+                        else -> error(connector.type)
                     }
                 }
             }
@@ -122,21 +137,6 @@ class ConnectorShape(
 
         content(@Suppress("UNCHECKED_CAST") (connector.valueObject.value as Pair<Spec.Node.Port, Any?>?))
         connector.valueObject.valueProperty().onChange { content(@Suppress("UNCHECKED_CAST") (it as Pair<Spec.Node.Port, Any?>?)) }
-    }
-
-    override fun toFront() {
-        super.toFront()
-
-        connectionSkin = null
-        if (connector!!.isInput && flow.getConnections(connector!!.type).isInputConnected(connector)) {
-            for (connection in flow.getConnections(connector!!.type).connections) {
-                val connectionSkin = flow.nodeSkinLookup.getById(skinFactory, connection)
-                if (connectionSkin != null) {
-                    this.connectionSkin = connectionSkin
-                    connectionSkin.receiverToFront()
-                }
-            }
-        }
     }
 
     override fun radiusProperty() = radiusProperty

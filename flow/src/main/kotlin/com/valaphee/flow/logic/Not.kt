@@ -18,6 +18,7 @@ package com.valaphee.flow.logic
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
+import com.valaphee.flow.DataPathException
 import com.valaphee.flow.LazyNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
@@ -35,7 +36,7 @@ class Not(
     override fun initialize(scope: CoroutineScope) {
         out.set {
             val `in` = `in`.get()
-            if (`in` is Boolean) `in`.not() else error("~$`in`")
+            if (`in` is Boolean) `in`.not() else DataPathException.invalidTypeInExpression("~$`in`")
         }
     }
 }

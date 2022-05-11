@@ -9,7 +9,7 @@
     "Control/For": {
       "icon": "/control/loop.png"
     },
-    "Control/For-each": {
+    "Control/For Each": {
       "icon": "/control/loop.png"
     },
     "Control/Select": {
@@ -17,30 +17,6 @@
     },
     "Control/While": {
       "icon": "/control/loop.png"
-    },
-    "Data/List": {
-      "icon": "/data/list.png"
-    },
-    "Data/List/Add": {
-      "icon": "/data/list/add.png"
-    },
-    "Data/List/First": {
-      "icon": "/data/list/first_or_last.png"
-    },
-    "Data/List/Last": {
-      "icon": "/data/list/first_or_last.png"
-    },
-    "Data/List/Remove": {
-      "icon": "/data/list/remove.png"
-    },
-    "Data/Map": {
-      "icon": "/data/map.png"
-    },
-    "Data/Map/Remove": {
-      "icon": "/data/map/remove.png"
-    },
-    "Data/Map/Set": {
-      "icon": "/data/map/set.png"
     },
     "Debug": {
       "icon": "/debug.png"
@@ -50,6 +26,24 @@
     },
     "Entry": {
       "icon": "/entry.png"
+    },
+    "List": {
+      "icon": "/list.png"
+    },
+    "List/Add": {
+      "icon": "/list/add.png"
+    },
+    "List/First": {
+      "icon": "/list/first_or_last.png"
+    },
+    "List/Last": {
+      "icon": "/list/first_or_last.png"
+    },
+    "List/Remove": {
+      "icon": "/list/remove.png"
+    },
+    "Logic":{
+      "icon": "/logic.png"
     },
     "Logic/And": {
       "icon": "/logic/and.png"
@@ -83,6 +77,15 @@
     },
     "Logic/Or": {
       "icon": "/logic/or.png"
+    },
+    "Map": {
+      "icon": "/map.png"
+    },
+    "Map/Remove": {
+      "icon": "/map/remove.png"
+    },
+    "Map/Set": {
+      "icon": "/map/set.png"
     },
     "Math": {
       "icon": "/math.png"

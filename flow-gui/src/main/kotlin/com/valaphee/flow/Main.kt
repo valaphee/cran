@@ -16,6 +16,7 @@
 
 package com.valaphee.flow
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.valaphee.flow.graph.Graph
 import com.valaphee.flow.graph.SkinFactory
 import com.valaphee.flow.meta.Meta
@@ -41,15 +42,18 @@ import javafx.scene.image.Image
 import javafx.scene.input.KeyCode
 import javafx.scene.layout.Priority
 import javafx.scene.text.Font
+import javafx.stage.FileChooser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import tornadofx.App
+import tornadofx.FileChooserMode
 import tornadofx.View
 import tornadofx.action
 import tornadofx.bindSelected
+import tornadofx.chooseFile
 import tornadofx.contextmenu
 import tornadofx.customitem
 import tornadofx.dynamicContent
@@ -62,6 +66,7 @@ import tornadofx.menubar
 import tornadofx.onChange
 import tornadofx.pane
 import tornadofx.scrollpane
+import tornadofx.separator
 import tornadofx.splitpane
 import tornadofx.style
 import tornadofx.tab
@@ -95,7 +100,20 @@ class Main : View("Flow") {
 
         // Children
         menubar {
-            menu("File") { item("Exit") { action { close() } } }
+            menu("File") {
+                item("Open") {
+                    action {
+                        chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("All Files", "*.*"))).singleOrNull()?.let {
+                            val graph = ObjectMapper.readValue<Graph>(it)
+                            graphsProperty += graph
+                            graphProperty.set(graph)
+                        }
+                    }
+                }
+                item("Save As") { action { chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("All Files", "*.*")), mode = FileChooserMode.Save).singleOrNull()?.let { ObjectMapper.writeValue(it, graphProperty.get()) } } }
+                separator()
+                item("Exit") { action { close() } }
+            }
             menu("Help") { item("About") { action { find<About>().openModal(resizable = false) } } }
         }
         splitpane {

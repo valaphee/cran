@@ -18,6 +18,7 @@ package com.valaphee.flow.logic
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
+import com.valaphee.flow.DataPathException
 import com.valaphee.flow.LazyNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
@@ -37,7 +38,7 @@ class And(
         out.set {
             val inA = inA.get()
             val inB = inB.get()
-            if (inA is Boolean && inB is Boolean) inA and inB else error("$inA & $inB")
+            if (inA is Boolean && inB is Boolean) inA and inB else throw DataPathException.invalidTypeInExpression("$inA & $inB")
         }
     }
 }

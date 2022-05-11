@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.EagerNode
+import com.valaphee.flow.getOrThrow
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
@@ -37,8 +38,8 @@ class Delay(
 ) : EagerNode() {
     override fun initialize(scope: CoroutineScope) {
         `in`.collect(scope) {
-            val inDelay = inDelay.get()
-            if (inDelay is Number) delay(inDelay.toLong()) else error("$inDelay")
+            val inDelay = inDelay.getOrThrow<Number>().toLong()
+            delay(inDelay)
             out.emit()
         }
     }
