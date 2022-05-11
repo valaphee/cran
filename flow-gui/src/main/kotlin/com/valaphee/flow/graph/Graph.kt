@@ -39,21 +39,29 @@ class Graph(
         get() {
             val connections = mutableMapOf<Connector, MutableList<Connector>>().apply { flow.allConnections.forEach { it.value.connections.forEach { getOrPut(it.sender) { mutableListOf() } += it.receiver } } }.entries.withIndex()
             var index = connections.lastOrNull()?.index?.let { it + 1 } ?: 0
+            val const = mutableListOf<Map<String, Any?>>()
             return flow.nodes.map {
                 mapOf<String, Any?>("type" to (it.valueObject.value as com.valaphee.flow.spec.Spec.Node).json) + it.inputs.associate { input ->
-                    val (spec, const) = input.valueObject.value as Pair<com.valaphee.flow.spec.Spec.Node.Port, Any?>
-                    input.localId to (const ?: connections.singleOrNull { it.value.value.contains(input) }?.index ?: if (spec.optional) null else index++)
+                    val (spec, _const) = input.valueObject.value as Pair<com.valaphee.flow.spec.Spec.Node.Port, Any?>
+                    input.localId to (connections.singleOrNull { it.value.value.contains(input) }?.index ?: _const?.let {
+                        if (input.type != "const") {
+                            const += mapOf("type" to "com.valaphee.flow.Value", "value" to it, "out" to index, "embed" to true)
+                            index++
+                        } else it
+                    } ?: if (spec.optional) null else index++)
                 } + it.outputs.associate { output ->
                     val (spec, _) = output.valueObject.value as Pair<com.valaphee.flow.spec.Spec.Node.Port, Any?>
                     output.localId to (connections.singleOrNull { it.value.key == output }?.index ?: if (spec.optional) null else index++)
                 }
-            }
+            } + const
         }
 
     @get:JsonIgnore val flow: VFlow = FlowFactory.newFlow().apply {
         isVisible = true
 
-        val connectors = graph.mapIndexed { i, node ->
+        val (const, other) = graph.partition { it["type"] == "com.valaphee.flow.Value" && it.getOrDefault("embed", false) as Boolean }
+        val _const = const.associate { it["out"] as Int to it["value"] }
+        val connectors = other.mapIndexed { i, node ->
             val type = node.remove("type") as String
             val nodeSpec = Spec.nodes.single { it.json == type }
             val _node = newNode().apply {
@@ -77,9 +85,12 @@ class Graph(
                         localId = nodePortSpec.json
                         valueObject.value = nodePortSpec to null
                     }
-                    com.valaphee.flow.spec.Spec.Node.Port.Type.InData -> node[nodePortSpec.json] as Int to _node.addInput("data").apply {
-                        localId = nodePortSpec.json
-                        valueObject.value = nodePortSpec to null
+                    com.valaphee.flow.spec.Spec.Node.Port.Type.InData -> {
+                        val connectionId = node[nodePortSpec.json] as Int
+                        connectionId to _node.addInput("data").apply {
+                            localId = nodePortSpec.json
+                            valueObject.value = nodePortSpec to _const[connectionId]
+                        }
                     }
                     com.valaphee.flow.spec.Spec.Node.Port.Type.OutData -> node[nodePortSpec.json] as Int to _node.addOutput("data").apply {
                         localId = nodePortSpec.json

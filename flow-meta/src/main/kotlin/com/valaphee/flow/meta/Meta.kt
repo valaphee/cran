@@ -26,7 +26,8 @@ data class Meta(
     @get:JsonProperty("nodes") val nodes: List<Node>
 ) {
     class Node(
-        @get:JsonProperty("x") val x: Double,
-        @get:JsonProperty("y") val y: Double
+        @get:JsonProperty("x"    ) val x    : Double,
+        @get:JsonProperty("y"    ) val y    : Double/*,
+        @get:JsonProperty("embed") val embed: Boolean*/
     )
 }

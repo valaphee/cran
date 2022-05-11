@@ -81,7 +81,7 @@ class ConnectorShape(
                         minWidth = Text(text).layoutBounds.width
                         textFill = Color.WHITE
                     }
-                    if (connector.type == "const") {
+                    if (connector.type == "data" && !flow.getConnections(connector.type).isInputConnected(connector) || connector.type == "const") {
                         textfield(const?.let { ObjectMapper.writeValueAsString(it) } ?: "") {
                             // Properties
                             minWidth = 100.0

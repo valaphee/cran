@@ -27,10 +27,11 @@ import kotlinx.coroutines.CoroutineScope
  */
 @Node("Value")
 class Value(
-    @get:Const @get:JsonProperty("value") val value: Any?    ,
-    @get:Out   @get:JsonProperty("out"  ) val out  : DataPath
+    @get:Const @get:JsonProperty("value") val value: Any?           ,
+    @get:Out   @get:JsonProperty("out"  ) val out  : DataPath       ,
+               @get:JsonProperty("embed") val embed: Boolean = false
 ) : LazyNode() {
     override fun initialize(scope: CoroutineScope) {
-        out.set { value }
+        out.set(value)
     }
 }

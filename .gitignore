@@ -45,4 +45,4 @@ gradle-app.setting
 *.iws
 *.iml
 
-/data
+logs/

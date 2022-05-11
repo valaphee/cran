@@ -28,8 +28,8 @@ import java.util.concurrent.Executors
  * @author Kevin Ludwig
  */
 class GraphImpl(
-                               override val id   : UUID,
-    @get:JsonProperty("meta" )          val meta : Meta?,
+                               override val id   : UUID      ,
+    @get:JsonProperty("meta" )          val meta : Meta?     ,
                                override val graph: List<Node>
 ) : Graph(), CoroutineScope {
     @JsonIgnore private val executor = Executors.newSingleThreadExecutor()

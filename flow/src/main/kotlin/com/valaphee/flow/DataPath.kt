@@ -30,12 +30,17 @@ import com.fasterxml.jackson.annotation.SimpleObjectIdResolver
 class DataPath(
     override val id: Int
 ) : Path() {
-    private var value: (suspend () -> Any?)? = null
+    private var value: Any? = null
+    private var getValue: (suspend () -> Any?)? = null
 
-    suspend fun get() = value!!.invoke()
+    suspend fun get() = value ?: getValue!!.invoke()
+
+    fun set(value: Any?) {
+        this.value = value
+    }
 
     fun set(value: suspend () -> Any?) {
-        this.value = value
+        getValue = value
     }
 
     class IdResolver : SimpleObjectIdResolver() {
