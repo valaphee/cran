@@ -27,7 +27,7 @@ import kotlinx.coroutines.CoroutineScope
  */
 @Node("Value")
 class Value(
-    @get:Const   @get:JsonProperty("value") val value: Any?,
+    @get:Const   @get:JsonProperty("value") val value: Any?    ,
     @get:Out("") @get:JsonProperty("out"  ) val out  : DataPath
 ) : LazyNode() {
     override fun run(scope: CoroutineScope) {

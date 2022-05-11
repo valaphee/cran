@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow
+package com.valaphee.flow.meta
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * @author Kevin Ludwig
  */
-class Meta(
+data class Meta(
     @get:JsonProperty("name" ) val name : String,
     @get:JsonProperty("nodes") val nodes: List<Node>
 ) {

@@ -16,7 +16,11 @@
 
 package com.valaphee.flow
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.valaphee.flow.manifest.Manifest
 import com.valaphee.flow.spec.Spec
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -31,9 +35,10 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.runBlocking
 
 val MainScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-val ObjectMapper = jacksonObjectMapper()
+val ObjectMapper: ObjectMapper = jacksonObjectMapper().setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
 val HttpClient = HttpClient(OkHttp) {
     expectSuccess = false
     install(ContentNegotiation) { register(ContentType.Application.Json, JacksonConverter(ObjectMapper)) }
 }
-val Spec = runBlocking { HttpClient.get("http://localhost:8080/spec").body<Spec>() }
+val Spec = runBlocking { HttpClient.get("http://localhost:8080/v1/spec").body<Spec>() }
+val Manifest = ObjectMapper.readValue<Manifest>(Main::class.java.getResource("/manifest.json")!!)

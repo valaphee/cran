@@ -31,7 +31,7 @@ import kotlinx.coroutines.CoroutineScope
 @Node("Control/While")
 class While(
     @get:In (""    ) @get:JsonProperty("in"      ) override val `in`   : ControlPath,
-    @get:In (""    ) @get:JsonProperty("in_value")          val inValue: DataPath,
+    @get:In (""    ) @get:JsonProperty("in_value")          val inValue: DataPath   ,
     @get:Out("Body") @get:JsonProperty("out_body")          val outBody: ControlPath,
     @get:Out("Exit") @get:JsonProperty("out"     )          val out    : ControlPath,
 ) : EagerNode() {

@@ -25,20 +25,22 @@ class Spec(
     @get:JsonProperty("nodes") val nodes: List<Node>
 ) {
     class Node(
-        @get:JsonProperty("name" ) val name : String,
+        @get:JsonProperty("name" ) val name : String    ,
         @get:JsonProperty("ports") val ports: List<Port>,
         @get:JsonProperty("json" ) val json : String
     ) {
         class Port(
-            @get:JsonProperty("name") val name: String,
-            @get:JsonProperty("type") val type: Type,
-            @get:JsonProperty("json") val json: String,
+            @get:JsonProperty("name"    ) val name    : String ,
+            @get:JsonProperty("type"    ) val type    : Type   ,
+            @get:JsonProperty("variable") val variable: Boolean,
+            @get:JsonProperty("optional") val optional: Boolean,
+            @get:JsonProperty("json"    ) val json    : String
         ) {
             enum class Type {
                 @JsonProperty("in_control" )  InControl,
                 @JsonProperty("out_control") OutControl,
-                @JsonProperty("in_data"    )  InData,
-                @JsonProperty("out_data"   ) OutData,
+                @JsonProperty("in_data"    )  InData   ,
+                @JsonProperty("out_data"   ) OutData   ,
                 @JsonProperty("const"      )    Const
             }
         }

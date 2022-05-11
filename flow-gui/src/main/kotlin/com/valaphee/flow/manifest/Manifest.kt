@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow
+package com.valaphee.flow.manifest
+
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * @author Kevin Ludwig
  */
-abstract class OperatorXNode : LazyNode() {
-    abstract val `in`: DataPath
-    abstract val out: DataPath
+class Manifest(
+    @get:JsonProperty("nodes") val nodes: Map<String, Node>
+) {
+    class Node(
+        @get:JsonProperty("icon") val icon: String
+    )
 }

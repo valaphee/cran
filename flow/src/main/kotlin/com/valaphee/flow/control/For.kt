@@ -31,9 +31,9 @@ import kotlinx.coroutines.CoroutineScope
 @Node("Control/For")
 class For(
     @get:In (""     ) @get:JsonProperty("in"            ) override val `in`        : ControlPath,
-    @get:In ("Start") @get:JsonProperty("in_range_start")          val inRangeStart: DataPath,
-    @get:In ("End"  ) @get:JsonProperty("in_range_end"  )          val inRangeEnd  : DataPath,
-    @get:In ("Step" ) @get:JsonProperty("in_step"       )          val inStep      : DataPath,
+    @get:In ("Start") @get:JsonProperty("in_range_start")          val inRangeStart: DataPath   ,
+    @get:In ("End"  ) @get:JsonProperty("in_range_end"  )          val inRangeEnd  : DataPath   ,
+    @get:In ("Step" ) @get:JsonProperty("in_step"       )          val inStep      : DataPath   ,
     @get:Out("Body" ) @get:JsonProperty("out_body"      )          val outBody     : ControlPath,
     @get:Out("Exit" ) @get:JsonProperty("out"           )          val out         : ControlPath,
 ) : EagerNode() {

@@ -16,11 +16,13 @@
 
 package com.valaphee.flow
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.valaphee.flow.spec.Spec
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.jackson.jackson
+import io.ktor.serialization.jackson.JacksonConverter
 import io.ktor.server.application.call
 import io.ktor.server.application.install
 import io.ktor.server.engine.embeddedServer
@@ -51,25 +53,24 @@ fun main(arguments: Array<String>) {
     System.setOut(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.INFO).buildPrintStream())
     System.setErr(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.ERROR).buildPrintStream())
 
-    val spec = jacksonObjectMapper().readValue<Spec>(Node::class.java.getResource("/flow-spec.json")!!)
-    val graphs = mutableMapOf<UUID, Graph>()
-
     embeddedServer(Netty, port, host, emptyList()) {
         install(Compression)
-        install(ContentNegotiation) { jackson() }
+        install(ContentNegotiation) { register(ContentType.Application.Json, JacksonConverter(jacksonObjectMapper().setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL))) }
 
         routing {
-            get("/spec") { call.respond(spec) }
+            val spec = jacksonObjectMapper().readValue<Spec>(Node::class.java.getResource("/spec.json")!!)
+            get("/v1/spec") { call.respond(spec) }
 
-            post("/graph") {
+            val graphs = mutableMapOf<UUID, Graph>()
+            post("/v1/graph") {
                 val graph = call.receive<Graph>()
                 call.respond(if (graphs.containsKey(graph.id)) HttpStatusCode.BadRequest else {
                     graphs[graph.id] = graph
                     HttpStatusCode.OK
                 })
             }
-            delete("/graph/{id}") { call.respond(if (graphs.remove(UUID.fromString(call.parameters["id"])) != null) HttpStatusCode.OK else HttpStatusCode.NotFound) }
-            get("/graph/") { call.respond(graphs.values) }
+            delete("/v1/graph/{id}") { call.respond(if (graphs.remove(UUID.fromString(call.parameters["id"])) != null) HttpStatusCode.OK else HttpStatusCode.NotFound) }
+            get("/v1/graph/") { call.respond(graphs.values) }
         }
     }.start(true)
 }

@@ -31,8 +31,8 @@ import kotlinx.coroutines.CoroutineScope
 @Node("Data/List/Remove")
 class Remove(
     @get:In (""    ) @get:JsonProperty("in"     ) override val `in`  : ControlPath,
-    @get:In (""    ) @get:JsonProperty("in_list")          val inList: DataPath,
-    @get:In ("Item") @get:JsonProperty("in_item")          val inItem: DataPath,
+    @get:In (""    ) @get:JsonProperty("in_list")          val inList: DataPath   ,
+    @get:In ("Item") @get:JsonProperty("in_item")          val inItem: DataPath   ,
     @get:Out(""    ) @get:JsonProperty("out"    )          val out   : ControlPath
 ) : EagerNode() {
     override fun run(scope: CoroutineScope) {

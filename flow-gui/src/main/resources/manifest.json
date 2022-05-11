@@ -1,0 +1,118 @@
+{
+    "nodes": {
+        "Control": {
+            "icon": "/control/branch.png"
+        },
+        "Control/Branch": {
+            "icon": "/control/branch.png"
+        },
+        "Control/For": {
+            "icon": "/control/loop.png"
+        },
+        "Control/For Each": {
+            "icon": "/control/loop.png"
+        },
+        "Control/Select": {
+            "icon": "/control/select.png"
+        },
+        "Control/While": {
+            "icon": "/control/loop.png"
+        },
+        "Data/List": {
+            "icon": "/data/list.png"
+        },
+        "Data/List/Add": {
+            "icon": "/data/list/add.png"
+        },
+        "Data/List/First": {
+            "icon": "/data/list/first_or_last.png"
+        },
+        "Data/List/Last": {
+            "icon": "/data/list/first_or_last.png"
+        },
+        "Data/List/Remove": {
+            "icon": "/data/list/remove.png"
+        },
+        "Data/Map": {
+            "icon": "/data/map.png"
+        },
+        "Data/Map/Remove": {
+            "icon": "/data/map/remove.png"
+        },
+        "Data/Map/Set": {
+            "icon": "/data/map/set.png"
+        },
+        "Logic/And": {
+            "icon": "/logic/and.png"
+        },
+        "Logic/Approximately Equal": {
+            "icon": "/logic/approximately_equal.png"
+        },
+        "Logic/Equal": {
+            "icon": "/logic/equal.png"
+        },
+        "Logic/Greater Than": {
+            "icon": "/logic/greater_than.png"
+        },
+        "Logic/Greater Than or Equal": {
+            "icon": "/logic/greater_than_or_equal.png"
+        },
+        "Logic/Less Than": {
+            "icon": "/logic/less_than.png"
+        },
+        "Logic/Less Than or Equal": {
+            "icon": "/logic/less_than_or_equal.png"
+        },
+        "Logic/Not": {
+            "icon": "/logic/not.png"
+        },
+        "Logic/Not Approximately Equal": {
+            "icon": "/logic/not_approximately_equal.png"
+        },
+        "Logic/Not Equal": {
+            "icon": "/logic/not_equal.png"
+        },
+        "Logic/Or": {
+            "icon": "/logic/or.png"
+        },
+        "Math": {
+            "icon": "/math.png"
+        },
+        "Math/Scalar": {
+            "icon": "/math/scalar.png"
+        },
+        "Math/Scalar/Absolute": {
+            "icon": "/math/scalar/absolute.png"
+        },
+        "Math/Scalar/Add": {
+            "icon": "/math/scalar/add.png"
+        },
+        "Math/Scalar/Divide": {
+            "icon": "/math/scalar/divide.png"
+        },
+        "Math/Scalar/Exponentiate": {
+            "icon": "/math/scalar/exponentiate.png"
+        },
+        "Math/Scalar/Modulo": {
+            "icon": "/math/scalar/modulo.png"
+        },
+        "Math/Scalar/Multiply": {
+            "icon": "/math/scalar/multiply.png"
+        },
+        "Math/Scalar/Normalize": {
+            "icon": "/math/scalar/normalize.png"
+        },
+        "Math/Scalar/Root": {
+            "icon": "/math/scalar/root.png"
+        },
+        "Math/Scalar/Round": {
+            "icon": "/math/scalar/round.png"
+        },
+        "Math/Scalar/Subtract": {
+            "icon": "/math/scalar/subtract.png"
+        },
+        "Value": {
+            "icon": "/value.png"
+        }
+    }
+}

@@ -18,6 +18,7 @@ package com.valaphee.flow
 
 import com.valaphee.flow.graph.Graph
 import com.valaphee.flow.graph.SkinFactory
+import com.valaphee.flow.meta.Meta
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
@@ -202,11 +203,11 @@ class Main : View("Flow") {
     }
 
     private suspend fun refresh() {
-        HttpClient.get("http://localhost:8080/graph/").body<List<Graph>>().also { withContext(Dispatchers.Main) { graphsProperty.setAll(it) } }
+        HttpClient.get("http://localhost:8080/v1/graph/").body<List<Graph>>().also { withContext(Dispatchers.Main) { graphsProperty.setAll(it) } }
     }
 
     private suspend fun delete(graphs: List<Graph>) {
-        graphs.map { coroutineScope { launch { HttpClient.delete("http://localhost:8080/graph/${it.id}") } } }.joinAll()
+        graphs.map { coroutineScope { launch { HttpClient.delete("http://localhost:8080/v1/graph/${it.id}") } } }.joinAll()
     }
 }
 

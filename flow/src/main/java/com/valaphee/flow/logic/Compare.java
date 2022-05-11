@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow
+package com.valaphee.flow.logic;
 
 /**
  * @author Kevin Ludwig
  */
-abstract class OperatorABNode : LazyNode() {
-    abstract val inA: DataPath
-    abstract val inB: DataPath
-    abstract val out: DataPath
+public class Compare {
+    private Compare() {}
+
+    public static int compare(Object inA, Object inB) {
+        if (inA instanceof Comparable<?>) {
+            return ((Comparable<Object>) inA).compareTo(inB);
+        } else /*if (inB instanceof Comparable<?>) {
+            return ((Comparable<Object>) inB).compareTo(inA);
+        } else */return Integer.MAX_VALUE;
+    }
 }

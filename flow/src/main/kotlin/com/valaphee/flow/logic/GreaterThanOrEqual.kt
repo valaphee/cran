@@ -18,7 +18,7 @@ package com.valaphee.flow.logic
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
-import com.valaphee.flow.OperatorABNode
+import com.valaphee.flow.LazyNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
@@ -27,17 +27,18 @@ import kotlinx.coroutines.CoroutineScope
 /**
  * @author Kevin Ludwig
  */
-@Node("Logic/Contravalence")
-class Contravalence(
-    @get:In ("A")     @get:JsonProperty("in_a") override val inA: DataPath,
-    @get:In ("B")     @get:JsonProperty("in_b") override val inB: DataPath,
-    @get:Out("A ≠ B") @get:JsonProperty("out" ) override val out: DataPath
-) : OperatorABNode() {
+@Node("Logic/Greater Than or Equal")
+class GreaterThanOrEqual(
+    @get:In ("A")     @get:JsonProperty("in_a") val inA: DataPath,
+    @get:In ("B")     @get:JsonProperty("in_b") val inB: DataPath,
+    @get:Out("A ≥ B") @get:JsonProperty("out" ) val out: DataPath
+) : LazyNode() {
     override fun run(scope: CoroutineScope) {
         out.set {
             val inA = inA.get()
             val inB = inB.get()
-            inA != inB
+            val result = Compare.compare(inA, inB)
+            if (result != Int.MAX_VALUE) result >= 0 else false
         }
     }
 }

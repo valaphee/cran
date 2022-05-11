@@ -66,7 +66,7 @@ class SpecGenerator : AbstractProcessor() {
                                         processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @In type $type.")
                                         return true
                                     }
-                                }, json.value)
+                                }, type.contains("Map"), false, json.value)
                             } else if (out != null) if (const != null) {
                                 processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @Out or @Const is allowed, not both.")
                                 return true
@@ -78,13 +78,13 @@ class SpecGenerator : AbstractProcessor() {
                                         processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @Out type $type.")
                                         return true
                                     }
-                                }, json.value)
-                            } else if (const != null) Spec.Node.Port(const.value, Spec.Node.Port.Type.Const, json.value) else null
+                                }, type.contains("Map"), `out`.optional, json.value)
+                            } else if (const != null) Spec.Node.Port(const.value, Spec.Node.Port.Type.Const, false, false, json.value) else null
                         } else null
                     }, `class`.qualifiedName.toString())
                 } else null
             } else null
-        }?.let { processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", "flow-spec.json").openOutputStream().use { stream ->  jacksonObjectMapper().writeValue(stream, Spec(it)) } }
+        }?.let { processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", "spec.json").openOutputStream().use { stream ->  jacksonObjectMapper().writeValue(stream, Spec(it)) } }
         return true
     }
 }

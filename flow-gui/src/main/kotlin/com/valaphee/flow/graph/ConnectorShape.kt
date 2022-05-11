@@ -16,27 +16,37 @@
 
 package com.valaphee.flow.graph
 
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.valaphee.flow.ObjectMapper
 import com.valaphee.flow.spec.Spec
 import eu.mihosoft.vrl.workflow.Connector
+import eu.mihosoft.vrl.workflow.VFlow
 import eu.mihosoft.vrl.workflow.fx.ConnectorShape
-import javafx.scene.layout.Region
+import eu.mihosoft.vrl.workflow.fx.FXSkinFactory
+import eu.mihosoft.vrl.workflow.skin.ConnectionSkin
+import javafx.geometry.Pos
+import javafx.scene.layout.HBox
 import javafx.scene.paint.Color
 import javafx.scene.text.Text
 import tornadofx.circle
 import tornadofx.label
 import tornadofx.onChange
 import tornadofx.paddingLeft
-import tornadofx.paddingTop
+import tornadofx.paddingRight
 import tornadofx.polygon
+import tornadofx.textfield
 import tornadofx.toProperty
 
 /**
  * @author Kevin Ludwig
  */
 class ConnectorShape(
+    private val flow: VFlow,
+    private val skinFactory: FXSkinFactory,
     connector: Connector
-) : Region(), ConnectorShape {
+) : HBox(), ConnectorShape {
     private var connector: Connector? = null
+    private var connectionSkin: ConnectionSkin<*>? = null
     private val radiusProperty = 0.0.toProperty()
 
     init {
@@ -50,27 +60,83 @@ class ConnectorShape(
 
         fun content(value: Pair<Spec.Node.Port, Any?>?) {
             children.clear()
-            value?.let {
-                val (spec, _) = it
-                when (connector.type) {
-                    "control" -> polygon(
-                        0.0 + if (connector.isInput) -2.0 else -4.0, -4.0,
-                        8.0 + if (connector.isInput) -2.0 else -4.0, 0.0,
-                        0.0 + if (connector.isInput) -2.0 else -4.0, 4.0,
-                        0.0 + if (connector.isInput) -2.0 else -4.0, -4.0
-                    ) { fill = Color.WHITE }
-                    "data" -> circle(4.0 + if (connector.isInput) -2.0 else -4.0, 0.0, 4.0) { fill = Color.WHITE }
-                }
-                label(spec.name) {
-                    paddingLeft = if (connector.isInput) 8.0 else -Text(text).layoutBounds.width - 8.0
-                    paddingTop = -9.0
-                    textFill = Color.WHITE
+
+            value?.let { (spec, const) ->
+                if (connector.isInput) {
+                    // Properties
+                    paddingLeft = -4
+                    alignment = Pos.CENTER_LEFT
+
+                    // Children
+                    when (connector.type) {
+                        "control" -> polygon(
+                            0.0, -4.0,
+                            8.0,  0.0,
+                            0.0,  4.0,
+                            0.0, -4.0
+                        ) { fill = Color.WHITE }
+                        "data", "const" -> circle(4.0, 0.0, 4.0) { fill = Color.WHITE }
+                    }
+                    label(spec.name) {
+                        minWidth = Text(text).layoutBounds.width
+                        textFill = Color.WHITE
+                    }
+                    if (connector.type == "const") {
+                        textfield(const?.let { ObjectMapper.writeValueAsString(it) } ?: "") {
+                            // Properties
+                            minWidth = 100.0
+
+                            // Events
+                            focusedProperty().onChange {
+                                if (!it) try {
+                                    connector.valueObject.value = spec to if (text.isBlank()) null else ObjectMapper.readValue<Any?>(text)
+                                } catch (_: Throwable) {
+                                }
+                            }
+                        }
+                    } else Unit
+                } else {
+                    // Properties
+                    paddingRight = -4
+                    alignment = Pos.CENTER_RIGHT
+
+                    // Children
+                    const?.let { textfield(ObjectMapper.writeValueAsString(it)) }
+                    label(spec.name) {
+                        minWidth = Text(text).layoutBounds.width
+                        textFill = Color.WHITE
+                    }
+                    when (connector.type) {
+                        "control" -> polygon(
+                            0.0, -4.0,
+                            8.0,  0.0,
+                            0.0,  4.0,
+                            0.0, -4.0
+                        ) { fill = Color.WHITE }
+                        "data", "const" -> circle(4.0, 0.0, 4.0) { fill = Color.WHITE }
+                        else -> Unit
+                    }
                 }
             }
         }
 
         content(@Suppress("UNCHECKED_CAST") (connector.valueObject.value as Pair<Spec.Node.Port, Any?>?))
         connector.valueObject.valueProperty().onChange { content(@Suppress("UNCHECKED_CAST") (it as Pair<Spec.Node.Port, Any?>?)) }
+    }
+
+    override fun toFront() {
+        super.toFront()
+
+        connectionSkin = null
+        if (connector!!.isInput && flow.getConnections(connector!!.type).isInputConnected(connector)) {
+            for (connection in flow.getConnections(connector!!.type).connections) {
+                val connectionSkin = flow.nodeSkinLookup.getById(skinFactory, connection)
+                if (connectionSkin != null) {
+                    this.connectionSkin = connectionSkin
+                    connectionSkin.receiverToFront()
+                }
+            }
+        }
     }
 
     override fun radiusProperty() = radiusProperty

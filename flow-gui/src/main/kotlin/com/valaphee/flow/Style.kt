@@ -40,6 +40,9 @@ class Style : Stylesheet() {
         nodeWindowTitle {
             backgroundColor = multi(RadialGradient(0.0, 1.0, 0.0, 0.0, 1.0, true, CycleMethod.NO_CYCLE, Stop(0.0, Color.rgb(50, 50, 50, 1.0)), Stop(1.0, Color.rgb(50, 50, 50, 0.1))))
         }
+        nodeWindowIcon {
+            borderWidth = multi(box(0.0.px))
+        }
         nodePath {
             stroke = Color.rgb(255, 255, 255)
             strokeWidth = 3.0.px
@@ -53,6 +56,7 @@ class Style : Stylesheet() {
     companion object {
         val nodeWindow by cssclass("window")
         val nodeWindowTitle by cssclass("window-titlebar")
+        val nodeWindowIcon by cssclass("window-icon")
         val nodePath by cssclass("vnode-connection")
         val nodeNewPath by cssclass("vnode-new-connection")
     }

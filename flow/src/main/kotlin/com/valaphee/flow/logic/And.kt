@@ -18,7 +18,7 @@ package com.valaphee.flow.logic
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
-import com.valaphee.flow.OperatorABNode
+import com.valaphee.flow.LazyNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
@@ -29,15 +29,15 @@ import kotlinx.coroutines.CoroutineScope
  */
 @Node("Logic/And")
 class And(
-    @get:In ("A")     @get:JsonProperty("in_a") override val inA: DataPath,
-    @get:In ("B")     @get:JsonProperty("in_b") override val inB: DataPath,
-    @get:Out("A & B") @get:JsonProperty("out" ) override val out: DataPath
-) : OperatorABNode() {
+    @get:In ("A")     @get:JsonProperty("in_a") val inA: DataPath,
+    @get:In ("B")     @get:JsonProperty("in_b") val inB: DataPath,
+    @get:Out("A ∧ B") @get:JsonProperty("out" ) val out: DataPath
+) : LazyNode() {
     override fun run(scope: CoroutineScope) {
         out.set {
-            val inA = inA.get() as Boolean
-            val inB = inB.get() as Boolean
-            inA and inB
+            val inA = inA.get()
+            val inB = inB.get()
+            if (inA is Boolean && inB is Boolean) inA and inB else error("$inA & $inB")
         }
     }
 }
