@@ -21,8 +21,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.Node
 import com.valaphee.flow.util.ControlPlug
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.Fork
@@ -31,10 +29,7 @@ import org.openjdk.jmh.annotations.Measurement
 import org.openjdk.jmh.annotations.Scope
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.State
-import org.openjdk.jmh.annotations.TearDown
 import org.openjdk.jmh.annotations.Warmup
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
 /**
  * @author Kevin Ludwig
@@ -44,15 +39,10 @@ import java.util.concurrent.Executors
 @Measurement(iterations = 2, time = 5)
 @Fork(1)
 open class BranchBenchmark {
-    lateinit var executorService: ExecutorService
     lateinit var begin: ControlPath
-    lateinit var end: ControlPath
 
     @Setup(Level.Trial)
     fun setup() {
-        executorService = Executors.newSingleThreadExecutor()
-        val scope = CoroutineScope(executorService.asCoroutineDispatcher())
-
         val flow = jacksonObjectMapper().readValue<List<Node>>(
             """
                 [
@@ -71,32 +61,19 @@ open class BranchBenchmark {
                         "in_value" : 1,
                         "out" : {
                             "true" : 2
-                        }
-                    },
-                    {
-                        "type" : "com.valaphee.flow.util.ControlPlug",
-                        "aux" : 2
+                        },
+                        "out_default" : 3
                     }
                 ]
             """.trimIndent()
         )
-        flow.forEach { it.initialize(scope) }
+        flow.forEach { it.initialize() }
 
-        val plugs = flow.filterIsInstance<ControlPlug>().map { it.aux }
-        begin = plugs.single { it.id == 0 }
-        end = plugs.single { it.id == 2 }
+        begin = flow.filterIsInstance<ControlPlug>().map { it.aux }.single { it.id == 0 }
     }
 
     @Benchmark
     fun execute() {
-        runBlocking {
-            begin.emit()
-            end.wait()
-        }
-    }
-
-    @TearDown
-    fun tearDown() {
-        executorService.shutdown()
+        runBlocking { begin() }
     }
 }

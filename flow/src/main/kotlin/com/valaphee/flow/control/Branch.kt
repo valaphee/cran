@@ -23,19 +23,18 @@ import com.valaphee.flow.StatefulNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
-import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
  */
 @Node("Control/Branch")
 class Branch(
-    @get:In                              @get:JsonProperty("in"         ) override val `in`      : ControlPath           ,
-    @get:In                              @get:JsonProperty("in_value"   )          val inValue   : DataPath              ,
-    @get:Out                             @get:JsonProperty("out"        )          val out       : Map<Any?, ControlPath>,
-    @get:Out("Default", optional = true) @get:JsonProperty("out_default")          val outDefault: ControlPath?
+    @get:In             @get:JsonProperty("in"         ) override val `in`      : ControlPath           ,
+    @get:In             @get:JsonProperty("in_value"   )          val inValue   : DataPath              ,
+    @get:Out            @get:JsonProperty("out"        )          val out       : Map<Any?, ControlPath>,
+    @get:Out("Default") @get:JsonProperty("out_default")          val outDefault: ControlPath
 ) : StatefulNode() {
-    override fun initialize(scope: CoroutineScope) {
-        `in`.collect(scope) { (out[inValue.get()] ?: outDefault)?.emit() }
+    override fun initialize() {
+        `in`.declare { (out[inValue.get()] ?: outDefault)() }
     }
 }

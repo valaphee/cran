@@ -249,6 +249,7 @@ class Main : View("Flow") {
                             searchProperty.onChange { _search ->
                                 this.items.setAll(items)
                                 this.items.addAll(if (_search!!.isEmpty()) treeItems else nodeItems.filterKeys { it.contains(_search, true) }.values)
+                                /*this.items.addAll(if (_search!!.isEmpty()) treeItems else nodeItems.entries.sortedBy { LevenshteinDistance.getDefaultInstance().apply(_search, it.key.split('/').last()) }.map { it.value })*/
                             }
                         }
                     }

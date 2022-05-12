@@ -29,7 +29,7 @@ import kotlinx.coroutines.CoroutineScope
 class Value(
     @get:Const @get:JsonProperty("value") val value: Any?           ,
     @get:Out   @get:JsonProperty("out"  ) val out  : DataPath       ,
-               @get:JsonProperty("local") val local: Boolean = false
+               @get:JsonProperty("embed") val embed: Boolean = false
 ) : StatelessNode() {
     override fun initialize(scope: CoroutineScope) {
         out.set(value)

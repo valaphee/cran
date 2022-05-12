@@ -21,8 +21,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.Node
 import com.valaphee.flow.util.DataPlug
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.Fork
@@ -31,10 +29,7 @@ import org.openjdk.jmh.annotations.Measurement
 import org.openjdk.jmh.annotations.Scope
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.State
-import org.openjdk.jmh.annotations.TearDown
 import org.openjdk.jmh.annotations.Warmup
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
 /**
  * @author Kevin Ludwig
@@ -44,14 +39,10 @@ import java.util.concurrent.Executors
 @Measurement(iterations = 2, time = 5)
 @Fork(1)
 open class SelectBenchmark {
-    lateinit var executorService: ExecutorService
     lateinit var value: DataPath
 
     @Setup(Level.Trial)
     fun setup() {
-        executorService = Executors.newSingleThreadExecutor()
-        val scope = CoroutineScope(executorService.asCoroutineDispatcher())
-
         val flow = jacksonObjectMapper().readValue<List<Node>>(
             """
                 [
@@ -71,16 +62,17 @@ open class SelectBenchmark {
                         "in_value" : {
                             "true" : 1
                         },
-                        "out" : 2
+                        "out_default": 2,
+                        "out" : 3
                     },
                     {
                         "type" : "com.valaphee.flow.util.DataPlug",
-                        "aux" : 2
+                        "aux" : 3
                     }
                 ]
             """.trimIndent()
         )
-        flow.forEach { it.initialize(scope) }
+        flow.forEach { it.initialize() }
 
         value = flow.filterIsInstance<DataPlug>().single().aux
     }
@@ -88,10 +80,5 @@ open class SelectBenchmark {
     @Benchmark
     fun execute() {
         runBlocking { value.get() }
-    }
-
-    @TearDown
-    fun tearDown() {
-        executorService.shutdown()
     }
 }

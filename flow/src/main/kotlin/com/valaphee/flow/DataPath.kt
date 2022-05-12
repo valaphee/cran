@@ -31,20 +31,20 @@ class DataPath(
     override val id: Int
 ) : Path() {
     private var value: Any? = null
-    private var getValue: (suspend () -> Any?)? = null
+    private var valueFunction: (suspend () -> Any?)? = null
 
-    suspend fun get() = value ?: getValue!!.invoke()
+    suspend fun get() = value ?: valueFunction?.invoke()
 
     fun set(value: Any?) {
-        if (this.value != null || getValue != null) throw DataPathException.AlreadySet
+        if (this.value != null || valueFunction != null) throw DataPathException.Undefined
 
         this.value = value
     }
 
     fun set(getValue: suspend () -> Any?) {
-        if (value != null || this.getValue != null) throw DataPathException.AlreadySet
+        if (value != null || this.valueFunction != null) throw DataPathException.AlreadySet
 
-        this.getValue = getValue
+        this.valueFunction = getValue
     }
 
     class IdResolver : SimpleObjectIdResolver() {

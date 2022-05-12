@@ -1,10 +1,19 @@
 {
   "nodes": {
+    "Entry": {
+      "icon": "/entry.png"
+    },
     "Control": {
       "icon": "/control/branch.png"
     },
+    "Control/Select": {
+      "icon": "/control/select.png"
+    },
     "Control/Branch": {
       "icon": "/control/branch.png"
+    },
+    "Control/While": {
+      "icon": "/control/loop.png"
     },
     "Control/For": {
       "icon": "/control/loop.png"
@@ -12,35 +21,11 @@
     "Control/For Each": {
       "icon": "/control/loop.png"
     },
-    "Control/Select": {
-      "icon": "/control/select.png"
+    "Control/Wait": {
+      "icon": "/time.png"
     },
-    "Control/While": {
-      "icon": "/control/loop.png"
-    },
-    "Debug": {
-      "icon": "/debug.png"
-    },
-    "Debug/Log": {
-      "icon": "/debug.png"
-    },
-    "Entry": {
-      "icon": "/entry.png"
-    },
-    "List": {
-      "icon": "/list.png"
-    },
-    "List/Add": {
-      "icon": "/list/add.png"
-    },
-    "List/First": {
-      "icon": "/list/first_or_last.png"
-    },
-    "List/Last": {
-      "icon": "/list/first_or_last.png"
-    },
-    "List/Remove": {
-      "icon": "/list/remove.png"
+    "Value": {
+      "icon": "/value.png"
     },
     "Logic":{
       "icon": "/logic.png"
@@ -78,15 +63,6 @@
     "Logic/Or": {
       "icon": "/logic/or.png"
     },
-    "Map": {
-      "icon": "/map.png"
-    },
-    "Map/Remove": {
-      "icon": "/map/remove.png"
-    },
-    "Map/Set": {
-      "icon": "/map/set.png"
-    },
     "Math": {
       "icon": "/math.png"
     },
@@ -123,14 +99,35 @@
     "Math/Scalar/Subtract": {
       "icon": "/math/scalar/subtract.png"
     },
-    "Time": {
-      "icon": "/time.png"
+    "List": {
+      "icon": "/list.png"
     },
-    "Time/Delay": {
-      "icon": "/time.png"
+    "List/Add": {
+      "icon": "/list/add.png"
     },
-    "Value": {
-      "icon": "/value.png"
+    "List/First": {
+      "icon": "/list/first_or_last.png"
+    },
+    "List/Last": {
+      "icon": "/list/first_or_last.png"
+    },
+    "List/Remove": {
+      "icon": "/list/remove.png"
+    },
+    "Map": {
+      "icon": "/map.png"
+    },
+    "Map/Remove": {
+      "icon": "/map/remove.png"
+    },
+    "Map/Set": {
+      "icon": "/map/set.png"
+    },
+    "Debug": {
+      "icon": "/debug.png"
+    },
+    "Debug/Log": {
+      "icon": "/debug.png"
     }
   }
 }

@@ -23,7 +23,6 @@ import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
-import kotlinx.coroutines.CoroutineScope
 import java.math.BigDecimal
 import java.math.BigInteger
 
@@ -36,7 +35,7 @@ class Divide(
     @get:In ("b")     @get:JsonProperty("in_b") val inB: DataPath,
     @get:Out("a ÷ b") @get:JsonProperty("out" ) val out: DataPath
 ) : StatelessNode() {
-    override fun initialize(scope: CoroutineScope) {
+    override fun initialize() {
         out.set {
             val inA = inA.get()
             val inB = inB.get()

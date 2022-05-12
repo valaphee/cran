@@ -23,7 +23,6 @@ import com.valaphee.flow.getOrThrow
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
-import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
@@ -34,9 +33,7 @@ class Get(
     @get:In ("Index") @get:JsonProperty("in_index") val inIndex: DataPath,
     @get:Out          @get:JsonProperty("out"     ) val out    : DataPath
 ) : StatelessNode() {
-    override fun initialize(scope: CoroutineScope) {
-        out.set {
-            inList.getOrThrow<List<Any?>>()[inIndex.get() as Int]
-        }
+    override fun initialize() {
+        out.set { inList.getOrThrow<List<Any?>>()[inIndex.get() as Int] }
     }
 }

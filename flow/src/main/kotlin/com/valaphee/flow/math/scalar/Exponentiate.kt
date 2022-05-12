@@ -24,7 +24,6 @@ import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
-import kotlinx.coroutines.CoroutineScope
 import kotlin.math.pow
 
 /**
@@ -36,7 +35,7 @@ class Exponentiate(
     @get:In ("n")  @get:JsonProperty("in_n") val inN: DataPath,
     @get:Out("xⁿ") @get:JsonProperty("out" ) val out: DataPath
 ) : StatelessNode() {
-    override fun initialize(scope: CoroutineScope) {
+    override fun initialize() {
         out.set {
             val inX = inX.get()
             val inN = inN.get()

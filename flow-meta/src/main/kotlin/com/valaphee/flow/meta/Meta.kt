@@ -28,6 +28,6 @@ data class Meta(
     class Node(
         @get:JsonProperty("x"    ) val x    : Double,
         @get:JsonProperty("y"    ) val y    : Double/*,
-        @get:JsonProperty("local") val local: Boolean*/
+        @get:JsonProperty("embed") val embed: Boolean*/
     )
 }

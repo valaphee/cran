@@ -22,6 +22,5 @@ package com.valaphee.flow.spec
 @Target(AnnotationTarget.PROPERTY_GETTER)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Out(
-    val value: String = "",
-    val optional: Boolean = false
+    val value: String = ""
 )

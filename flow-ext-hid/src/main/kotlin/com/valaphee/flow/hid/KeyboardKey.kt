@@ -37,10 +37,10 @@ class KeyboardKey(
     @get:Out          @get:JsonProperty("out"     )          val out    : ControlPath
 ) : StatefulNode() {
     override fun initialize(scope: CoroutineScope) {
-        `in`.collect(scope) {
+        `in`.declare {
             inKey.getOrThrow<Int>()
             inState.getOrThrow<Boolean>()
-            out.emit()
+            out.invoke()
         }
     }
 }

@@ -24,7 +24,6 @@ import com.valaphee.flow.getOrThrow
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
-import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
@@ -38,10 +37,10 @@ class For(
     @get:Out("Body" ) @get:JsonProperty("out_body"      )          val outBody     : ControlPath,
     @get:Out("Exit" ) @get:JsonProperty("out"           )          val out         : ControlPath,
 ) : StatefulNode() {
-    override fun initialize(scope: CoroutineScope) {
-        `in`.collect(scope) {
-            IntProgression.fromClosedRange((inRangeStart.getOrThrow<Number>()).toInt(), (inRangeEnd.getOrThrow<Number>()).toInt(), (inStep.getOrThrow<Number>()).toInt()).forEach { _ -> outBody.emit() }
-            out.emit()
+    override fun initialize() {
+        `in`.declare {
+            IntProgression.fromClosedRange((inRangeStart.getOrThrow<Number>()).toInt(), (inRangeEnd.getOrThrow<Number>()).toInt(), (inStep.getOrThrow<Number>()).toInt()).forEach { outBody(it) }
+            out()
         }
     }
 }

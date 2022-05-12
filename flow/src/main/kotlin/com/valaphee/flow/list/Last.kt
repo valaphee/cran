@@ -23,7 +23,6 @@ import com.valaphee.flow.getOrThrow
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
-import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
@@ -33,7 +32,7 @@ class Last(
     @get:In  @get:JsonProperty("in_list" ) val inList : DataPath,
     @get:Out @get:JsonProperty("out"     ) val out    : DataPath
 ) : StatelessNode() {
-    override fun initialize(scope: CoroutineScope) {
+    override fun initialize() {
         out.set { inList.getOrThrow<List<Any?>>().last() }
     }
 }

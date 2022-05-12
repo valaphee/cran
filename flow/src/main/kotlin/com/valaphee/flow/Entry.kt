@@ -18,6 +18,8 @@ package com.valaphee.flow
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.spec.Out
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * @author Kevin Ludwig
@@ -26,7 +28,7 @@ import com.valaphee.flow.spec.Out
 class Entry(
     @get:Out @get:JsonProperty("out") val out: ControlPath,
 ) : Node() {
-    override fun postInitialize() {
-        out.emit()
+    override fun postInitialize(scope: CoroutineScope) {
+        scope.launch { out() }
     }
 }

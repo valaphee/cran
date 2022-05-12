@@ -23,7 +23,6 @@ import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
-import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
@@ -33,7 +32,7 @@ class Not(
     @get:In ("X" ) @get:JsonProperty("in" ) val `in`: DataPath,
     @get:Out("¬X") @get:JsonProperty("out") val out : DataPath
 ) : StatelessNode() {
-    override fun initialize(scope: CoroutineScope) {
+    override fun initialize() {
         out.set {
             val `in` = `in`.get()
             if (`in` is Boolean) `in`.not() else DataPathException.invalidTypeInExpression("~$`in`")

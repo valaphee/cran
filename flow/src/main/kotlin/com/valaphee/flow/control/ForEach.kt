@@ -23,7 +23,6 @@ import com.valaphee.flow.StatefulNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
-import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
@@ -35,10 +34,10 @@ class ForEach(
     @get:Out("Body") @get:JsonProperty("out_body")          val outBody: ControlPath,
     @get:Out("Exit") @get:JsonProperty("out"     )          val out    : ControlPath,
 ) : StatefulNode() {
-    override fun initialize(scope: CoroutineScope) {
-        `in`.collect(scope) {
-            (inValue.get() as List<*>).forEach { _ -> outBody.emit(/*it*/) }
-            out.emit()
+    override fun initialize() {
+        `in`.declare {
+            (inValue.get() as List<*>).forEach { outBody(it) }
+            out()
         }
     }
 }

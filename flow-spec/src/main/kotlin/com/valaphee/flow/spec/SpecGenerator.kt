@@ -19,6 +19,8 @@ package com.valaphee.flow.spec
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.auto.service.AutoService
+import com.valaphee.flow.spec.util.toHexString
+import java.security.MessageDigest
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Processor
 import javax.annotation.processing.RoundEnvironment
@@ -67,7 +69,7 @@ class SpecGenerator : AbstractProcessor() {
                                             processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @In type $type.")
                                             return true
                                         }
-                                    }, type.contains("Map"), false, json.value
+                                    }, type.contains("Map"), json.value
                                 )
                             } else if (out != null) if (const != null) {
                                 processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @Out or @Const is allowed, not both.")
@@ -81,14 +83,17 @@ class SpecGenerator : AbstractProcessor() {
                                             processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @Out type $type.")
                                             return true
                                         }
-                                    }, type.contains("Map"), `out`.optional, json.value
+                                    }, type.contains("Map"), json.value
                                 )
-                            } else if (const != null) Spec.Node.Port(const.value, Spec.Node.Port.Type.Const, false, false, json.value) else null
+                            } else if (const != null) Spec.Node.Port(const.value, Spec.Node.Port.Type.Const, false, json.value) else null
                         } else null
                     }, `class`.qualifiedName.toString())
                 } else null
             } else null
-        }?.let { processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", "spec.json").openOutputStream().use { stream -> jacksonObjectMapper().writeValue(stream, Spec(it)) } }
+        }?.let {
+            val bytes = jacksonObjectMapper().writeValueAsString(Spec(it)).encodeToByteArray()
+            processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", "spec.${MessageDigest.getInstance("MD5").digest(bytes).toHexString()}.json").openOutputStream().use { it.write(bytes) }
+        }
         return true
     }
 }

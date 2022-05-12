@@ -37,7 +37,7 @@ class GraphImpl(
 
     fun initialize() {
         graph.forEach { it.initialize(this) }
-        graph.forEach { it.postInitialize() }
+        graph.forEach { it.postInitialize(this) }
     }
 
     fun shutdown() {

@@ -16,15 +16,19 @@
 
 package com.valaphee.flow
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo
-import kotlinx.coroutines.CoroutineScope
-
 /**
  * @author Kevin Ludwig
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "type")
-abstract class Node {
-    open fun initialize() = Unit
+open class ControlPathException : Exception {
+    constructor() : super()
 
-    open fun postInitialize(scope: CoroutineScope) = Unit
+    constructor(message: String) : super(message)
+
+    constructor(message: String, cause: Throwable?) : super(message, cause)
+
+    constructor(cause: Throwable?) : super(cause)
+
+    companion object {
+        val AlreadySet = ControlPathException("Control path has multiple outputs, only one output is allowed.")
+    }
 }

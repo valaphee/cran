@@ -44,7 +44,7 @@ import java.util.UUID
 
 fun main(arguments: Array<String>) {
     val argumentParser = ArgParser("flow-api")
-    val host by argumentParser.option(ArgType.String, "host", "H", "Host").default("localhost")
+    val host by argumentParser.option(ArgType.String, "host", "H", "Host").default("0.0.0.0")
     val port by argumentParser.option(ArgType.Int, "port", "p", "Port").default(8080)
     argumentParser.parse(arguments)
 
@@ -57,7 +57,7 @@ fun main(arguments: Array<String>) {
         install(ContentNegotiation) { register(ContentType.Application.Json, JacksonConverter(ObjectMapper)) }
 
         routing {
-            val spec = ClassGraph().scan().use { Spec(it.getResourcesWithPath("spec.json").urLs.flatMap { ObjectMapper.readValue<Spec>(it).nodes }) }
+            val spec = ClassGraph().scan().use { Spec(it.getResourcesMatchingWildcard("spec.*.json").urLs.flatMap { ObjectMapper.readValue<Spec>(it).nodes }) }
             get("/v1/spec") { call.respond(spec) }
 
             val graphs = mutableMapOf<UUID, GraphImpl>()

@@ -28,6 +28,7 @@ dependencies {
     implementation("io.ktor:ktor-client-okhttp:2.0.1")
     implementation("io.ktor:ktor-serialization-jackson:2.0.1")
     implementation("no.tornado:tornadofx:1.7.20")
+    implementation("org.apache.commons:commons-text:1.9")
     implementation("org.controlsfx:controlsfx:11.1.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:1.6.1")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")

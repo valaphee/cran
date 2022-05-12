@@ -33,7 +33,6 @@ class Spec(
             @get:JsonProperty("name"    ) val name    : String ,
             @get:JsonProperty("type"    ) val type    : Type   ,
             @get:JsonProperty("variable") val variable: Boolean,
-            @get:JsonProperty("optional") val optional: Boolean,
             @get:JsonProperty("json"    ) val json    : String
         ) {
             enum class Type {

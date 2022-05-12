@@ -21,9 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference
 import com.fasterxml.jackson.annotation.ObjectIdGenerator
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import com.fasterxml.jackson.annotation.SimpleObjectIdResolver
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Semaphore
 
 /**
  * @author Kevin Ludwig
@@ -33,27 +30,17 @@ import kotlinx.coroutines.sync.Semaphore
 class ControlPath(
     override val id: Int
 ) : Path() {
-    /*private val flow = MutableSharedFlow<Any?>(1)*/
-    private val semaphore = Semaphore(Int.MAX_VALUE, Int.MAX_VALUE)
+    private var function: (suspend (Any?) -> Unit)? = null
 
-    fun collect(scope: CoroutineScope, action: suspend (/*Any?*/) -> Unit) {
-        scope.launch {
-            /*flow.collectLatest(action)*/
-            while (true) {
-                semaphore.acquire()
-                action()
-            }
-        }
+    suspend operator fun invoke(value: Any? = null) {
+        function?.invoke(value)
     }
 
-    suspend fun wait() = /*flow.first()*/semaphore.acquire()
+    fun declare(function: suspend (Any?) -> Unit) {
+        if (this.function != null) throw ControlPathException.AlreadySet
 
-    fun emit() = semaphore.release()
-
-    /*fun emit(value: Any?) {
-        flow.emit(value)
-        semaphore.release()
-    }*/
+        this.function = function
+    }
 
     class IdResolver : SimpleObjectIdResolver() {
         override fun resolveId(id: ObjectIdGenerator.IdKey) = super.resolveId(id) ?: ControlPath(id.key as Int).also { bindItem(id, it) }
