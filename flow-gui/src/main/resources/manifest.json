@@ -126,9 +126,6 @@
     "Time": {
       "icon": "/time.png"
     },
-    "Time/Clock": {
-      "icon": "/time.png"
-    },
     "Time/Delay": {
       "icon": "/time.png"
     },

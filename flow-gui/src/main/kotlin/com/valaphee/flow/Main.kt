@@ -83,6 +83,8 @@ import tornadofx.toObservable
 import tornadofx.toProperty
 import tornadofx.vbox
 import tornadofx.vgrow
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 import kotlin.system.exitProcess
 
 /**
@@ -110,13 +112,13 @@ class Main : View("Flow") {
                 item("Import") {
                     action {
                         chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Flow", "*.flw"), FileChooser.ExtensionFilter("All Files", "*.*"))).singleOrNull()?.let {
-                            val graph = ObjectMapper.readValue<Graph>(it)
+                            val graph = it.inputStream().use { SmileObjectMapper.readValue<Graph>(GZIPInputStream(it)) }
                             graphsProperty += graph
                             graphProperty.set(graph)
                         }
                     }
                 }
-                item("Export As...") { action { chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Flow", "*.flw"), FileChooser.ExtensionFilter("All Files", "*.*")), mode = FileChooserMode.Save).singleOrNull()?.let { ObjectMapper.writeValue(it, graphProperty.get()) } } }
+                item("Export As...") { action { chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Flow", "*.flw"), FileChooser.ExtensionFilter("All Files", "*.*")), mode = FileChooserMode.Save).singleOrNull()?.let { it.outputStream().use { SmileObjectMapper.writeValue(GZIPOutputStream(it), graphProperty.get()) } } } }
                 separator()
                 item("Exit") { action { close() } }
             }
@@ -294,7 +296,7 @@ class Main : View("Flow") {
                 else -> Unit
             } else when (it.code) {
                 KeyCode.DELETE -> {
-                    graphProperty.get()?.let { it.flow.nodes.forEach { if (it.isSelected) it.flow.remove(it) } }
+                    graphProperty.get()?.let { graph -> graph.flow.nodes.filter { it.isSelected }.forEach { graph.flow.remove(it) } }
                     it.consume()
                 }
                 KeyCode.F5 -> {

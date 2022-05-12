@@ -18,8 +18,10 @@ package com.valaphee.flow
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.valaphee.flow.manifest.Manifest
 import com.valaphee.flow.spec.Spec
 import io.ktor.client.HttpClient
@@ -40,5 +42,6 @@ val HttpClient = HttpClient(OkHttp) {
     expectSuccess = false
     install(ContentNegotiation) { register(ContentType.Application.Json, JacksonConverter(ObjectMapper)) }
 }
+val SmileObjectMapper: ObjectMapper = SmileMapper().registerKotlinModule().setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
 val Spec = runBlocking { HttpClient.get("http://localhost:8080/v1/spec").body<Spec>() }
 val Manifest = ObjectMapper.readValue<Manifest>(Main::class.java.getResource("/manifest.json")!!)

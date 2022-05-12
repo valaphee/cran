@@ -32,9 +32,9 @@ import java.math.BigInteger
  */
 @Node("Math/Scalar/Modulo")
 class Modulo(
-    @get:In ("A")     @get:JsonProperty("in_a") val inA: DataPath,
-    @get:In ("B")     @get:JsonProperty("in_b") val inB: DataPath,
-    @get:Out("A % B") @get:JsonProperty("out" ) val out: DataPath
+    @get:In ("a")       @get:JsonProperty("in_a") val inA: DataPath,
+    @get:In ("b")       @get:JsonProperty("in_b") val inB: DataPath,
+    @get:Out("a mod b") @get:JsonProperty("out" ) val out: DataPath
 ) : StatelessNode() {
     override fun initialize(scope: CoroutineScope) {
         out.set {
@@ -42,72 +42,84 @@ class Modulo(
             val inB = inB.get()
             when (inA) {
                 is Byte -> when (inB) {
-                    is Byte   -> inA % inB
-                    is Short  -> inA % inB
-                    is Int    -> inA % inB
-                    is Long   -> inA % inB
-                    is Float  -> inA % inB
-                    is Double -> inA % inB
-                    else      -> DataPathException.invalidTypeInExpression("$inA % $inB")
+                    is Byte       -> inA                                % inB
+                    is Short      -> inA                                % inB
+                    is Int        -> inA                                % inB
+                    is Long       -> inA                                % inB
+                    is BigInteger -> BigInteger.valueOf(inA.toLong())   % inB
+                    is Float      -> inA                                % inB
+                    is Double     -> inA                                % inB
+                    is BigDecimal -> BigDecimal.valueOf(inA.toDouble()) % inB
+                    else          -> DataPathException.invalidTypeInExpression("$inA mod $inB")
                 }
                 is Short -> when (inB) {
-                    is Byte   -> inA % inB
-                    is Short  -> inA % inB
-                    is Int    -> inA % inB
-                    is Long   -> inA % inB
-                    is Float  -> inA % inB
-                    is Double -> inA % inB
-                    else      -> DataPathException.invalidTypeInExpression("$inA % $inB")
+                    is Byte       -> inA                                % inB
+                    is Short      -> inA                                % inB
+                    is Int        -> inA                                % inB
+                    is Long       -> inA                                % inB
+                    is BigInteger -> BigInteger.valueOf(inA.toLong())   % inB
+                    is Float      -> inA                                % inB
+                    is Double     -> inA                                % inB
+                    is BigDecimal -> BigDecimal.valueOf(inA.toDouble()) % inB
+                    else          -> DataPathException.invalidTypeInExpression("$inA mod $inB")
                 }
                 is Int -> when (inB) {
-                    is Byte   -> inA % inB
-                    is Short  -> inA % inB
-                    is Int    -> inA % inB
-                    is Long   -> inA % inB
-                    is Float  -> inA % inB
-                    is Double -> inA % inB
-                    else      -> DataPathException.invalidTypeInExpression("$inA % $inB")
+                    is Byte       -> inA                                % inB
+                    is Short      -> inA                                % inB
+                    is Int        -> inA                                % inB
+                    is Long       -> inA                                % inB
+                    is BigInteger -> BigInteger.valueOf(inA.toLong())   % inB
+                    is Float      -> inA                                % inB
+                    is Double     -> inA                                % inB
+                    is BigDecimal -> BigDecimal.valueOf(inA.toDouble()) % inB
+                    else          -> DataPathException.invalidTypeInExpression("$inA mod $inB")
                 }
                 is Long -> when (inB) {
-                    is Byte   -> inA % inB
-                    is Short  -> inA % inB
-                    is Int    -> inA % inB
-                    is Long   -> inA % inB
-                    is Float  -> inA % inB
-                    is Double -> inA % inB
-                    else      -> DataPathException.invalidTypeInExpression("$inA % $inB")
+                    is Byte       -> inA                                % inB
+                    is Short      -> inA                                % inB
+                    is Int        -> inA                                % inB
+                    is Long       -> inA                                % inB
+                    is BigInteger -> BigInteger.valueOf(inA.toLong())   % inB
+                    is Float      -> inA                                % inB
+                    is Double     -> inA                                % inB
+                    is BigDecimal -> BigDecimal.valueOf(inA.toDouble()) % inB
+                    else          -> DataPathException.invalidTypeInExpression("$inA mod $inB")
                 }
                 is BigInteger -> when (inB) {
                     is BigInteger -> inA                % inB
                     is BigDecimal -> inA.toBigDecimal() % inB
                     is Number     -> inA                % BigInteger.valueOf(inB.toLong())
-                    else          -> DataPathException.invalidTypeInExpression("$inA % $inB")
+                    else          -> DataPathException.invalidTypeInExpression("$inA mod $inB")
                 }
                 is Float -> when (inB) {
-                    is Byte   -> inA % inB
-                    is Short  -> inA % inB
-                    is Int    -> inA % inB
-                    is Long   -> inA % inB
-                    is Float  -> inA % inB
-                    is Double -> inA % inB
-                    else      -> DataPathException.invalidTypeInExpression("$inA % $inB")
+                    is Byte       -> inA                                % inB
+                    is Short      -> inA                                % inB
+                    is Int        -> inA                                % inB
+                    is Long       -> inA                                % inB
+                    is BigInteger -> BigInteger.valueOf(inA.toLong())   % inB
+                    is Float      -> inA                                % inB
+                    is Double     -> inA                                % inB
+                    is BigDecimal -> BigDecimal.valueOf(inA.toDouble()) % inB
+                    else          -> DataPathException.invalidTypeInExpression("$inA mod $inB")
                 }
                 is Double -> when (inB) {
-                    is Byte   -> inA % inB
-                    is Short  -> inA % inB
-                    is Int    -> inA % inB
-                    is Long   -> inA % inB
-                    is Float  -> inA % inB
-                    is Double -> inA % inB
-                    else      -> DataPathException.invalidTypeInExpression("$inA % $inB")
+                    is Byte       -> inA                                % inB
+                    is Short      -> inA                                % inB
+                    is Int        -> inA                                % inB
+                    is Long       -> inA                                % inB
+                    is BigInteger -> BigInteger.valueOf(inA.toLong())   % inB
+                    is Float      -> inA                                % inB
+                    is Double     -> inA                                % inB
+                    is BigDecimal -> BigDecimal.valueOf(inA.toDouble()) % inB
+                    else          -> DataPathException.invalidTypeInExpression("$inA mod $inB")
                 }
                 is BigDecimal -> when (inB) {
                     is BigInteger -> inA % inB.toBigDecimal()
                     is BigDecimal -> inA % inB
                     is Number     -> inA % BigDecimal.valueOf(inB.toDouble())
-                    else          -> DataPathException.invalidTypeInExpression("$inA % $inB")
+                    else          -> DataPathException.invalidTypeInExpression("$inA mod $inB")
                 }
-                else -> DataPathException.invalidTypeInExpression("$inA % $inB")
+                else -> DataPathException.invalidTypeInExpression("$inA mod $inB")
             }
         }
     }

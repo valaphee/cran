@@ -1,10 +1,10 @@
 # Flow
 
-Framework for flow-based applications written in Kotlin based on Coroutine.
+Flow-based programming "language"
 
-It consists of 5 parts:
+This project consists of 5 parts:
 * flow: Actual implementation (contains all common nodes)
-* flow-api: A http-based processor for development and testing (required for development, contains all extensions)
+* flow-api: A http-based flow processor for development (contains all extensions)
 * flow-ext-*: Extensions
 * flow-gui: A JavaFX-based visual editor
 * flow-meta: Metadata for additional details of graphs (required for development)

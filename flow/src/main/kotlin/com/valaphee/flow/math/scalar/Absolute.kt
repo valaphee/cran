@@ -33,8 +33,8 @@ import kotlin.math.absoluteValue
  */
 @Node("Math/Scalar/Absolute")
 class Absolute(
-    @get:In ("X"  ) @get:JsonProperty("in" ) val `in`: DataPath,
-    @get:Out("|X|") @get:JsonProperty("out") val out : DataPath
+    @get:In ("x"  ) @get:JsonProperty("in" ) val `in`: DataPath,
+    @get:Out("|x|") @get:JsonProperty("out") val out : DataPath
 ) : StatelessNode() {
     override fun initialize(scope: CoroutineScope) {
         out.set {

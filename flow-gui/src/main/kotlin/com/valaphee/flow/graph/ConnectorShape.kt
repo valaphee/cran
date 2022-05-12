@@ -84,7 +84,8 @@ class ConnectorShape(
                             0.0,  4.0,
                             0.0, -4.0
                         ) { fill = Color.WHITE }
-                        "data", "const" -> circle(4.0, 0.0, 4.0) { fill = Color.WHITE }
+                        "data"/*, "const"*/ -> circle(4.0, 0.0, 4.0) { fill = Color.WHITE }
+                        "const" -> Unit
                         else -> error(connector.type)
                     }
                     label(spec.name) {
