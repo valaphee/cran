@@ -19,7 +19,7 @@ package com.valaphee.flow.time
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
-import com.valaphee.flow.EagerNode
+import com.valaphee.flow.StatefulNode
 import com.valaphee.flow.getOrThrow
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
@@ -35,7 +35,7 @@ class Delay(
     @get:In           @get:JsonProperty("in"      ) override val `in`   : ControlPath,
     @get:In ("Delay") @get:JsonProperty("in_delay")          val inDelay: DataPath   ,
     @get:Out          @get:JsonProperty("out"     )          val out    : ControlPath
-) : EagerNode() {
+) : StatefulNode() {
     override fun initialize(scope: CoroutineScope) {
         `in`.collect(scope) {
             val inDelay = inDelay.getOrThrow<Number>().toLong()

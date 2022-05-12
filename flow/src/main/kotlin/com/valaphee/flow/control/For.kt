@@ -19,7 +19,7 @@ package com.valaphee.flow.control
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
-import com.valaphee.flow.EagerNode
+import com.valaphee.flow.StatefulNode
 import com.valaphee.flow.getOrThrow
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
@@ -37,7 +37,7 @@ class For(
     @get:In ("Step" ) @get:JsonProperty("in_step"       )          val inStep      : DataPath   ,
     @get:Out("Body" ) @get:JsonProperty("out_body"      )          val outBody     : ControlPath,
     @get:Out("Exit" ) @get:JsonProperty("out"           )          val out         : ControlPath,
-) : EagerNode() {
+) : StatefulNode() {
     override fun initialize(scope: CoroutineScope) {
         `in`.collect(scope) {
             IntProgression.fromClosedRange((inRangeStart.getOrThrow<Number>()).toInt(), (inRangeEnd.getOrThrow<Number>()).toInt(), (inStep.getOrThrow<Number>()).toInt()).forEach { _ -> outBody.emit() }

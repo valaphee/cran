@@ -19,7 +19,7 @@ package com.valaphee.flow.logic
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.DataPathException
-import com.valaphee.flow.LazyNode
+import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
@@ -33,7 +33,7 @@ class GreaterThanOrEqual(
     @get:In ("A")     @get:JsonProperty("in_a") val inA: DataPath,
     @get:In ("B")     @get:JsonProperty("in_b") val inB: DataPath,
     @get:Out("A ≥ B") @get:JsonProperty("out" ) val out: DataPath
-) : LazyNode() {
+) : StatelessNode() {
     override fun initialize(scope: CoroutineScope) {
         out.set {
             val inA = inA.get()

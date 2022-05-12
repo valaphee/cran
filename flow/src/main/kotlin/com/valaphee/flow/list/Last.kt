@@ -18,7 +18,7 @@ package com.valaphee.flow.list
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
-import com.valaphee.flow.LazyNode
+import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.getOrThrow
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
@@ -32,7 +32,7 @@ import kotlinx.coroutines.CoroutineScope
 class Last(
     @get:In  @get:JsonProperty("in_list" ) val inList : DataPath,
     @get:Out @get:JsonProperty("out"     ) val out    : DataPath
-) : LazyNode() {
+) : StatelessNode() {
     override fun initialize(scope: CoroutineScope) {
         out.set { inList.getOrThrow<List<Any?>>().last() }
     }

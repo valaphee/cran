@@ -19,7 +19,4 @@ package com.valaphee.flow
 /**
  * @author Kevin Ludwig
  */
-abstract class EagerNode : Node() {
-    abstract val `in`: ControlPath
-    /*abstract val out : ControlPath*/
-}
+abstract class StatelessNode : Node()

@@ -18,7 +18,7 @@ package com.valaphee.flow.control
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
-import com.valaphee.flow.LazyNode
+import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
@@ -33,7 +33,7 @@ class Select(
     @get:In                              @get:JsonProperty("in_value"   ) val inValue  : Map<Any?, DataPath>,
     @get:Out("Default", optional = true) @get:JsonProperty("out_default") val inDefault: DataPath?          ,
     @get:Out                             @get:JsonProperty("out"        ) val out      : DataPath
-) : LazyNode() {
+) : StatelessNode() {
     override fun initialize(scope: CoroutineScope) {
         out.set { (inValue[`in`.get()] ?: inDefault)?.get() }
     }

@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
-import com.valaphee.flow.EagerNode
+import com.valaphee.flow.StatefulNode
 import com.valaphee.flow.getOrThrow
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
@@ -39,7 +39,7 @@ class Clock(
     @get:In ("Delay" ) @get:JsonProperty("in_delay" )          val inDelay : DataPath   ,
     @get:In ("Period") @get:JsonProperty("in_period")          val inPeriod: DataPath   ,
     @get:Out           @get:JsonProperty("out"      )          val out     : ControlPath
-) : EagerNode() {
+) : StatefulNode() {
     @JsonIgnore private var running = AtomicBoolean()
 
     override fun initialize(scope: CoroutineScope) {

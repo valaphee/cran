@@ -253,7 +253,11 @@ class Main : View("Flow") {
                 }
                 tab("JSON") {
                     // Children
-                    textarea(jsonProperty) { style { font = Font.font("monospaced", 10.0) } }
+                    textarea(jsonProperty) {
+                        // Properties
+                        style { font = Font.font("monospaced", 10.0) }
+                        isEditable = false
+                    }
 
                     // Events
                     setOnSelectionChanged { jsonProperty.set(graphProperty.get()?.let { ObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it) } ?: "") }

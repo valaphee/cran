@@ -18,7 +18,7 @@ package com.valaphee.flow.list
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
-import com.valaphee.flow.LazyNode
+import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.getOrThrow
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
@@ -33,7 +33,7 @@ class Add(
     @get:In          @get:JsonProperty("in_list" ) val inList : DataPath,
     @get:In ("Item") @get:JsonProperty("in_item" ) val inItem : DataPath,
     @get:Out         @get:JsonProperty("out_list") val outList: DataPath,
-) : LazyNode() {
+) : StatelessNode() {
     override fun initialize(scope: CoroutineScope) {
         outList.set { inList.getOrThrow<List<Any?>>() + inItem.get() }
     }

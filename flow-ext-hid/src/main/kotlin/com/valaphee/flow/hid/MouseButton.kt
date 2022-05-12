@@ -19,7 +19,7 @@ package com.valaphee.flow.hid
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
-import com.valaphee.flow.EagerNode
+import com.valaphee.flow.StatefulNode
 import com.valaphee.flow.getOrThrow
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
@@ -35,7 +35,7 @@ class MouseButton(
     @get:In           @get:JsonProperty("in_button")          val inButton: DataPath   ,
     @get:In ("State") @get:JsonProperty("in_state" )          val inState : DataPath   ,
     @get:Out          @get:JsonProperty("out"      )          val out     : ControlPath
-) : EagerNode() {
+) : StatefulNode() {
     override fun initialize(scope: CoroutineScope) {
         `in`.collect(scope) {
             inButton.getOrThrow<Int>()

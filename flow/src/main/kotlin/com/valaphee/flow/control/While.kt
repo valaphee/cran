@@ -19,7 +19,7 @@ package com.valaphee.flow.control
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
-import com.valaphee.flow.EagerNode
+import com.valaphee.flow.StatefulNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
@@ -34,7 +34,7 @@ class While(
     @get:In          @get:JsonProperty("in_value")          val inValue: DataPath   ,
     @get:Out("Body") @get:JsonProperty("out_body")          val outBody: ControlPath,
     @get:Out("Exit") @get:JsonProperty("out"     )          val out    : ControlPath,
-) : EagerNode() {
+) : StatefulNode() {
     override fun initialize(scope: CoroutineScope) {
         `in`.collect(scope) {
             while (inValue.get() as Boolean) outBody.emit()

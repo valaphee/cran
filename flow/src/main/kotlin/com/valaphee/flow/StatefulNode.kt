@@ -19,4 +19,7 @@ package com.valaphee.flow
 /**
  * @author Kevin Ludwig
  */
-abstract class LazyNode : Node()
+abstract class StatefulNode : Node() {
+    abstract val `in`: ControlPath
+    /*abstract val out : ControlPath*/
+}

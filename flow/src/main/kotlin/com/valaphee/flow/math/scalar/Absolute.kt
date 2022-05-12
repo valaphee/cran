@@ -19,7 +19,7 @@ package com.valaphee.flow.math.scalar
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.DataPathException
-import com.valaphee.flow.LazyNode
+import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
@@ -35,7 +35,7 @@ import kotlin.math.absoluteValue
 class Absolute(
     @get:In ("X"  ) @get:JsonProperty("in" ) val `in`: DataPath,
     @get:Out("|X|") @get:JsonProperty("out") val out : DataPath
-) : LazyNode() {
+) : StatelessNode() {
     override fun initialize(scope: CoroutineScope) {
         out.set {
             val `in` = `in`.get()
