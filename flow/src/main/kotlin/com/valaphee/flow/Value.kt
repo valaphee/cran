@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.spec.Const
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
-import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
@@ -31,7 +30,7 @@ class Value(
     @get:Out   @get:JsonProperty("out"  ) val out  : DataPath       ,
                @get:JsonProperty("embed") val embed: Boolean = false
 ) : StatelessNode() {
-    override fun initialize(scope: CoroutineScope) {
+    override fun initialize() {
         out.set(value)
     }
 }

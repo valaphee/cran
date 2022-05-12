@@ -17,8 +17,9 @@
 rootProject.name = "flow"
 
 include("flow")
-include("flow-api")
 include("flow-ext-hid")
 include("flow-gui")
-include("flow-spec")
 include("flow-meta")
+include("flow-spec")
+include("flow-svc")
+include("flow-svc-all")

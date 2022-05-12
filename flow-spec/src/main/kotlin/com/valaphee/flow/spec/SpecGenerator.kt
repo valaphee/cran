@@ -17,7 +17,8 @@
 package com.valaphee.flow.spec
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.google.auto.service.AutoService
 import com.valaphee.flow.spec.util.toHexString
 import java.security.MessageDigest
@@ -91,7 +92,7 @@ class SpecGenerator : AbstractProcessor() {
                 } else null
             } else null
         }?.let {
-            val bytes = jacksonObjectMapper().writeValueAsString(Spec(it)).encodeToByteArray()
+            val bytes = SmileMapper().registerKotlinModule().writeValueAsBytes(Spec(it))
             processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", "spec.${MessageDigest.getInstance("MD5").digest(bytes).toHexString()}.json").openOutputStream().use { it.write(bytes) }
         }
         return true

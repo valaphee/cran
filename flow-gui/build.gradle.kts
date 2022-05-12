@@ -22,7 +22,7 @@ plugins {
 dependencies {
     implementation(project(":flow-meta"))
     implementation(project(":flow-spec"))
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-smile")
+    implementation(project(":flow-svc"))
     implementation("de.codecentric.centerdevice:javafxsvg:1.3.0")
     implementation("io.ktor:ktor-client-content-negotiation:2.0.1")
     implementation("io.ktor:ktor-client-okhttp:2.0.1")

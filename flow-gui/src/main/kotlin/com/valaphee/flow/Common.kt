@@ -16,7 +16,6 @@
 
 package com.valaphee.flow
 
-import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -24,24 +23,20 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.valaphee.flow.manifest.Manifest
 import com.valaphee.flow.spec.Spec
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.engine.okhttp.OkHttp
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.get
-import io.ktor.http.ContentType
-import io.ktor.serialization.jackson.JacksonConverter
+import com.valaphee.proto.svc.graph.v1.GetSpecRequest
+import com.valaphee.proto.svc.graph.v1.GraphServiceGrpc
+import io.grpc.ManagedChannel
+import io.grpc.ManagedChannelBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.runBlocking
 
-val ApiScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-val ObjectMapper: ObjectMapper = jacksonObjectMapper().setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
-val HttpClient = HttpClient(OkHttp) {
-    expectSuccess = false
-    install(ContentNegotiation) { register(ContentType.Application.Json, JacksonConverter(ObjectMapper)) }
-}
-val SmileObjectMapper: ObjectMapper = SmileMapper().registerKotlinModule().setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
-val Spec = runBlocking { HttpClient.get("http://localhost:8080/v1/spec").body<Spec>() }
+val ObjectMapper: ObjectMapper = jacksonObjectMapper()
+val SmileObjectMapper: ObjectMapper = SmileMapper().registerKotlinModule()
+
+val ServiceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+val Channel: ManagedChannel = ManagedChannelBuilder.forAddress("localhost", 8080).usePlaintext().build()
+val GraphService: GraphServiceGrpc.GraphServiceBlockingStub = GraphServiceGrpc.newBlockingStub(Channel)
+
+val Spec = SmileObjectMapper.readValue<Spec>(GraphService.getSpec(GetSpecRequest.getDefaultInstance()).spec.toByteArray())
 val Manifest = ObjectMapper.readValue<Manifest>(Main::class.java.getResource("/manifest.json")!!)

@@ -19,6 +19,7 @@ plugins { kotlin("kapt") }
 kapt { generateStubs = true }
 
 dependencies {
+    api("com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.13.2")
     api("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
     implementation("com.google.auto.service:auto-service:1.0.1")
     kapt("com.google.auto.service:auto-service:1.0-rc4")

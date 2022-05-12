@@ -36,7 +36,7 @@ class GraphImpl(
     @get:JsonIgnore override val coroutineContext get() = executor.asCoroutineDispatcher()
 
     fun initialize() {
-        graph.forEach { it.initialize(this) }
+        graph.forEach { it.initialize() }
         graph.forEach { it.postInitialize(this) }
     }
 

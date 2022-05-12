@@ -24,7 +24,6 @@ import com.valaphee.flow.getOrThrow
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
-import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
@@ -36,7 +35,7 @@ class KeyboardKey(
     @get:In ("State") @get:JsonProperty("in_state")          val inState: DataPath   ,
     @get:Out          @get:JsonProperty("out"     )          val out    : ControlPath
 ) : StatefulNode() {
-    override fun initialize(scope: CoroutineScope) {
+    override fun initialize() {
         `in`.declare {
             inKey.getOrThrow<Int>()
             inState.getOrThrow<Boolean>()

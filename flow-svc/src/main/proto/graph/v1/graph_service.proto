@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package com.valaphee.proto.svc.graph.v1;
+
+option java_multiple_files = true;
+option java_generic_services = true;
+
+message GetSpecRequest {}
+
+message GetSpecResponse {
+  bytes spec = 1;
+}
+
+message ListGraphRequest {}
+
+message ListGraphResponse {
+  bytes graphs = 1;
+}
+
+message UpdateGraphRequest {
+  bytes graph = 1;
+}
+
+message UpdateGraphResponse {}
+
+message DeleteGraphRequest {
+  string graph_id = 1;
+}
+
+message DeleteGraphResponse {}
+
+service GraphService {
+  rpc GetSpec (GetSpecRequest) returns (GetSpecResponse);
+
+  rpc ListGraph (ListGraphRequest) returns (ListGraphResponse);
+
+  rpc UpdateGraph (UpdateGraphRequest) returns (UpdateGraphResponse);
+
+  rpc DeleteGraph (DeleteGraphRequest) returns (DeleteGraphResponse);
+}

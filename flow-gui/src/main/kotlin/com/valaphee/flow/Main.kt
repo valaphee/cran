@@ -17,18 +17,14 @@
 package com.valaphee.flow
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.google.protobuf.ByteString
 import com.valaphee.flow.graph.Graph
 import com.valaphee.flow.graph.SkinFactory
 import com.valaphee.flow.meta.Meta
+import com.valaphee.proto.svc.graph.v1.DeleteGraphRequest
+import com.valaphee.proto.svc.graph.v1.ListGraphRequest
+import com.valaphee.proto.svc.graph.v1.UpdateGraphRequest
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
-import io.ktor.client.call.body
-import io.ktor.client.request.delete
-import io.ktor.client.request.get
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
 import javafx.beans.property.SimpleListProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.ObservableList
@@ -48,8 +44,6 @@ import javafx.scene.text.Font
 import javafx.stage.FileChooser
 import jfxtras.labs.util.event.MouseControlUtil
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import tornadofx.App
@@ -168,7 +162,7 @@ class Main : View("Flow") {
                     if (selectedComponents.isEmpty()) item("New Graph") { action { graphsProperty.value += Graph() } }
                     else item("Delete") {
                         action {
-                            ApiScope.launch {
+                            ServiceScope.launch {
                                 delete(selectedComponents)
                                 this@Main.refresh()
                             }
@@ -180,7 +174,7 @@ class Main : View("Flow") {
                 selectionModel.selectedItems.onChange { contextMenu = contextMenu(it.list) }
 
                 // Initialization
-                ApiScope.launch { this@Main.refresh() }
+                ServiceScope.launch { this@Main.refresh() }
             }
             tabpane {
                 // Properties
@@ -278,19 +272,7 @@ class Main : View("Flow") {
                     it.consume()
                 }
                 KeyCode.S -> {
-                    graphProperty.get()?.let { graph ->
-                        ApiScope.launch {
-                            delete(listOf(graph))
-                            launch {
-                                if (HttpClient.post("http://localhost:8080/v1/graph") {
-                                        contentType(ContentType.Application.Json)
-                                        setBody(graph)
-                                    }.status == HttpStatusCode.OK) {
-                                    refresh()
-                                }
-                            }
-                        }
-                    }
+                    graphProperty.get()?.let { graph -> ServiceScope.launch { launch { GraphService.updateGraph(UpdateGraphRequest.newBuilder().setGraph(ByteString.copyFrom(SmileObjectMapper.writeValueAsBytes(graph))).build()) } } }
                     it.consume()
                 }
                 KeyCode.V -> Unit
@@ -301,7 +283,7 @@ class Main : View("Flow") {
                     it.consume()
                 }
                 KeyCode.F5 -> {
-                    ApiScope.launch { this@Main.refresh() }
+                    ServiceScope.launch { this@Main.refresh() }
                     it.consume()
                 }
                 else -> Unit
@@ -310,17 +292,16 @@ class Main : View("Flow") {
     }
 
     private suspend fun refresh() {
-        HttpClient.get("http://localhost:8080/v1/graph/").body<List<Graph>>().also {
-            withContext(Dispatchers.Main) {
-                val id = graphProperty.get()?.id
-                graphsProperty.setAll(it)
-                graphProperty.set(it.singleOrNull { it.id == id })
-            }
+        val graphs = SmileObjectMapper.readValue<List<Graph>>(GraphService.listGraph(ListGraphRequest.getDefaultInstance()).graphs.toByteArray())
+        withContext(Dispatchers.Main) {
+            val id = graphProperty.get()?.id
+            graphsProperty.setAll(graphs)
+            graphProperty.set(graphs.singleOrNull { it.id == id })
         }
     }
 
-    private suspend fun delete(graphs: List<Graph>) {
-        graphs.map { coroutineScope { launch { HttpClient.delete("http://localhost:8080/v1/graph/${it.id}") } } }.joinAll()
+    private fun delete(graphs: List<Graph>) {
+        graphs.forEach { GraphService.deleteGraph(DeleteGraphRequest.newBuilder().setGraphId(it.id.toString()).build()) }
     }
 }
 
