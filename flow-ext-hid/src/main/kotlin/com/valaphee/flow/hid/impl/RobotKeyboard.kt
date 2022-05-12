@@ -14,12 +14,27 @@
  * limitations under the License.
  */
 
-plugins { kotlin("kapt") }
+package com.valaphee.flow.hid.impl
 
-kapt { generateStubs = true }
+import com.valaphee.flow.hid.Key
+import com.valaphee.flow.hid.Keyboard
+import java.awt.Robot
 
-dependencies {
-    api("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
-    implementation("com.google.auto.service:auto-service:1.0.1")
-    kapt("com.google.auto.service:auto-service:1.0-rc4")
+/**
+ * @author Kevin Ludwig
+ */
+class RobotKeyboard : Keyboard() {
+    override fun keyPress(key: Key): Boolean {
+        robot.keyPress(key.vkCode)
+        return true
+    }
+
+    override fun keyRelease(key: Key): Boolean {
+        robot.keyRelease(key.vkCode)
+        return true
+    }
+
+    companion object {
+        private val robot = Robot()
+    }
 }

@@ -14,12 +14,31 @@
  * limitations under the License.
  */
 
-plugins { kotlin("kapt") }
+package com.valaphee.flow.hid.impl
 
-kapt { generateStubs = true }
+import com.valaphee.flow.hid.Mouse
+import com.valaphee.foundry.math.Int2
+import java.awt.Robot
 
-dependencies {
-    api("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
-    implementation("com.google.auto.service:auto-service:1.0.1")
-    kapt("com.google.auto.service:auto-service:1.0-rc4")
+/**
+ * @author Kevin Ludwig
+ */
+class RobotMouse : Mouse() {
+    override suspend fun mouseMove(target: Int2) {
+        robot.mouseMove(target.x, target.y)
+    }
+
+    override fun mouseMoveRaw(move: Int2) = TODO()
+
+    override fun mousePress(button: Int) {
+        robot.mousePress(button)
+    }
+
+    override fun mouseRelease(button: Int) {
+        robot.mouseRelease(button)
+    }
+
+    companion object {
+        private val robot = Robot()
+    }
 }

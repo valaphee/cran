@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-plugins { kotlin("kapt") }
+package com.valaphee.flow
 
-kapt { generateStubs = true }
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
-dependencies {
-    api("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
-    implementation("com.google.auto.service:auto-service:1.0.1")
-    kapt("com.google.auto.service:auto-service:1.0-rc4")
-}
+val ObjectMapper: ObjectMapper = jacksonObjectMapper().setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)

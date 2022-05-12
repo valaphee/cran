@@ -16,10 +16,9 @@
 
 package com.valaphee.flow
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.valaphee.flow.spec.Spec
+import io.github.classgraph.ClassGraph
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.jackson.JacksonConverter
@@ -55,10 +54,10 @@ fun main(arguments: Array<String>) {
 
     embeddedServer(Netty, port, host, emptyList()) {
         install(Compression)
-        install(ContentNegotiation) { register(ContentType.Application.Json, JacksonConverter(jacksonObjectMapper().setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL))) }
+        install(ContentNegotiation) { register(ContentType.Application.Json, JacksonConverter(ObjectMapper)) }
 
         routing {
-            val spec = jacksonObjectMapper().readValue<Spec>(Node::class.java.getResource("/spec.json")!!)
+            val spec = ClassGraph().scan().use { Spec(it.getResourcesWithPath("spec.json").urLs.flatMap { ObjectMapper.readValue<Spec>(it).nodes }) }
             get("/v1/spec") { call.respond(spec) }
 
             val graphs = mutableMapOf<UUID, GraphImpl>()

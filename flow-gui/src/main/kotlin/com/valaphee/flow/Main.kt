@@ -43,8 +43,10 @@ import javafx.scene.control.TextField
 import javafx.scene.image.Image
 import javafx.scene.input.KeyCode
 import javafx.scene.layout.Priority
+import javafx.scene.paint.Color
 import javafx.scene.text.Font
 import javafx.stage.FileChooser
+import jfxtras.labs.util.event.MouseControlUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
@@ -68,6 +70,7 @@ import tornadofx.menu
 import tornadofx.menubar
 import tornadofx.onChange
 import tornadofx.pane
+import tornadofx.rectangle
 import tornadofx.scrollpane
 import tornadofx.separator
 import tornadofx.splitpane
@@ -104,16 +107,16 @@ class Main : View("Flow") {
         // Children
         menubar {
             menu("File") {
-                item("Open") {
+                item("Import") {
                     action {
-                        chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("All Files", "*.*"))).singleOrNull()?.let {
+                        chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Flow", "*.flw"), FileChooser.ExtensionFilter("All Files", "*.*"))).singleOrNull()?.let {
                             val graph = ObjectMapper.readValue<Graph>(it)
                             graphsProperty += graph
                             graphProperty.set(graph)
                         }
                     }
                 }
-                item("Save As") { action { chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("All Files", "*.*")), mode = FileChooserMode.Save).singleOrNull()?.let { ObjectMapper.writeValue(it, graphProperty.get()) } } }
+                item("Export As...") { action { chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Flow", "*.flw"), FileChooser.ExtensionFilter("All Files", "*.*")), mode = FileChooserMode.Save).singleOrNull()?.let { ObjectMapper.writeValue(it, graphProperty.get()) } } }
                 separator()
                 item("Exit") { action { close() } }
             }
@@ -174,24 +177,6 @@ class Main : View("Flow") {
                 contextMenu = contextMenu(selectionModel.selectedItems)
                 selectionModel.selectedItems.onChange { contextMenu = contextMenu(it.list) }
 
-                // Events
-                setOnKeyPressed {
-                    when (it.code) {
-                        KeyCode.DELETE -> if (!selectionModel.isEmpty) {
-                            ApiScope.launch {
-                                delete(selectionModel.selectedItems)
-                                this@Main.refresh()
-                            }
-                            it.consume()
-                        }
-                        KeyCode.F5 -> {
-                            ApiScope.launch { this@Main.refresh() }
-                            it.consume()
-                        }
-                        else -> Unit
-                    }
-                }
-
                 // Initialization
                 ApiScope.launch { this@Main.refresh() }
             }
@@ -203,7 +188,21 @@ class Main : View("Flow") {
                 // Children
                 tab("Graph") {
                     scrollpane {
-                        pane { dynamicContent(graphProperty) { it?.flow?.setSkinFactories(SkinFactory(this)) } }
+                        pane {
+                            // Properties
+                            /*isFitToHeight = true
+                            isFitToWidth = true*/
+
+                            // Children
+                            dynamicContent(graphProperty) { it?.flow?.setSkinFactories(SkinFactory(this)) }
+
+                            // Events
+                            MouseControlUtil.addSelectionRectangleGesture(this, rectangle {
+                                stroke = Color.rgb(255, 255, 255, 1.0)
+                                fill = Color.rgb(0, 0, 0, 0.5)
+                            })
+                        }
+
                         contextMenu = contextmenu {
                             val searchProperty = "".toProperty()
                             lateinit var search: TextField
@@ -266,21 +265,37 @@ class Main : View("Flow") {
 
         // Events
         setOnKeyPressed {
-            when (it.code) {
-                KeyCode.S -> if (it.isControlDown) {
-                    graphProperty.get()?.let {
+            if (it.isControlDown) when (it.code) {
+                KeyCode.C -> {
+                    graphProperty.get()?.let { graph -> graph.flow.nodes.filter { it.isSelected } }
+                    it.consume()
+                }
+                KeyCode.S -> {
+                    graphProperty.get()?.let { graph ->
                         ApiScope.launch {
-                            delete(listOf(it))
+                            delete(listOf(graph))
                             launch {
                                 if (HttpClient.post("http://localhost:8080/v1/graph") {
                                         contentType(ContentType.Application.Json)
-                                        setBody(it)
+                                        setBody(graph)
                                     }.status == HttpStatusCode.OK) {
                                     refresh()
                                 }
                             }
                         }
                     }
+                    it.consume()
+                }
+                KeyCode.V -> Unit
+                else -> Unit
+            } else when (it.code) {
+                KeyCode.DELETE -> {
+                    graphProperty.get()?.let { it.flow.nodes.forEach { if (it.isSelected) it.flow.remove(it) } }
+                    it.consume()
+                }
+                KeyCode.F5 -> {
+                    ApiScope.launch { this@Main.refresh() }
+                    it.consume()
                 }
                 else -> Unit
             }

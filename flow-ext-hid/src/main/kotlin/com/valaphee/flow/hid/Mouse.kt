@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
-plugins { kotlin("kapt") }
+package com.valaphee.flow.hid
 
-kapt { generateStubs = true }
+import com.valaphee.foundry.math.Int2
 
-dependencies {
-    api("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
-    implementation("com.google.auto.service:auto-service:1.0.1")
-    kapt("com.google.auto.service:auto-service:1.0-rc4")
+/**
+ * @author Kevin Ludwig
+ */
+abstract class Mouse {
+    abstract suspend fun mouseMove(target: Int2)
+
+    abstract fun mouseMoveRaw(move: Int2)
+
+    abstract fun mousePress(button: Int)
+
+    abstract fun mouseRelease(button: Int)
 }

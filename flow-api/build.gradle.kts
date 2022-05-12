@@ -18,8 +18,9 @@ plugins { id("com.github.johnrengelman.shadow") }
 
 dependencies {
     implementation(project(":flow"))
+    implementation(project(":flow-ext-hid"))
     implementation(project(":flow-meta"))
-    implementation(project(":flow-spec"))
+    implementation("io.github.classgraph:classgraph:4.8.146")
     implementation("io.ktor:ktor-serialization-jackson:2.0.1")
     implementation("io.ktor:ktor-server-compression:2.0.1")
     implementation("io.ktor:ktor-server-content-negotiation:2.0.1")

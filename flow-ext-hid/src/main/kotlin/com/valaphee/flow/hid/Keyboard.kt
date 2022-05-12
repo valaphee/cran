@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-plugins { kotlin("kapt") }
+package com.valaphee.flow.hid
 
-kapt { generateStubs = true }
+/**
+ * @author Kevin Ludwig
+ */
+abstract class Keyboard {
+    abstract fun keyPress(key: Key): Boolean
 
-dependencies {
-    api("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
-    implementation("com.google.auto.service:auto-service:1.0.1")
-    kapt("com.google.auto.service:auto-service:1.0-rc4")
+    abstract fun keyRelease(key: Key): Boolean
 }

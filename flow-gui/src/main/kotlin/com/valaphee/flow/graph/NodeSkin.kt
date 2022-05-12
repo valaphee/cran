@@ -31,9 +31,6 @@ import javafx.scene.layout.BackgroundPosition
 import javafx.scene.layout.BackgroundRepeat
 import javafx.scene.layout.BackgroundSize
 import jfxtras.scene.control.window.WindowIcon
-import tornadofx.action
-import tornadofx.contextmenu
-import tornadofx.item
 import tornadofx.onChange
 
 /**
@@ -46,30 +43,30 @@ class NodeSkin(
     controller: VFlow
 ) : FXFlowNodeSkin(skinFactory, parent, node, controller) {
     override fun createNodeWindow(): FlowNodeWindow = super.createNodeWindow().apply {
+        // Prevent minimizing, closing and resizing
         leftIcons.clear()
-
         setShowMinimizeIconCallback { null }
         setShowCloseIconCallback { null }
         isResizableWindow = false
         resizeableWindowProperty().onChange { if (it) isResizableWindow = false }
 
-        contextmenu { item("Remove") { action { controller.remove(model) } } }
-
-        fun content(spec: Spec.Node?) {
+        // Icon
+        fun icon(spec: Spec.Node?) {
             leftIcons.clear()
 
             spec?.let { Manifest.nodes[it.name]?.let { this::class.java.getResourceAsStream(it.icon)?.let { leftIcons += WindowIcon().apply { background = Background(BackgroundImage(Image(it, 32.0, 32.0, false, false), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, false, true))) } } } }
         }
 
-        content(@Suppress("UNCHECKED_CAST") (model.valueObject.value as Spec.Node?))
-        model.valueObject.valueProperty().onChange { content(@Suppress("UNCHECKED_CAST") (it as Spec.Node?)) }
+        icon(@Suppress("UNCHECKED_CAST") (model.valueObject.value as Spec.Node?))
+        model.valueObject.valueProperty().onChange { icon(@Suppress("UNCHECKED_CAST") (it as Spec.Node?)) }
     }
 
     override fun addConnector(connector: Connector) {
         super.addConnector(connector)
 
-        val connectorShape = getConnectorShape(connector)
+        // Prevent connecting
         if (connector.type == "const") {
+            val connectorShape = getConnectorShape(connector)
             connectorShape.node.setOnMousePressed { }
             connectorShape.node.setOnMouseDragged { }
             connectorShape.node.setOnMouseReleased { }

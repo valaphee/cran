@@ -17,18 +17,13 @@
 plugins {
     kotlin("kapt")
     `maven-publish`
-    id("me.champeau.jmh")
 }
 
 dependencies {
-    api(project(":flow-spec"))
+    api(project(":flow"))
     kapt(project(":flow-spec"))
-    api("com.valaphee:foundry-math:1.4.0")
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.1-native-mt")
+    implementation("org.hid4java:hid4java:0.7.0")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
-    jmh("org.openjdk.jmh:jmh-core:1.35")
-    jmh("org.openjdk.jmh:jmh-generator-annprocess:1.35")
-    jmhAnnotationProcessor("org.openjdk.jmh:jmh-generator-annprocess:1.35")
 }
 
 java {
@@ -42,7 +37,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             pom.apply {
-                name.set("Flow")
+                name.set("Flow Hid Extension")
                 description.set("")
                 url.set("https://valaphee.com")
                 scm {

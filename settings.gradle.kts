@@ -18,6 +18,7 @@ rootProject.name = "flow"
 
 include("flow")
 include("flow-api")
+include("flow-ext-hid")
 include("flow-gui")
 include("flow-spec")
 include("flow-meta")

@@ -71,7 +71,7 @@ class Graph(
                     y = it.y
                 }
                 valueObject.value = nodeSpec
-                selectableProperty().value = false
+                /*selectableProperty().value = false*/
             }
             nodeSpec.ports.mapNotNull { nodePortSpec ->
                 when (nodePortSpec.type) {
@@ -115,7 +115,7 @@ class Graph(
             x = meta.x
             y = meta.y
             valueObject.value = spec
-            selectableProperty().value = false
+            /*selectableProperty().value = false*/
         }
         spec.ports.forEach { nodePortSpec ->
             when (nodePortSpec.type) {

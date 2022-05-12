@@ -56,6 +56,7 @@ class ConnectorShape(
     init {
         setConnector(connector)
 
+        // Connector shapes are by default in back of the containing node
         CoroutineScope(Dispatchers.Main).launch { toFront() }
     }
 
