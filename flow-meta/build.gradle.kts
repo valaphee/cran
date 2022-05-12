@@ -14,7 +14,49 @@
  * limitations under the License.
  */
 
+plugins { `maven-publish` }
+
 dependencies {
     api("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+signing { sign(publishing.publications) }
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            pom.apply {
+                name.set("Flow Meta")
+                description.set("Metadata for Flow")
+                url.set("https://valaphee.com")
+                scm {
+                    connection.set("https://github.com/valaphee/flow.git")
+                    developerConnection.set("https://github.com/valaphee/flow.git")
+                    url.set("https://github.com/valaphee/flow")
+                }
+                licenses {
+                    license {
+                        name.set("Apache License 2.0")
+                        url.set("https://raw.githubusercontent.com/valaphee/flow/master/LICENSE.txt")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("valaphee")
+                        name.set("Valaphee")
+                        email.set("iam@valaphee.com")
+                        roles.add("owner")
+                    }
+                }
+            }
+
+            from(components["java"])
+        }
+    }
 }

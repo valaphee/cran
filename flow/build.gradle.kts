@@ -44,7 +44,7 @@ publishing {
         create<MavenPublication>("maven") {
             pom.apply {
                 name.set("Flow")
-                description.set("")
+                description.set("Flow-based programming \"language\"")
                 url.set("https://valaphee.com")
                 scm {
                     connection.set("https://github.com/valaphee/flow.git")

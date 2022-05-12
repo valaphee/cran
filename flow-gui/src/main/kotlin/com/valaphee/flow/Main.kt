@@ -118,14 +118,10 @@ class Main : View("Flow") {
             }
             menu("Help") { item("About") { action { find<About>().openModal(resizable = false) } } }
         }
-        /*hbox {
-            // Parent Properties
-            vgrow = Priority.ALWAYS*/
 
         // Children
         splitpane {
             // Parent Properties
-            /*hgrow = Priority.ALWAYS*/
             vgrow = Priority.ALWAYS
 
             // Properties
@@ -160,11 +156,18 @@ class Main : View("Flow") {
 
                 fun contextMenu(selectedComponents: ObservableList<out Graph>) = ContextMenu().apply {
                     if (selectedComponents.isEmpty()) item("New Graph") { action { graphsProperty.value += Graph() } }
-                    else item("Delete") {
-                        action {
-                            ServiceScope.launch {
-                                delete(selectedComponents)
-                                this@Main.refresh()
+                    else {
+                        item("Delete") {
+                            action {
+                                ServiceScope.launch {
+                                    delete(selectedComponents)
+                                    this@Main.refresh()
+                                }
+                            }
+                        }
+                        item("Rename") {
+                            action {
+
                             }
                         }
                     }
@@ -251,7 +254,6 @@ class Main : View("Flow") {
                 tab("JSON") {
                     // Children
                     textarea(jsonProperty) {
-                        // Properties
                         style { font = Font.font("monospaced", 10.0) }
                         isEditable = false
                     }
@@ -260,8 +262,6 @@ class Main : View("Flow") {
                     setOnSelectionChanged { jsonProperty.set(graphProperty.get()?.let { ObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it) } ?: "") }
                 }
             }
-            /*}
-            drawer(Side.RIGHT)*/
         }
 
         // Events

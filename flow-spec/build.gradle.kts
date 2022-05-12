@@ -14,13 +14,56 @@
  * limitations under the License.
  */
 
-plugins { kotlin("kapt") }
-
-kapt { generateStubs = true }
+plugins {
+    kotlin("kapt")
+    `maven-publish`
+}
 
 dependencies {
     api("com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.13.2")
     api("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
     implementation("com.google.auto.service:auto-service:1.0.1")
     kapt("com.google.auto.service:auto-service:1.0-rc4")
+}
+
+kapt { generateStubs = true }
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+signing { sign(publishing.publications) }
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            pom.apply {
+                name.set("Flow Spec")
+                description.set("Specifications for Flow")
+                url.set("https://valaphee.com")
+                scm {
+                    connection.set("https://github.com/valaphee/flow.git")
+                    developerConnection.set("https://github.com/valaphee/flow.git")
+                    url.set("https://github.com/valaphee/flow")
+                }
+                licenses {
+                    license {
+                        name.set("Apache License 2.0")
+                        url.set("https://raw.githubusercontent.com/valaphee/flow/master/LICENSE.txt")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("valaphee")
+                        name.set("Valaphee")
+                        email.set("iam@valaphee.com")
+                        roles.add("owner")
+                    }
+                }
+            }
+
+            from(components["java"])
+        }
+    }
 }
