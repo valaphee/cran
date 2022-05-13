@@ -21,10 +21,10 @@ import com.google.common.math.IntMath
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.DataPathException
 import com.valaphee.flow.StatelessNode
+import com.valaphee.flow.spec.DataType
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
-import com.valaphee.flow.spec.Type
 import kotlin.math.pow
 
 /**
@@ -32,9 +32,9 @@ import kotlin.math.pow
  */
 @Node("Math/Scalar/Exponentiate")
 class Exponentiate(
-    @get:In ("x" , Type.Num) @get:JsonProperty("in_x") val inX: DataPath,
-    @get:In ("n" , Type.Num) @get:JsonProperty("in_n") val inN: DataPath,
-    @get:Out("xⁿ", Type.Num) @get:JsonProperty("out" ) val out: DataPath
+    @get:In ("x" , DataType.Num) @get:JsonProperty("in_x") val inX: DataPath,
+    @get:In ("n" , DataType.Num) @get:JsonProperty("in_n") val inN: DataPath,
+    @get:Out("xⁿ", DataType.Num) @get:JsonProperty("out" ) val out: DataPath
 ) : StatelessNode() {
     override fun initialize() {
         out.set {

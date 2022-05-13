@@ -64,8 +64,8 @@ class SpecGenerator : AbstractProcessor() {
                             } else {
                                 Spec.Node.Port(
                                     `in`.value, when {
-                                        type.contains("com.valaphee.flow.ControlPath") -> Spec.Node.Port.Type.InControl
-                                        type.contains("com.valaphee.flow.DataPath") -> Spec.Node.Port.Type.InData
+                                        type.contains(Type.ControlPath) -> Spec.Node.Port.Type.InControl
+                                        type.contains(Type.DataPath) -> Spec.Node.Port.Type.InData
                                         else -> {
                                             processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @In type $type.")
                                             return true
@@ -78,8 +78,8 @@ class SpecGenerator : AbstractProcessor() {
                             } else {
                                 Spec.Node.Port(
                                     out.value, when {
-                                        type.contains("com.valaphee.flow.ControlPath") -> Spec.Node.Port.Type.OutControl
-                                        type.contains("com.valaphee.flow.DataPath") -> Spec.Node.Port.Type.OutData
+                                        type.contains(Type.ControlPath) -> Spec.Node.Port.Type.OutControl
+                                        type.contains(Type.DataPath) -> Spec.Node.Port.Type.OutData
                                         else -> {
                                             processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @Out type $type.")
                                             return true

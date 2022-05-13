@@ -20,18 +20,18 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.getOrThrow
+import com.valaphee.flow.spec.DataType
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
-import com.valaphee.flow.spec.Type
 
 /**
  * @author Kevin Ludwig
  */
 @Node("List/Last")
 class Last(
-    @get:In (type = "${Type.Arr}0") @get:JsonProperty("in_list" ) val inList : DataPath,
-    @get:Out(type = "0"           ) @get:JsonProperty("out"     ) val out    : DataPath
+    @get:In (type = "${DataType.Arr}0") @get:JsonProperty("in_list" ) val inList : DataPath,
+    @get:Out(type = "0"               ) @get:JsonProperty("out"     ) val out    : DataPath
 ) : StatelessNode() {
     override fun initialize() {
         out.set { inList.getOrThrow<Iterable<Any?>>("in_list").last() }

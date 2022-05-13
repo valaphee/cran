@@ -16,9 +16,10 @@
 
 package com.valaphee.flow.graph
 
-import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.google.inject.Inject
+import com.google.inject.Singleton
 import com.google.protobuf.ByteString
 import com.valaphee.flow.spec.Spec
 import com.valaphee.svc.graph.v1.DeleteGraphRequest
@@ -37,7 +38,10 @@ import java.util.UUID
 /**
  * @author Kevin Ludwig
  */
-class GraphServiceImpl : GraphServiceImplBase() {
+@Singleton
+class GraphServiceImpl @Inject constructor(
+    private val objectMapper: ObjectMapper
+) : GraphServiceImplBase() {
     private val spec = GetSpecResponse.newBuilder().setSpec(ByteString.copyFrom(objectMapper.writeValueAsBytes(ClassGraph().scan().use { Spec(it.getResourcesMatchingWildcard("spec.*.json").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes }) }))).build()
     private val graphs = mutableMapOf<UUID, GraphImpl>()
 
@@ -65,9 +69,5 @@ class GraphServiceImpl : GraphServiceImplBase() {
         if (graphs.containsKey(graphId)) graphs.remove(graphId)!!.shutdown()
         responseObserver.onNext(DeleteGraphResponse.getDefaultInstance())
         responseObserver.onCompleted()
-    }
-
-    companion object {
-        private val objectMapper = SmileMapper().registerKotlinModule()
     }
 }

@@ -18,7 +18,7 @@ package com.valaphee.flow.graph
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.CurrentSpec
+import com.google.inject.Inject
 import com.valaphee.flow.meta.Meta
 import com.valaphee.flow.spec.Spec
 import eu.mihosoft.vrl.workflow.Connector
@@ -56,6 +56,7 @@ class Graph(
             } + embed
         }
 
+    @Inject private lateinit var spec: Spec
     @get:JsonIgnore val flow: VFlow = FlowFactory.newFlow().apply {
         isVisible = true
 
@@ -63,7 +64,7 @@ class Graph(
         val _embed = embed.associate { it["out"] as Int to it["value"] }
         val connectors = other.mapIndexed { i, node ->
             val type = node.remove("type") as String
-            val nodeSpec = CurrentSpec.nodes.single { it.json == type }
+            val nodeSpec = spec.nodes.single { it.json == type }
             val _node = newNode().apply {
                 title = nodeSpec.name
                 meta.nodes.getOrNull(i)?.let {

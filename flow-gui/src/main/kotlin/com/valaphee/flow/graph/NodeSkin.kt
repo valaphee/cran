@@ -16,7 +16,6 @@
 
 package com.valaphee.flow.graph
 
-import com.valaphee.flow.CurrentManifest
 import com.valaphee.flow.spec.Spec
 import eu.mihosoft.vrl.workflow.Connector
 import eu.mihosoft.vrl.workflow.VFlow
@@ -37,7 +36,7 @@ import tornadofx.onChange
  * @author Kevin Ludwig
  */
 class NodeSkin(
-    skinFactory: SkinFactory,
+    private val skinFactory: SkinFactory,
     parent: Parent,
     node: VNode,
     controller: VFlow
@@ -54,7 +53,7 @@ class NodeSkin(
         fun icon(spec: Spec.Node?) {
             leftIcons.clear()
 
-            spec?.let { CurrentManifest.nodes[it.name]?.let { this::class.java.getResourceAsStream(it.icon)?.let { leftIcons += WindowIcon().apply { background = Background(BackgroundImage(Image(it, 32.0, 32.0, false, false), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, false, true))) } } } }
+            spec?.let { skinFactory.manifest.nodes[it.name]?.let { this::class.java.getResourceAsStream(it.icon)?.let { leftIcons += WindowIcon().apply { background = Background(BackgroundImage(Image(it, 32.0, 32.0, false, false), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, false, true))) } } } }
         }
 
         icon(@Suppress("UNCHECKED_CAST") (model.valueObject.value as Spec.Node?))

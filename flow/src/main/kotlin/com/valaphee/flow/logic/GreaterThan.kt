@@ -23,7 +23,7 @@ import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
-import com.valaphee.flow.spec.Type
+import com.valaphee.flow.spec.DataType
 
 /**
  * @author Kevin Ludwig
@@ -32,7 +32,7 @@ import com.valaphee.flow.spec.Type
 class GreaterThan(
     @get:In ("A"              ) @get:JsonProperty("in_a") val inA: DataPath,
     @get:In ("B"              ) @get:JsonProperty("in_b") val inB: DataPath,
-    @get:Out("A > B", Type.Bin) @get:JsonProperty("out" ) val out: DataPath
+    @get:Out("A > B", DataType.Bin) @get:JsonProperty("out" ) val out: DataPath
 ) : StatelessNode() {
     override fun initialize() {
         out.set {

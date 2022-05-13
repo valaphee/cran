@@ -17,7 +17,6 @@
 plugins {
     kotlin("kapt")
     `maven-publish`
-    id("me.champeau.jmh")
 }
 
 dependencies {
@@ -27,9 +26,6 @@ dependencies {
     api("com.valaphee:foundry-math:1.4.0")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.1-native-mt")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
-    jmh("org.openjdk.jmh:jmh-core:1.35")
-    jmh("org.openjdk.jmh:jmh-generator-annprocess:1.35")
-    jmhAnnotationProcessor("org.openjdk.jmh:jmh-generator-annprocess:1.35")
 }
 
 java {

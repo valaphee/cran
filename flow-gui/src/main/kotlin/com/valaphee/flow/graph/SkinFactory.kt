@@ -16,6 +16,7 @@
 
 package com.valaphee.flow.graph
 
+import com.valaphee.flow.manifest.Manifest
 import eu.mihosoft.vrl.workflow.Connection
 import eu.mihosoft.vrl.workflow.VFlow
 import eu.mihosoft.vrl.workflow.VNode
@@ -27,11 +28,10 @@ import javafx.scene.Parent
  * @author Kevin Ludwig
  */
 class SkinFactory(
+    val manifest: Manifest,
     parent: Parent,
-    parentFactory: FXSkinFactory?
+    parentFactory: FXSkinFactory? = null,
 ) : FXSkinFactory(parent, parentFactory) {
-    constructor(parent: Parent) : this(parent, null)
-
     override fun createSkin(node: VNode, flow: VFlow) = NodeSkin(this, fxParent, node, flow)
 
     override fun createSkin(connection: Connection, flow: VFlow, type: String): FXConnectionSkin = ConnectionSkin(this, fxParent, connection, flow, type).init()

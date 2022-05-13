@@ -22,7 +22,6 @@ plugins {
     kotlin("jvm") version "1.6.21"
     kotlin("kapt") version "1.6.21"
     `maven-publish`
-    id("me.champeau.jmh") version "0.6.6"
     id("org.openjfx.javafxplugin") version "0.0.10"
     signing
 }

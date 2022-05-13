@@ -21,23 +21,23 @@ import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.StatefulNode
 import com.valaphee.flow.getOrThrow
+import com.valaphee.flow.spec.DataType
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
-import com.valaphee.flow.spec.Type
 
 /**
  * @author Kevin Ludwig
  */
 @Node("Control/For")
 class For(
-    @get:In                     @get:JsonProperty("in"            ) override val `in`        : ControlPath,
-    @get:In ("Start", Type.Num) @get:JsonProperty("in_range_start")          val inRangeStart: DataPath   ,
-    @get:In ("End"  , Type.Num) @get:JsonProperty("in_range_end"  )          val inRangeEnd  : DataPath   ,
-    @get:In ("Step" , Type.Num) @get:JsonProperty("in_step"       )          val inStep      : DataPath   ,
-    @get:Out("Body"           ) @get:JsonProperty("out_body"      )          val outBody     : ControlPath,
-    @get:Out("Exit"           ) @get:JsonProperty("out"           )          val out         : ControlPath,
-    @get:Out("Index", Type.Num) @get:JsonProperty("out_index"     )          val outIndex    : DataPath   ,
+    @get:In                         @get:JsonProperty("in"            ) override val `in`        : ControlPath,
+    @get:In ("Start", DataType.Num) @get:JsonProperty("in_range_start")          val inRangeStart: DataPath   ,
+    @get:In ("End"  , DataType.Num) @get:JsonProperty("in_range_end"  )          val inRangeEnd  : DataPath   ,
+    @get:In ("Step" , DataType.Num) @get:JsonProperty("in_step"       )          val inStep      : DataPath   ,
+    @get:Out("Body"               ) @get:JsonProperty("out_body"      )          val outBody     : ControlPath,
+    @get:Out("Exit"               ) @get:JsonProperty("out"           )          val out         : ControlPath,
+    @get:Out("Index", DataType.Num) @get:JsonProperty("out_index"     )          val outIndex    : DataPath   ,
 ) : StatefulNode() {
     override fun initialize() {
         `in`.declare {

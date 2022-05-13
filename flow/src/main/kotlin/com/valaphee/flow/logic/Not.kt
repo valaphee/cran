@@ -20,18 +20,18 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.DataPathException
 import com.valaphee.flow.StatelessNode
+import com.valaphee.flow.spec.DataType
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
-import com.valaphee.flow.spec.Type
 
 /**
  * @author Kevin Ludwig
  */
 @Node("Logic/Not")
 class Not(
-    @get:In ("X" , Type.Bin) @get:JsonProperty("in" ) val `in`: DataPath,
-    @get:Out("¬X", Type.Bin) @get:JsonProperty("out") val out : DataPath
+    @get:In ("X" , DataType.Bin) @get:JsonProperty("in" ) val `in`: DataPath,
+    @get:Out("¬X", DataType.Bin) @get:JsonProperty("out") val out : DataPath
 ) : StatelessNode() {
     override fun initialize() {
         out.set {

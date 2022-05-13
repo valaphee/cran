@@ -16,7 +16,18 @@
 
 package com.valaphee.flow
 
+import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair
+import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper
+import com.fasterxml.jackson.module.guice.GuiceAnnotationIntrospector
+import com.fasterxml.jackson.module.guice.GuiceInjectableValues
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.google.inject.AbstractModule
+import com.google.inject.Guice
+import com.google.inject.Injector
+import com.google.inject.Provides
+import com.google.inject.Singleton
 import com.valaphee.flow.graph.GraphServiceImpl
+import com.valaphee.svc.graph.v1.GraphServiceGrpc.GraphServiceImplBase
 import io.grpc.ServerBuilder
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
@@ -34,5 +45,25 @@ fun main(arguments: Array<String>) {
     System.setOut(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.INFO).buildPrintStream())
     System.setErr(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.ERROR).buildPrintStream())
 
-    ServerBuilder.forPort(port).addService(GraphServiceImpl()).build().start().awaitTermination()
+    val injector = Guice.createInjector(object : AbstractModule() {
+        override fun configure() {
+            bind(GraphServiceImplBase::class.java).to(GraphServiceImpl::class.java)
+        }
+
+        @Provides
+        @Singleton
+        fun objectMapper(injector: Injector) = SmileMapper().registerKotlinModule().apply {
+            val guiceAnnotationIntrospector = GuiceAnnotationIntrospector()
+            setAnnotationIntrospectors(AnnotationIntrospectorPair(guiceAnnotationIntrospector, serializationConfig.annotationIntrospector), AnnotationIntrospectorPair(guiceAnnotationIntrospector, deserializationConfig.annotationIntrospector))
+            injectableValues = GuiceInjectableValues(injector)
+        }
+    })
+
+    ServerBuilder
+        .forPort(port)
+    /*Grpc.newServerBuilderForPort(8443, TlsServerCredentials.create(File(""), File("")))*/
+        .addService(injector.getInstance(GraphServiceImplBase::class.java))
+        .build()
+        .start()
+        .awaitTermination()
 }

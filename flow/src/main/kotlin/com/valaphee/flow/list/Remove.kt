@@ -20,19 +20,19 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.getOrThrow
+import com.valaphee.flow.spec.DataType
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
-import com.valaphee.flow.spec.Type
 
 /**
  * @author Kevin Ludwig
  */
 @Node("List/Remove")
 class Remove(
-    @get:In (type = "${Type.Arr}0") @get:JsonProperty("in_list")  val inList : DataPath,
-    @get:In ("Item", type = "0"   ) @get:JsonProperty("in_item")  val inItem : DataPath,
-    @get:Out(type = "${Type.Arr}0") @get:JsonProperty("out_list") val outList: DataPath,
+    @get:In (type = "${DataType.Arr}0") @get:JsonProperty("in_list")  val inList : DataPath,
+    @get:In ("Item", type = "0"       ) @get:JsonProperty("in_item")  val inItem : DataPath,
+    @get:Out(type = "${DataType.Arr}0") @get:JsonProperty("out_list") val outList: DataPath,
 ) : StatelessNode() {
     override fun initialize() {
         outList.set { inList.getOrThrow<Iterable<Any?>>("in_list") - inItem.get() }

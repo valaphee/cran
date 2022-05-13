@@ -16,10 +16,10 @@
 
 package com.valaphee.flow.graph
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.valaphee.flow.ObjectMapper
 import com.valaphee.flow.spec.Spec
-import com.valaphee.flow.spec.Type
+import com.valaphee.flow.spec.DataType
 import eu.mihosoft.vrl.workflow.ConnectionEvent
 import eu.mihosoft.vrl.workflow.Connector
 import eu.mihosoft.vrl.workflow.VFlow
@@ -91,7 +91,7 @@ class ConnectorShape(
                         textFill = Color.WHITE
                     }
                     if (connector.type == "data" || connector.type == "const") when (spec.dataType) {
-                        Type.Bin -> checkbox(null, (const as? Boolean ?: false).toProperty().apply {
+                        DataType.Bin -> checkbox(null, (const as? Boolean ?: false).toProperty().apply {
                             onChange {
                                 try {
                                     connector.valueObject.value = spec to it
@@ -99,16 +99,19 @@ class ConnectorShape(
                                 }
                             }
                         })
-                        else -> textfield(const?.let { ObjectMapper.writeValueAsString(it) } ?: "") {
-                            // Properties
-                            minWidth = 100.0
+                        else -> {
+                            val objectMapper = jacksonObjectMapper()
+                            textfield(const?.let { objectMapper.writeValueAsString(it) } ?: "") {
+                                // Properties
+                                minWidth = 100.0
 
-                            // Events
-                            focusedProperty().onChange {
-                                if (!it) connector.valueObject.value = spec to try {
-                                    if (text.isBlank()) null else ObjectMapper.readValue<Any?>(text)
-                                } catch (_: Throwable) {
-                                    text
+                                // Events
+                                focusedProperty().onChange {
+                                    if (!it) connector.valueObject.value = spec to try {
+                                        if (text.isBlank()) null else objectMapper.readValue<Any?>(text)
+                                    } catch (_: Throwable) {
+                                        text
+                                    }
                                 }
                             }
                         }

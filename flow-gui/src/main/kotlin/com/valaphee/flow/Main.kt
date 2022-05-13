@@ -16,16 +16,36 @@
 
 package com.valaphee.flow
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair
+import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper
+import com.fasterxml.jackson.module.guice.GuiceAnnotationIntrospector
+import com.fasterxml.jackson.module.guice.GuiceInjectableValues
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.google.inject.AbstractModule
+import com.google.inject.Guice
+import com.google.inject.Injector
+import com.google.inject.Provides
+import com.google.inject.Singleton
 import com.google.protobuf.ByteString
 import com.valaphee.flow.graph.Graph
 import com.valaphee.flow.graph.SkinFactory
+import com.valaphee.flow.manifest.Manifest
 import com.valaphee.flow.meta.Meta
+import com.valaphee.flow.spec.Spec
 import com.valaphee.svc.graph.v1.DeleteGraphRequest
+import com.valaphee.svc.graph.v1.GetSpecRequest
+import com.valaphee.svc.graph.v1.GraphServiceGrpc
+import com.valaphee.svc.graph.v1.GraphServiceGrpc.GraphServiceBlockingStub
 import com.valaphee.svc.graph.v1.ListGraphRequest
 import com.valaphee.svc.graph.v1.UpdateGraphRequest
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
 import eu.mihosoft.vrl.workflow.VNode
+import io.grpc.Channel
+import io.grpc.ManagedChannelBuilder
 import javafx.beans.property.SimpleListProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.ObservableList
@@ -44,10 +64,13 @@ import javafx.scene.paint.Color
 import javafx.scene.text.Font
 import javafx.stage.FileChooser
 import jfxtras.labs.util.event.MouseControlUtil
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import tornadofx.App
+import tornadofx.DIContainer
+import tornadofx.FX
 import tornadofx.FileChooserMode
 import tornadofx.View
 import tornadofx.action
@@ -80,23 +103,31 @@ import tornadofx.vbox
 import tornadofx.vgrow
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
+import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
 /**
  * @author Kevin Ludwig
  */
-class Main : View("Flow") {
+class Main : View("Flow"), CoroutineScope {
+    override val coroutineContext = Dispatchers.IO
+
+    private val objectMapper by di<ObjectMapper>()
+    private val spec by di<Spec>()
+    private val manifest by di<Manifest>()
+    private val graphService by di<GraphServiceBlockingStub>()
+
+    private val jsonObjectMapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
     private val jsonProperty = "".toProperty()
 
     private val graphsProperty = SimpleListProperty(mutableListOf<Graph>().toObservable())
     private val graphProperty = SimpleObjectProperty<Graph>().apply {
         onChange {
             title = "http://localhost:8080/${(it?.meta?.name ?: it?.id)?.let { " - $it" } ?: ""}"
-            jsonProperty.set(it?.let { ObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it) } ?: "")
+            jsonProperty.set(it?.let { jsonObjectMapper.writeValueAsString(it) } ?: "")
         }
     }
 
-    // setSkinFactories(SkinFactory(parent))
     override val root = vbox {
         // Properties
         setPrefSize(1000.0, 800.0)
@@ -107,13 +138,13 @@ class Main : View("Flow") {
                 item("Import") {
                     action {
                         chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Flow", "*.flw"), FileChooser.ExtensionFilter("All Files", "*.*"))).singleOrNull()?.let {
-                            val graph = it.inputStream().use { SmileObjectMapper.readValue<Graph>(GZIPInputStream(it)) }
+                            val graph = it.inputStream().use { objectMapper.readValue<Graph>(GZIPInputStream(it)) }
                             graphsProperty += graph
                             graphProperty.set(graph)
                         }
                     }
                 }
-                item("Export As...") { action { chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Flow", "*.flw"), FileChooser.ExtensionFilter("All Files", "*.*")), mode = FileChooserMode.Save).singleOrNull()?.let { it.outputStream().use { SmileObjectMapper.writeValue(GZIPOutputStream(it), graphProperty.get()) } } } }
+                item("Export As...") { action { chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Flow", "*.flw"), FileChooser.ExtensionFilter("All Files", "*.*")), mode = FileChooserMode.Save).singleOrNull()?.let { it.outputStream().use { objectMapper.writeValue(GZIPOutputStream(it), graphProperty.get()) } } } }
                 separator()
                 item("Exit") { action { close() } }
             }
@@ -160,7 +191,7 @@ class Main : View("Flow") {
                     else {
                         item("Delete") {
                             action {
-                                ServiceScope.launch {
+                                launch {
                                     delete(selectedComponents)
                                     this@Main.refresh()
                                 }
@@ -178,7 +209,7 @@ class Main : View("Flow") {
                 selectionModel.selectedItems.onChange { contextMenu = contextMenu(it.list) }
 
                 // Initialization
-                ServiceScope.launch { this@Main.refresh() }
+                launch { this@Main.refresh() }
             }
             tabpane {
                 // Properties
@@ -194,7 +225,7 @@ class Main : View("Flow") {
                             isFitToWidth = true*/
 
                             // Children
-                            dynamicContent(graphProperty) { it?.flow?.setSkinFactories(SkinFactory(this)) }
+                            dynamicContent(graphProperty) { it?.flow?.setSkinFactories(SkinFactory(manifest, this)) }
 
                             // Events
                             MouseControlUtil.addSelectionRectangleGesture(this, rectangle {
@@ -211,13 +242,13 @@ class Main : View("Flow") {
 
                             val treeItems = mutableListOf<MenuItem>()
                             val nodeItems = mutableMapOf<String, MenuItem>()
-                            CurrentSpec.nodes.forEach { node ->
+                            spec.nodes.forEach { node ->
                                 val name = node.name.split('/')
                                 val path = StringBuilder()
                                 var item: MenuItem? = null
                                 name.forEachIndexed { i, element ->
                                     path.append("${element}/")
-                                    val icon = CurrentManifest.nodes[path.toString().removeSuffix("/")]?.let { this::class.java.getResourceAsStream(it.icon)?.let { imageview(Image(it, 16.0, 16.0, false, false)) } }
+                                    val icon = manifest.nodes[path.toString().removeSuffix("/")]?.let { this::class.java.getResourceAsStream(it.icon)?.let { imageview(Image(it, 16.0, 16.0, false, false)) } }
                                     item = when (val _item = item) {
                                         null -> treeItems.find { it.text == element } ?: if (i == name.lastIndex) MenuItem(element, icon).apply {
                                             treeItems += this
@@ -260,7 +291,7 @@ class Main : View("Flow") {
                     }
 
                     // Events
-                    setOnSelectionChanged { jsonProperty.set(graphProperty.get()?.let { ObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it) } ?: "") }
+                    setOnSelectionChanged { jsonProperty.set(graphProperty.get()?.let { jsonObjectMapper.writeValueAsString(it) } ?: "") }
                 }
             }
         }
@@ -273,7 +304,7 @@ class Main : View("Flow") {
                     it.consume()
                 }
                 KeyCode.S -> {
-                    graphProperty.get()?.let { graph -> ServiceScope.launch { GraphService.updateGraph(UpdateGraphRequest.newBuilder().setGraph(ByteString.copyFrom(SmileObjectMapper.writeValueAsBytes(graph))).build()) } }
+                    graphProperty.get()?.let { graph -> launch { graphService.updateGraph(UpdateGraphRequest.newBuilder().setGraph(ByteString.copyFrom(objectMapper.writeValueAsBytes(graph))).build()) } }
                     it.consume()
                 }
                 KeyCode.V -> Unit
@@ -284,7 +315,7 @@ class Main : View("Flow") {
                     it.consume()
                 }
                 KeyCode.F5 -> {
-                    ServiceScope.launch { this@Main.refresh() }
+                    launch { this@Main.refresh() }
                     it.consume()
                 }
                 else -> Unit
@@ -293,7 +324,7 @@ class Main : View("Flow") {
     }
 
     private suspend fun refresh() {
-        val graphs = SmileObjectMapper.readValue<List<Graph>>(GraphService.listGraph(ListGraphRequest.getDefaultInstance()).graphs.toByteArray())
+        val graphs = objectMapper.readValue<List<Graph>>(graphService.listGraph(ListGraphRequest.getDefaultInstance()).graphs.toByteArray())
         withContext(Dispatchers.Main) {
             val id = graphProperty.get()?.id
             graphsProperty.setAll(graphs)
@@ -302,7 +333,7 @@ class Main : View("Flow") {
     }
 
     private fun delete(graphs: List<Graph>) {
-        graphs.forEach { GraphService.deleteGraph(DeleteGraphRequest.newBuilder().setGraphId(it.id.toString()).build()) }
+        graphs.forEach { graphService.deleteGraph(DeleteGraphRequest.newBuilder().setGraphId(it.id.toString()).build()) }
     }
 }
 
@@ -317,6 +348,36 @@ class MainApp : App(Image(MainApp::class.java.getResourceAsStream("/app.png")), 
 
 fun main(arguments: Array<String>) {
     SvgImageLoaderFactory.install()
+
+    val injector = Guice.createInjector(object : AbstractModule() {
+        @Provides
+        @Singleton
+        fun objectMapper(injector: Injector) = SmileMapper().registerKotlinModule().apply {
+            val guiceAnnotationIntrospector = GuiceAnnotationIntrospector()
+            setAnnotationIntrospectors(AnnotationIntrospectorPair(guiceAnnotationIntrospector, serializationConfig.annotationIntrospector), AnnotationIntrospectorPair(guiceAnnotationIntrospector, deserializationConfig.annotationIntrospector))
+            injectableValues = GuiceInjectableValues(injector)
+        }
+
+        @Provides
+        @Singleton
+        fun channel(): Channel = ManagedChannelBuilder.forAddress("localhost", 8080).usePlaintext().build()
+
+        @Provides
+        @Singleton
+        fun graphService(channel: Channel) = GraphServiceGrpc.newBlockingStub(channel)
+
+        @Provides
+        @Singleton
+        fun spec(objectMapper: ObjectMapper, graphService: GraphServiceBlockingStub) = objectMapper.readValue<Spec>(graphService.getSpec(GetSpecRequest.getDefaultInstance()).spec.toByteArray())
+
+        @Provides
+        @Singleton
+        fun manifest() = jacksonObjectMapper().readValue<Manifest>(this::class.java.getResource("/manifest.json")!!)
+    })
+
+    FX.dicontainer = object : DIContainer {
+        override fun <T : Any> getInstance(type: KClass<T>) = injector.getInstance(type.java)
+    }
 
     launch<MainApp>(arguments)
 

@@ -20,19 +20,19 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.DataPathException
 import com.valaphee.flow.StatelessNode
+import com.valaphee.flow.spec.DataType
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
-import com.valaphee.flow.spec.Type
 
 /**
  * @author Kevin Ludwig
  */
 @Node("Logic/Less Than or Equal")
 class LessThanOrEqual(
-    @get:In ("A"              ) @get:JsonProperty("in_a") val inA: DataPath,
-    @get:In ("B"              ) @get:JsonProperty("in_b") val inB: DataPath,
-    @get:Out("A ≤ B", Type.Bin) @get:JsonProperty("out" ) val out: DataPath
+    @get:In ("A"                  ) @get:JsonProperty("in_a") val inA: DataPath,
+    @get:In ("B"                  ) @get:JsonProperty("in_b") val inB: DataPath,
+    @get:Out("A ≤ B", DataType.Bin) @get:JsonProperty("out" ) val out: DataPath
 ) : StatelessNode() {
     override fun initialize() {
         out.set {
