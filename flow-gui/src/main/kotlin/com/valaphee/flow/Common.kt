@@ -38,5 +38,5 @@ val ServiceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 val Channel: ManagedChannel = ManagedChannelBuilder.forAddress("localhost", 8080).usePlaintext().build()
 val GraphService: GraphServiceGrpc.GraphServiceBlockingStub = GraphServiceGrpc.newBlockingStub(Channel)
 
-val Spec = SmileObjectMapper.readValue<Spec>(GraphService.getSpec(GetSpecRequest.getDefaultInstance()).spec.toByteArray())
-val Manifest = ObjectMapper.readValue<Manifest>(Main::class.java.getResource("/manifest.json")!!)
+val CurrentSpec = SmileObjectMapper.readValue<Spec>(GraphService.getSpec(GetSpecRequest.getDefaultInstance()).spec.toByteArray())
+val CurrentManifest = ObjectMapper.readValue<Manifest>(Main::class.java.getResource("/manifest.json")!!)

@@ -28,10 +28,10 @@ import com.valaphee.flow.spec.Out
  */
 @Node("Control/Select")
 class Select(
-    @get:In            @get:JsonProperty("in"        ) val `in`     : DataPath           ,
-    @get:In            @get:JsonProperty("in_value"  ) val inValue  : Map<Any?, DataPath>,
-    @get:In("Default") @get:JsonProperty("in_default") val inDefault: DataPath           ,
-    @get:Out           @get:JsonProperty("out"       ) val out      : DataPath
+    @get:In (type = "0"    ) @get:JsonProperty("in"        ) val `in`     : DataPath           ,
+    @get:In (type = "0=1"  ) @get:JsonProperty("in_value"  ) val inValue  : Map<Any?, DataPath>,
+    @get:In ("Default", "1") @get:JsonProperty("in_default") val inDefault: DataPath           ,
+    @get:Out(type = "1"    ) @get:JsonProperty("out"       ) val out      : DataPath
 ) : StatelessNode() {
     override fun initialize() {
         out.set { (inValue[`in`.get()] ?: inDefault).get() }

@@ -16,7 +16,7 @@
 
 package com.valaphee.flow.graph
 
-import com.valaphee.flow.Manifest
+import com.valaphee.flow.CurrentManifest
 import com.valaphee.flow.spec.Spec
 import eu.mihosoft.vrl.workflow.Connector
 import eu.mihosoft.vrl.workflow.VFlow
@@ -38,7 +38,7 @@ import tornadofx.onChange
  */
 class NodeSkin(
     skinFactory: SkinFactory,
-    private val parent: Parent,
+    parent: Parent,
     node: VNode,
     controller: VFlow
 ) : FXFlowNodeSkin(skinFactory, parent, node, controller) {
@@ -54,7 +54,7 @@ class NodeSkin(
         fun icon(spec: Spec.Node?) {
             leftIcons.clear()
 
-            spec?.let { Manifest.nodes[it.name]?.let { this::class.java.getResourceAsStream(it.icon)?.let { leftIcons += WindowIcon().apply { background = Background(BackgroundImage(Image(it, 32.0, 32.0, false, false), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, false, true))) } } } }
+            spec?.let { CurrentManifest.nodes[it.name]?.let { this::class.java.getResourceAsStream(it.icon)?.let { leftIcons += WindowIcon().apply { background = Background(BackgroundImage(Image(it, 32.0, 32.0, false, false), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, false, true))) } } } }
         }
 
         icon(@Suppress("UNCHECKED_CAST") (model.valueObject.value as Spec.Node?))
@@ -73,5 +73,5 @@ class NodeSkin(
         }
     }
 
-    override fun createConnectorShape(connector: Connector) = ConnectorShape(controller, skinFactory, connector)
+    override fun createConnectorShape(connector: Connector) = ConnectorShape(controller, connector)
 }

@@ -18,8 +18,9 @@ package com.valaphee.flow.graph
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.Spec
+import com.valaphee.flow.CurrentSpec
 import com.valaphee.flow.meta.Meta
+import com.valaphee.flow.spec.Spec
 import eu.mihosoft.vrl.workflow.Connector
 import eu.mihosoft.vrl.workflow.FlowFactory
 import eu.mihosoft.vrl.workflow.VFlow
@@ -41,8 +42,8 @@ class Graph(
             var index = connections.lastOrNull()?.index?.let { it + 1 } ?: 0
             val embed = mutableListOf<Map<String, Any?>>()
             return flow.nodes.map {
-                mapOf<String, Any?>("type" to (it.valueObject.value as com.valaphee.flow.spec.Spec.Node).json) + it.inputs.associate { input ->
-                    val (spec, _const) = input.valueObject.value as Pair<com.valaphee.flow.spec.Spec.Node.Port, Any?>
+                mapOf<String, Any?>("type" to (it.valueObject.value as Spec.Node).json) + it.inputs.associate { input ->
+                    val (_, _const) = input.valueObject.value as Pair<*, *>
                     input.localId to (connections.singleOrNull { it.value.value.contains(input) }?.index ?: _const?.let {
                         if (input.type != "const") {
                             embed += mapOf("type" to "com.valaphee.flow.Value", "value" to it, "out" to index, "embed" to true)
@@ -50,7 +51,6 @@ class Graph(
                         } else it
                     } ?: index++)
                 } + it.outputs.associate { output ->
-                    val (spec, _) = output.valueObject.value as Pair<com.valaphee.flow.spec.Spec.Node.Port, Any?>
                     output.localId to (connections.singleOrNull { it.value.key == output }?.index ?: index++)
                 }
             } + embed
@@ -63,7 +63,7 @@ class Graph(
         val _embed = embed.associate { it["out"] as Int to it["value"] }
         val connectors = other.mapIndexed { i, node ->
             val type = node.remove("type") as String
-            val nodeSpec = Spec.nodes.single { it.json == type }
+            val nodeSpec = CurrentSpec.nodes.single { it.json == type }
             val _node = newNode().apply {
                 title = nodeSpec.name
                 meta.nodes.getOrNull(i)?.let {
@@ -75,28 +75,28 @@ class Graph(
             }
             nodeSpec.ports.mapNotNull { nodePortSpec ->
                 when (nodePortSpec.type) {
-                    com.valaphee.flow.spec.Spec.Node.Port.Type.InControl -> node[nodePortSpec.json] as Int to _node.addInput("control").apply {
+                    Spec.Node.Port.Type.InControl -> node[nodePortSpec.json] as Int to _node.addInput("control").apply {
                         /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
                         localId = nodePortSpec.json
                         valueObject.value = nodePortSpec to null
                     }
-                    com.valaphee.flow.spec.Spec.Node.Port.Type.OutControl -> node[nodePortSpec.json] as Int to _node.addOutput("control").apply {
+                    Spec.Node.Port.Type.OutControl -> node[nodePortSpec.json] as Int to _node.addOutput("control").apply {
                         /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
                         localId = nodePortSpec.json
                         valueObject.value = nodePortSpec to null
                     }
-                    com.valaphee.flow.spec.Spec.Node.Port.Type.InData -> {
+                    Spec.Node.Port.Type.InData -> {
                         val connectionId = node[nodePortSpec.json] as Int
                         connectionId to _node.addInput("data").apply {
                             localId = nodePortSpec.json
                             valueObject.value = nodePortSpec to _embed[connectionId]
                         }
                     }
-                    com.valaphee.flow.spec.Spec.Node.Port.Type.OutData -> node[nodePortSpec.json] as Int to _node.addOutput("data").apply {
+                    Spec.Node.Port.Type.OutData -> node[nodePortSpec.json] as Int to _node.addOutput("data").apply {
                         localId = nodePortSpec.json
                         valueObject.value = nodePortSpec to null
                     }
-                    com.valaphee.flow.spec.Spec.Node.Port.Type.Const -> {
+                    Spec.Node.Port.Type.Const -> {
                         _node.addInput("const").apply {
                             localId = nodePortSpec.json
                             valueObject.value = nodePortSpec to node[nodePortSpec.json]
@@ -109,7 +109,7 @@ class Graph(
         graph.zip(connectors).forEach { it.first.entries.forEach { port -> it.second[port.value]?.let { connectorA -> connectors.forEach { it[port.value]?.let { connectorB -> connect(connectorA, connectorB) } } } } }
     }
 
-    fun newNode(spec: com.valaphee.flow.spec.Spec.Node, meta: Meta.Node) {
+    fun newNode(spec: Spec.Node, meta: Meta.Node) {
         val node = flow.newNode().apply {
             title = spec.name
             x = meta.x
@@ -119,25 +119,25 @@ class Graph(
         }
         spec.ports.forEach { nodePortSpec ->
             when (nodePortSpec.type) {
-                com.valaphee.flow.spec.Spec.Node.Port.Type.InControl -> node.addInput("control").apply {
+                Spec.Node.Port.Type.InControl -> node.addInput("control").apply {
                     /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
                     localId = nodePortSpec.json
                     valueObject.value = nodePortSpec to null
                 }
-                com.valaphee.flow.spec.Spec.Node.Port.Type.OutControl -> node.addOutput("control").apply {
+                Spec.Node.Port.Type.OutControl -> node.addOutput("control").apply {
                     /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
                     localId = nodePortSpec.json
                     valueObject.value = nodePortSpec to null
                 }
-                com.valaphee.flow.spec.Spec.Node.Port.Type.InData -> node.addInput("data").apply {
+                Spec.Node.Port.Type.InData -> node.addInput("data").apply {
                     localId = nodePortSpec.json
                     valueObject.value = nodePortSpec to null
                 }
-                com.valaphee.flow.spec.Spec.Node.Port.Type.OutData -> node.addOutput("data").apply {
+                Spec.Node.Port.Type.OutData -> node.addOutput("data").apply {
                     localId = nodePortSpec.json
                     valueObject.value = nodePortSpec to null
                 }
-                com.valaphee.flow.spec.Spec.Node.Port.Type.Const -> node.addInput("const").apply {
+                Spec.Node.Port.Type.Const -> node.addInput("const").apply {
                     localId = nodePortSpec.json
                     valueObject.value = nodePortSpec to null
                 }

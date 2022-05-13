@@ -23,6 +23,7 @@ import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
+import com.valaphee.flow.spec.Type
 import java.math.BigDecimal
 import java.math.BigInteger
 import kotlin.math.absoluteValue
@@ -32,8 +33,8 @@ import kotlin.math.absoluteValue
  */
 @Node("Math/Scalar/Absolute")
 class Absolute(
-    @get:In ("X"  ) @get:JsonProperty("in" ) val `in`: DataPath,
-    @get:Out("|X|") @get:JsonProperty("out") val out : DataPath
+    @get:In ("X"  , Type.Num) @get:JsonProperty("in" ) val `in`: DataPath,
+    @get:Out("|X|", Type.Num) @get:JsonProperty("out") val out : DataPath
 ) : StatelessNode() {
     override fun initialize() {
         out.set {

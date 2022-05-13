@@ -70,7 +70,7 @@ class SpecGenerator : AbstractProcessor() {
                                             processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @In type $type.")
                                             return true
                                         }
-                                    }, type.contains("Map"), json.value
+                                    }, `in`.type, json.value
                                 )
                             } else if (out != null) if (const != null) {
                                 processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @Out or @Const is allowed, not both.")
@@ -84,9 +84,9 @@ class SpecGenerator : AbstractProcessor() {
                                             processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @Out type $type.")
                                             return true
                                         }
-                                    }, type.contains("Map"), json.value
+                                    }, out.type, json.value
                                 )
-                            } else if (const != null) Spec.Node.Port(const.value, Spec.Node.Port.Type.Const, false, json.value) else null
+                            } else if (const != null) Spec.Node.Port(const.value, Spec.Node.Port.Type.Const, "", json.value) else null
                         } else null
                     }, `class`.qualifiedName.toString())
                 } else null

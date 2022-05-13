@@ -20,23 +20,25 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.StatefulNode
+import com.valaphee.flow.getOrThrow
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
+import com.valaphee.flow.spec.Type
 
 /**
  * @author Kevin Ludwig
  */
 @Node("Control/While")
 class While(
-    @get:In          @get:JsonProperty("in"      ) override val `in`   : ControlPath,
-    @get:In          @get:JsonProperty("in_value")          val inValue: DataPath   ,
-    @get:Out("Body") @get:JsonProperty("out_body")          val outBody: ControlPath,
-    @get:Out("Exit") @get:JsonProperty("out"     )          val out    : ControlPath,
+    @get:In                   @get:JsonProperty("in"      ) override val `in`   : ControlPath,
+    @get:In (type = Type.Bin) @get:JsonProperty("in_value")          val inValue: DataPath   ,
+    @get:Out("Body"         ) @get:JsonProperty("out_body")          val outBody: ControlPath,
+    @get:Out("Exit"         ) @get:JsonProperty("out"     )          val out    : ControlPath,
 ) : StatefulNode() {
     override fun initialize() {
         `in`.declare {
-            while (inValue.get() as Boolean) outBody()
+            while (inValue.getOrThrow("in_value")) outBody()
             out()
         }
     }

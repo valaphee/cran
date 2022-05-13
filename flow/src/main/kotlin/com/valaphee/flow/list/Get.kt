@@ -23,17 +23,18 @@ import com.valaphee.flow.getOrThrow
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
+import com.valaphee.flow.spec.Type
 
 /**
  * @author Kevin Ludwig
  */
 @Node("List/Get")
 class Get(
-    @get:In           @get:JsonProperty("in_list" ) val inList : DataPath,
-    @get:In ("Index") @get:JsonProperty("in_index") val inIndex: DataPath,
-    @get:Out          @get:JsonProperty("out"     ) val out    : DataPath
+    @get:In (type = "${Type.Arr}0") @get:JsonProperty("in_list" ) val inList : DataPath,
+    @get:In ("Index", Type.Num    ) @get:JsonProperty("in_index") val inIndex: DataPath,
+    @get:Out(type = "0"           ) @get:JsonProperty("out"     ) val out    : DataPath
 ) : StatelessNode() {
     override fun initialize() {
-        out.set { inList.getOrThrow<List<Any?>>("in_list")[inIndex.get() as Int] }
+        out.set { inList.getOrThrow<List<Any?>>("in_list")[inIndex.getOrThrow<Number>("in_index").toInt()] }
     }
 }

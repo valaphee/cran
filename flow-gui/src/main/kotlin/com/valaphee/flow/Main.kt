@@ -25,6 +25,7 @@ import com.valaphee.svc.graph.v1.DeleteGraphRequest
 import com.valaphee.svc.graph.v1.ListGraphRequest
 import com.valaphee.svc.graph.v1.UpdateGraphRequest
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
+import eu.mihosoft.vrl.workflow.VNode
 import javafx.beans.property.SimpleListProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.ObservableList
@@ -210,13 +211,13 @@ class Main : View("Flow") {
 
                             val treeItems = mutableListOf<MenuItem>()
                             val nodeItems = mutableMapOf<String, MenuItem>()
-                            Spec.nodes.forEach { node ->
+                            CurrentSpec.nodes.forEach { node ->
                                 val name = node.name.split('/')
                                 val path = StringBuilder()
                                 var item: MenuItem? = null
                                 name.forEachIndexed { i, element ->
                                     path.append("${element}/")
-                                    val icon = Manifest.nodes[path.toString().removeSuffix("/")]?.let { this::class.java.getResourceAsStream(it.icon)?.let { imageview(Image(it, 16.0, 16.0, false, false)) } }
+                                    val icon = CurrentManifest.nodes[path.toString().removeSuffix("/")]?.let { this::class.java.getResourceAsStream(it.icon)?.let { imageview(Image(it, 16.0, 16.0, false, false)) } }
                                     item = when (val _item = item) {
                                         null -> treeItems.find { it.text == element } ?: if (i == name.lastIndex) MenuItem(element, icon).apply {
                                             treeItems += this
@@ -268,18 +269,18 @@ class Main : View("Flow") {
         setOnKeyPressed {
             if (it.isControlDown) when (it.code) {
                 KeyCode.C -> {
-                    graphProperty.get()?.let { graph -> graph.flow.nodes.filter { it.isSelected } }
+                    graphProperty.get()?.let { graph -> graph.flow.nodes.filter(VNode::isSelected) }
                     it.consume()
                 }
                 KeyCode.S -> {
-                    graphProperty.get()?.let { graph -> ServiceScope.launch { launch { GraphService.updateGraph(UpdateGraphRequest.newBuilder().setGraph(ByteString.copyFrom(SmileObjectMapper.writeValueAsBytes(graph))).build()) } } }
+                    graphProperty.get()?.let { graph -> ServiceScope.launch { GraphService.updateGraph(UpdateGraphRequest.newBuilder().setGraph(ByteString.copyFrom(SmileObjectMapper.writeValueAsBytes(graph))).build()) } }
                     it.consume()
                 }
                 KeyCode.V -> Unit
                 else -> Unit
             } else when (it.code) {
                 KeyCode.DELETE -> {
-                    graphProperty.get()?.let { graph -> graph.flow.nodes.filter { it.isSelected }.forEach { graph.flow.remove(it) } }
+                    graphProperty.get()?.let { graph -> graph.flow.nodes.filter(VNode::isSelected).forEach(graph.flow::remove) }
                     it.consume()
                 }
                 KeyCode.F5 -> {

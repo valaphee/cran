@@ -23,17 +23,18 @@ import com.valaphee.flow.getOrThrow
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
+import com.valaphee.flow.spec.Type
 
 /**
  * @author Kevin Ludwig
  */
 @Node("List/Add")
 class Add(
-    @get:In          @get:JsonProperty("in_list" ) val inList : DataPath,
-    @get:In ("Item") @get:JsonProperty("in_item" ) val inItem : DataPath,
-    @get:Out         @get:JsonProperty("out_list") val outList: DataPath,
+    @get:In (type = "${Type.Arr}0") @get:JsonProperty("in_list" ) val inList : DataPath,
+    @get:In ("Item", "0"          ) @get:JsonProperty("in_item" ) val inItem : DataPath,
+    @get:Out(type = "${Type.Arr}0") @get:JsonProperty("out_list") val outList: DataPath,
 ) : StatelessNode() {
     override fun initialize() {
-        outList.set { inList.getOrThrow<List<Any?>>("in_list") + inItem.get() }
+        outList.set { inList.getOrThrow<Iterable<Any?>>("in_list") + inItem.get() }
     }
 }

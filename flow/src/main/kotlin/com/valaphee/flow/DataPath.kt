@@ -35,7 +35,6 @@ class DataPath(
 
     suspend fun get() = value ?: valueFunction?.invoke()
 
-    @Deprecated("")
     fun set(value: Any?) {
         if (valueFunction != null) throw DataPathException.AlreadySet
 

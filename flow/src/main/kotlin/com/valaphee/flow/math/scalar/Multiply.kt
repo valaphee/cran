@@ -23,6 +23,7 @@ import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
+import com.valaphee.flow.spec.Type
 import java.math.BigDecimal
 import java.math.BigInteger
 
@@ -31,9 +32,9 @@ import java.math.BigInteger
  */
 @Node("Math/Scalar/Multiply")
 class Multiply(
-    @get:In ("A")     @get:JsonProperty("in_a") val inA: DataPath,
-    @get:In ("B")     @get:JsonProperty("in_b") val inB: DataPath,
-    @get:Out("A × B") @get:JsonProperty("out" ) val out: DataPath
+    @get:In ("A"    , Type.Num) @get:JsonProperty("in_a") val inA: DataPath,
+    @get:In ("B"    , Type.Num) @get:JsonProperty("in_b") val inB: DataPath,
+    @get:Out("A × B", Type.Num) @get:JsonProperty("out" ) val out: DataPath
 ) : StatelessNode() {
     override fun initialize() {
         out.set {

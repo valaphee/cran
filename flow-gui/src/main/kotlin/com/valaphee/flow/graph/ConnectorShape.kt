@@ -19,12 +19,11 @@ package com.valaphee.flow.graph
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.valaphee.flow.ObjectMapper
 import com.valaphee.flow.spec.Spec
+import com.valaphee.flow.spec.Type
 import eu.mihosoft.vrl.workflow.ConnectionEvent
 import eu.mihosoft.vrl.workflow.Connector
 import eu.mihosoft.vrl.workflow.VFlow
 import eu.mihosoft.vrl.workflow.fx.ConnectorShape
-import eu.mihosoft.vrl.workflow.fx.FXSkinFactory
-import eu.mihosoft.vrl.workflow.skin.ConnectionSkin
 import javafx.geometry.Pos
 import javafx.scene.layout.HBox
 import javafx.scene.paint.Color
@@ -32,6 +31,7 @@ import javafx.scene.text.Text
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import tornadofx.checkbox
 import tornadofx.circle
 import tornadofx.label
 import tornadofx.onChange
@@ -46,11 +46,9 @@ import tornadofx.toProperty
  */
 class ConnectorShape(
     private val flow: VFlow,
-    private val skinFactory: FXSkinFactory,
     connector: Connector
 ) : HBox(), ConnectorShape {
     private var connector: Connector? = null
-    private var connectionSkin: ConnectionSkin<*>? = null
     private val radiusProperty = 0.0.toProperty()
 
     init {
@@ -92,24 +90,34 @@ class ConnectorShape(
                         minWidth = Text(text).layoutBounds.width
                         textFill = Color.WHITE
                     }
-                    if (connector.type == "data" || connector.type == "const") {
-                        textfield(const?.let { ObjectMapper.writeValueAsString(it) } ?: "") {
-                            // Properties
-                            minWidth = 100.0
-                            isVisible = !flow.getConnections(connector.type).isInputConnected(connector) || connector.type == "const"
-                            connector.addConnectionEventListener {
-                                when (it.eventType) {
-                                    ConnectionEvent.ADD -> isVisible = false
-                                    ConnectionEvent.REMOVE -> isVisible = true
+                    if (connector.type == "data" || connector.type == "const") when (spec.dataType) {
+                        Type.Bin -> checkbox(null, (const as? Boolean ?: false).toProperty().apply {
+                            onChange {
+                                try {
+                                    connector.valueObject.value = spec to it
+                                } catch (_: Throwable) {
                                 }
                             }
+                        })
+                        else -> textfield(const?.let { ObjectMapper.writeValueAsString(it) } ?: "") {
+                            // Properties
+                            minWidth = 100.0
 
                             // Events
                             focusedProperty().onChange {
-                                if (!it) try {
-                                    connector.valueObject.value = spec to if (text.isBlank()) null else ObjectMapper.readValue<Any?>(text)
+                                if (!it) connector.valueObject.value = spec to try {
+                                    if (text.isBlank()) null else ObjectMapper.readValue<Any?>(text)
                                 } catch (_: Throwable) {
+                                    text
                                 }
+                            }
+                        }
+                    }.apply {
+                        isVisible = !flow.getConnections(connector.type).isInputConnected(connector) || connector.type == "const"
+                        connector.addConnectionEventListener {
+                            when (it.eventType) {
+                                ConnectionEvent.ADD -> isVisible = false
+                                ConnectionEvent.REMOVE -> isVisible = true
                             }
                         }
                     } else Unit
