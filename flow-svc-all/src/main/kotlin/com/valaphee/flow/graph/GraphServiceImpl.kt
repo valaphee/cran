@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow
+package com.valaphee.flow.graph
 
 import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.google.protobuf.ByteString
 import com.valaphee.flow.spec.Spec
-import com.valaphee.proto.svc.graph.v1.DeleteGraphRequest
-import com.valaphee.proto.svc.graph.v1.DeleteGraphResponse
-import com.valaphee.proto.svc.graph.v1.GetSpecRequest
-import com.valaphee.proto.svc.graph.v1.GetSpecResponse
-import com.valaphee.proto.svc.graph.v1.GraphServiceGrpc.GraphServiceImplBase
-import com.valaphee.proto.svc.graph.v1.ListGraphRequest
-import com.valaphee.proto.svc.graph.v1.ListGraphResponse
-import com.valaphee.proto.svc.graph.v1.UpdateGraphRequest
-import com.valaphee.proto.svc.graph.v1.UpdateGraphResponse
+import com.valaphee.svc.graph.v1.DeleteGraphRequest
+import com.valaphee.svc.graph.v1.DeleteGraphResponse
+import com.valaphee.svc.graph.v1.GetSpecRequest
+import com.valaphee.svc.graph.v1.GetSpecResponse
+import com.valaphee.svc.graph.v1.GraphServiceGrpc.GraphServiceImplBase
+import com.valaphee.svc.graph.v1.ListGraphRequest
+import com.valaphee.svc.graph.v1.ListGraphResponse
+import com.valaphee.svc.graph.v1.UpdateGraphRequest
+import com.valaphee.svc.graph.v1.UpdateGraphResponse
 import io.github.classgraph.ClassGraph
 import io.grpc.stub.StreamObserver
 import java.util.UUID

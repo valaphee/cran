@@ -21,9 +21,9 @@ import com.google.protobuf.ByteString
 import com.valaphee.flow.graph.Graph
 import com.valaphee.flow.graph.SkinFactory
 import com.valaphee.flow.meta.Meta
-import com.valaphee.proto.svc.graph.v1.DeleteGraphRequest
-import com.valaphee.proto.svc.graph.v1.ListGraphRequest
-import com.valaphee.proto.svc.graph.v1.UpdateGraphRequest
+import com.valaphee.svc.graph.v1.DeleteGraphRequest
+import com.valaphee.svc.graph.v1.ListGraphRequest
+import com.valaphee.svc.graph.v1.UpdateGraphRequest
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
 import javafx.beans.property.SimpleListProperty
 import javafx.beans.property.SimpleObjectProperty

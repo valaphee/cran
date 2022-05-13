@@ -23,20 +23,28 @@ import com.valaphee.flow.Node
 import com.valaphee.flow.control.For
 import kotlinx.coroutines.runBlocking
 import org.openjdk.jmh.annotations.Benchmark
+import org.openjdk.jmh.annotations.BenchmarkMode
 import org.openjdk.jmh.annotations.Fork
 import org.openjdk.jmh.annotations.Level
 import org.openjdk.jmh.annotations.Measurement
+import org.openjdk.jmh.annotations.Mode
+import org.openjdk.jmh.annotations.OutputTimeUnit
 import org.openjdk.jmh.annotations.Scope
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.State
+import org.openjdk.jmh.annotations.Threads
 import org.openjdk.jmh.annotations.Warmup
+import java.util.concurrent.TimeUnit
 
 /**
  * @author Kevin Ludwig
  */
 @State(Scope.Benchmark)
-@Warmup(iterations = 2, time = 5)
-@Measurement(iterations = 2, time = 5)
+@BenchmarkMode(Mode.AverageTime)
+@OutputTimeUnit(TimeUnit.NANOSECONDS)
+@Warmup(iterations = 2, time = 1)
+@Measurement(iterations = 2, time = 1)
+@Threads(2)
 @Fork(1)
 open class ForBenchmark {
     lateinit var begin: ControlPath
@@ -47,40 +55,41 @@ open class ForBenchmark {
             """
                 [
                     {
-                        "type" : "com.valaphee.flow.util.ControlPlug",
-                        "aux" : 0
+                        "type": "com.valaphee.flow.util.ControlPlug",
+                        "aux": 0
                     },
                     {
-                        "type" : "com.valaphee.flow.Value",
-                        "value" : 0,
-                        "out" : 1
+                        "type": "com.valaphee.flow.Value",
+                        "value": 0,
+                        "out": 1
                     },
                     {
-                        "type" : "com.valaphee.flow.Value",
-                        "value" : 1000,
-                        "out" : 2
+                        "type": "com.valaphee.flow.Value",
+                        "value": 1000,
+                        "out": 2
                     },
                     {
-                        "type" : "com.valaphee.flow.Value",
-                        "value" : 1,
-                        "out" : 3
+                        "type": "com.valaphee.flow.Value",
+                        "value": 1,
+                        "out": 3
                     },
                     {
-                        "type" : "com.valaphee.flow.control.For",
-                        "in" : 0,
-                        "in_range_start" : 1,
-                        "in_range_end" : 2,
-                        "in_step" : 3,
-                        "out_body" : 4,
-                        "out" : 5
+                        "type": "com.valaphee.flow.control.For",
+                        "in": 0,
+                        "in_range_start": 1,
+                        "in_range_end": 2,
+                        "in_step": 3,
+                        "out_index": 4,
+                        "out_body": 5,
+                        "out": 6
                     },
                     {
-                        "type" : "com.valaphee.flow.util.ControlPlug",
-                        "aux" : 4
+                        "type": "com.valaphee.flow.util.ControlPlug",
+                        "aux": 5
                     },
                     {
-                        "type" : "com.valaphee.flow.util.ControlPlug",
-                        "aux" : 5
+                        "type": "com.valaphee.flow.util.ControlPlug",
+                        "aux": 6
                     }
                 ]
             """.trimIndent()

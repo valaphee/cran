@@ -37,8 +37,8 @@ class KeyboardKey(
 ) : StatefulNode() {
     override fun initialize() {
         `in`.declare {
-            inKey.getOrThrow<Int>()
-            inState.getOrThrow<Boolean>()
+            inKey.getOrThrow<Int>("in_key")
+            inState.getOrThrow<Boolean>("in_state")
             out.invoke()
         }
     }

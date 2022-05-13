@@ -37,8 +37,8 @@ class MouseButton(
 ) : StatefulNode() {
     override fun initialize() {
         `in`.declare {
-            inButton.getOrThrow<Int>()
-            inState.getOrThrow<Boolean>()
+            inButton.getOrThrow<Int>("in_button")
+            inState.getOrThrow<Boolean>("in_state")
             out()
         }
     }

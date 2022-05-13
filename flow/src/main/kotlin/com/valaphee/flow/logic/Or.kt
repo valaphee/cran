@@ -37,7 +37,7 @@ class Or(
         out.set {
             val inA = inA.get()
             val inB = inB.get()
-            if (inA is Boolean && inB is Boolean) inA or inB else DataPathException.invalidTypeInExpression("$inA | $inB")
+            if (inA is Boolean && inB is Boolean) inA or inB else DataPathException.invalidTypeInExpression("$inA ∨ $inB")
         }
     }
 }

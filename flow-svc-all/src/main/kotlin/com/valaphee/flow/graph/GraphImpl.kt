@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow
+package com.valaphee.flow.graph
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.flow.Graph
+import com.valaphee.flow.Node
 import com.valaphee.flow.meta.Meta
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -35,12 +37,8 @@ class GraphImpl(
     @JsonIgnore private val executor = Executors.newSingleThreadExecutor()
     @get:JsonIgnore override val coroutineContext get() = executor.asCoroutineDispatcher()
 
-    fun initialize() {
-        graph.forEach { it.initialize() }
-        graph.forEach { it.postInitialize(this) }
-    }
-
-    fun shutdown() {
+    override fun shutdown() {
+        super.shutdown()
         executor.shutdown()
     }
 }

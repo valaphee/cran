@@ -16,6 +16,7 @@
 
 package com.valaphee.flow
 
+import com.valaphee.flow.graph.GraphServiceImpl
 import io.grpc.ServerBuilder
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType

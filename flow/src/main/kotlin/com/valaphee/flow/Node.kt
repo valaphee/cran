@@ -17,7 +17,6 @@
 package com.valaphee.flow
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
@@ -26,5 +25,5 @@ import kotlinx.coroutines.CoroutineScope
 abstract class Node {
     open fun initialize() = Unit
 
-    open fun postInitialize(scope: CoroutineScope) = Unit
+    open fun shutdown() = Unit
 }

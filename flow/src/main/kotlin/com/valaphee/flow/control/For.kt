@@ -34,12 +34,16 @@ class For(
     @get:In ("Start") @get:JsonProperty("in_range_start")          val inRangeStart: DataPath   ,
     @get:In ("End"  ) @get:JsonProperty("in_range_end"  )          val inRangeEnd  : DataPath   ,
     @get:In ("Step" ) @get:JsonProperty("in_step"       )          val inStep      : DataPath   ,
+    @get:Out("Index") @get:JsonProperty("out_index"     )          val outIndex    : DataPath   ,
     @get:Out("Body" ) @get:JsonProperty("out_body"      )          val outBody     : ControlPath,
     @get:Out("Exit" ) @get:JsonProperty("out"           )          val out         : ControlPath,
 ) : StatefulNode() {
     override fun initialize() {
         `in`.declare {
-            IntProgression.fromClosedRange((inRangeStart.getOrThrow<Number>()).toInt(), (inRangeEnd.getOrThrow<Number>()).toInt(), (inStep.getOrThrow<Number>()).toInt()).forEach { outBody(it) }
+            IntProgression.fromClosedRange((inRangeStart.getOrThrow<Number>("in_range_start")).toInt(), (inRangeEnd.getOrThrow<Number>("in_range_end")).toInt(), (inStep.getOrThrow<Number>("in_step")).toInt()).forEach {
+                outIndex.set(it)
+                outBody()
+            }
             out()
         }
     }

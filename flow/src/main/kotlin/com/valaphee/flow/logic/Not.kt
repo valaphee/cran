@@ -35,7 +35,7 @@ class Not(
     override fun initialize() {
         out.set {
             val `in` = `in`.get()
-            if (`in` is Boolean) `in`.not() else DataPathException.invalidTypeInExpression("~$`in`")
+            if (`in` is Boolean) `in`.not() else DataPathException.invalidTypeInExpression("¬$`in`")
         }
     }
 }

@@ -34,6 +34,6 @@ class Remove(
     @get:Out         @get:JsonProperty("out_list") val outList: DataPath,
 ) : StatelessNode() {
     override fun initialize() {
-        outList.set { inList.getOrThrow<List<Any?>>() - inItem.get() }
+        outList.set { inList.getOrThrow<List<Any?>>("in_list") - inItem.get() }
     }
 }

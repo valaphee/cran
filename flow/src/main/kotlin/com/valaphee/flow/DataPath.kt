@@ -35,8 +35,9 @@ class DataPath(
 
     suspend fun get() = value ?: valueFunction?.invoke()
 
+    @Deprecated("")
     fun set(value: Any?) {
-        if (this.value != null || valueFunction != null) throw DataPathException.Undefined
+        if (valueFunction != null) throw DataPathException.AlreadySet
 
         this.value = value
     }
@@ -54,7 +55,7 @@ class DataPath(
     }
 }
 
-suspend inline fun <reified T> DataPath.getOrThrow(): T {
+suspend inline fun <reified T> DataPath.getOrThrow(key: String): T {
     val value = get()
-    return if (value is T) value else throw DataPathException.InvalidType
+    return if (value is T) value else throw DataPathException.invalidType(key, value?.let { it::class }, T::class)
 }

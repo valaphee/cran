@@ -17,12 +17,23 @@
 package com.valaphee.flow
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 /**
  * @author Kevin Ludwig
  */
-abstract class Graph {
+abstract class Graph : CoroutineScope {
     @get:JsonProperty("id"   ) abstract val id   : UUID
     @get:JsonProperty("graph") abstract val graph: List<Node>
+
+    open fun initialize() {
+        graph.forEach { it.initialize() }
+        graph.forEach { if (it is Entry) launch { it.out.invoke() } }
+    }
+
+    open fun shutdown() {
+        graph.forEach { it.shutdown() }
+    }
 }

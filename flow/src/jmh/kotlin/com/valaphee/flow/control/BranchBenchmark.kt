@@ -23,20 +23,28 @@ import com.valaphee.flow.Node
 import com.valaphee.flow.util.ControlPlug
 import kotlinx.coroutines.runBlocking
 import org.openjdk.jmh.annotations.Benchmark
+import org.openjdk.jmh.annotations.BenchmarkMode
 import org.openjdk.jmh.annotations.Fork
 import org.openjdk.jmh.annotations.Level
 import org.openjdk.jmh.annotations.Measurement
+import org.openjdk.jmh.annotations.Mode
+import org.openjdk.jmh.annotations.OutputTimeUnit
 import org.openjdk.jmh.annotations.Scope
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.State
+import org.openjdk.jmh.annotations.Threads
 import org.openjdk.jmh.annotations.Warmup
+import java.util.concurrent.TimeUnit
 
 /**
  * @author Kevin Ludwig
  */
-@State(Scope.Thread)
-@Warmup(iterations = 2, time = 5)
-@Measurement(iterations = 2, time = 5)
+@State(Scope.Benchmark)
+@BenchmarkMode(Mode.AverageTime)
+@OutputTimeUnit(TimeUnit.NANOSECONDS)
+@Warmup(iterations = 2, time = 1)
+@Measurement(iterations = 2, time = 1)
+@Threads(2)
 @Fork(1)
 open class BranchBenchmark {
     lateinit var begin: ControlPath
@@ -47,22 +55,22 @@ open class BranchBenchmark {
             """
                 [
                     {
-                        "type" : "com.valaphee.flow.util.ControlPlug",
-                        "aux" : 0
+                        "type": "com.valaphee.flow.util.ControlPlug",
+                        "aux": 0
                     },
                     {
-                        "type" : "com.valaphee.flow.Value",
-                        "value" : "true",
-                        "out" : 1
+                        "type": "com.valaphee.flow.Value",
+                        "value": "true",
+                        "out": 1
                     },
                     {
-                        "type" : "com.valaphee.flow.control.Branch",
-                        "in" : 0,
-                        "in_value" : 1,
-                        "out" : {
-                            "true" : 2
+                        "type": "com.valaphee.flow.control.Branch",
+                        "in": 0,
+                        "in_value": 1,
+                        "out": {
+                            "true": 2
                         },
-                        "out_default" : 3
+                        "out_default": 3
                     }
                 ]
             """.trimIndent()

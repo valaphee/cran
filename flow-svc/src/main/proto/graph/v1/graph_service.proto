@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package com.valaphee.proto.svc.graph.v1;
+package com.valaphee.svc.graph.v1;
 
 option java_multiple_files = true;
 option java_generic_services = true;

@@ -34,6 +34,6 @@ class Get(
     @get:Out          @get:JsonProperty("out"     ) val out    : DataPath
 ) : StatelessNode() {
     override fun initialize() {
-        out.set { inList.getOrThrow<List<Any?>>()[inIndex.get() as Int] }
+        out.set { inList.getOrThrow<List<Any?>>("in_list")[inIndex.get() as Int] }
     }
 }

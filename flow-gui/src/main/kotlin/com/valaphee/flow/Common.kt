@@ -23,8 +23,8 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.valaphee.flow.manifest.Manifest
 import com.valaphee.flow.spec.Spec
-import com.valaphee.proto.svc.graph.v1.GetSpecRequest
-import com.valaphee.proto.svc.graph.v1.GraphServiceGrpc
+import com.valaphee.svc.graph.v1.GetSpecRequest
+import com.valaphee.svc.graph.v1.GraphServiceGrpc
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import kotlinx.coroutines.CoroutineScope

@@ -30,13 +30,13 @@ import com.fasterxml.jackson.annotation.SimpleObjectIdResolver
 class ControlPath(
     override val id: Int
 ) : Path() {
-    private var function: (suspend (Any?) -> Unit)? = null
+    private var function: (suspend () -> Unit)? = null
 
-    suspend operator fun invoke(value: Any? = null) {
-        function?.invoke(value)
+    suspend operator fun invoke() {
+        function?.invoke()
     }
 
-    fun declare(function: suspend (Any?) -> Unit) {
+    fun declare(function: suspend () -> Unit) {
         if (this.function != null) throw ControlPathException.AlreadySet
 
         this.function = function

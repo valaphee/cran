@@ -33,5 +33,5 @@ dependencies {
 tasks {
     jar { manifest { attributes(mapOf("Main-Class" to "com.valaphee.flow.MainKt")) } }
 
-    shadowJar { archiveName = "flow-api.jar" }
+    shadowJar { archiveName = "flow.jar" }
 }

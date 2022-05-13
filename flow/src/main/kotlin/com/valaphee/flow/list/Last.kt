@@ -33,6 +33,6 @@ class Last(
     @get:Out @get:JsonProperty("out"     ) val out    : DataPath
 ) : StatelessNode() {
     override fun initialize() {
-        out.set { inList.getOrThrow<List<Any?>>().last() }
+        out.set { inList.getOrThrow<List<Any?>>("in_list").last() }
     }
 }
