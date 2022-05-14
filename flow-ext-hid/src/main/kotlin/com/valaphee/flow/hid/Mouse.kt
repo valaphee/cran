@@ -16,6 +16,7 @@
 
 package com.valaphee.flow.hid
 
+import com.valaphee.flow.hid.impl.HidMouse
 import com.valaphee.foundry.math.Int2
 
 /**
@@ -29,4 +30,8 @@ abstract class Mouse {
     abstract fun mousePress(button: Int)
 
     abstract fun mouseRelease(button: Int)
+
+    companion object {
+        internal val mouse = HidMouse(0.25f, 2 * 2)
+    }
 }

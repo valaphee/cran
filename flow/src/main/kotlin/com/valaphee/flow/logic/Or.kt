@@ -30,9 +30,9 @@ import com.valaphee.flow.spec.Out
  */
 @Node("Logic/Or")
 class Or(
-    @get:In ("A"    , DataType.Bin) @get:JsonProperty("in_a") val inA: DataPath,
-    @get:In ("B"    , DataType.Bin) @get:JsonProperty("in_b") val inB: DataPath,
-    @get:Out("A ∨ B", DataType.Bin) @get:JsonProperty("out" ) val out: DataPath
+    @get:In ("A"    , DataType.Bin, "") @get:JsonProperty("in_a") val inA: DataPath,
+    @get:In ("B"    , DataType.Bin, "") @get:JsonProperty("in_b") val inB: DataPath,
+    @get:Out("A ∨ B", DataType.Bin    ) @get:JsonProperty("out" ) val out: DataPath
 ) : StatelessNode() {
     override fun initialize() {
         out.set {

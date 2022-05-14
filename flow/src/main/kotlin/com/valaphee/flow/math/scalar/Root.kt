@@ -29,7 +29,7 @@ import com.valaphee.flow.spec.Out
  */
 @Node("Math/Scalar/Root")
 class Root(
-    @get:In ("x"  , DataType.Num) @get:JsonProperty("in_x") val inX: DataPath,
-    @get:In ("n"  , DataType.Num) @get:JsonProperty("in_n") val inN: DataPath,
-    @get:Out("ⁿ√x", DataType.Num) @get:JsonProperty("out" ) val out: DataPath
+    @get:In ("x"  , DataType.Num, "") @get:JsonProperty("in_x") val inX: DataPath,
+    @get:In ("n"  , DataType.Num, "") @get:JsonProperty("in_n") val inN: DataPath,
+    @get:Out("ⁿ√x", DataType.Num    ) @get:JsonProperty("out" ) val out: DataPath
 ) : StatelessNode()

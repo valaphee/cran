@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference
 import com.fasterxml.jackson.annotation.ObjectIdGenerator
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import com.fasterxml.jackson.annotation.SimpleObjectIdResolver
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 /**
  * @author Kevin Ludwig
@@ -30,6 +31,14 @@ import com.fasterxml.jackson.annotation.SimpleObjectIdResolver
 class DataPath(
     override val id: Int
 ) : Path() {
+    class IdResolver : SimpleObjectIdResolver() {
+        override fun resolveId(id: ObjectIdGenerator.IdKey) = super.resolveId(id) ?: DataPath(id.key as Int).also { bindItem(id, it) }
+
+        override fun newForDeserialization(context: Any?) = IdResolver()
+    }
+
+    /*@Inject lateinit var objectMapper: ObjectMapper*/
+
     private var value: Any? = null
     private var valueFunction: (suspend () -> Any?)? = null
 
@@ -47,14 +56,12 @@ class DataPath(
         this.valueFunction = getValue
     }
 
-    class IdResolver : SimpleObjectIdResolver() {
-        override fun resolveId(id: ObjectIdGenerator.IdKey) = super.resolveId(id) ?: DataPath(id.key as Int).also { bindItem(id, it) }
-
-        override fun newForDeserialization(context: Any?) = IdResolver()
+    suspend inline fun <reified T> getOrThrow(key: String): T {
+        val value = get()
+        return if (value is T) value else /*throw DataPathException.invalidType(key, value?.let { it::class }, T::class)*/objectMapper.convertValue(value, T::class.java)
     }
-}
 
-suspend inline fun <reified T> DataPath.getOrThrow(key: String): T {
-    val value = get()
-    return if (value is T) value else throw DataPathException.invalidType(key, value?.let { it::class }, T::class)
+    companion object {
+        val objectMapper = jacksonObjectMapper()
+    }
 }

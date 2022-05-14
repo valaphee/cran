@@ -57,57 +57,59 @@ class Graph(
         }
 
     @Inject private lateinit var spec: Spec
-    @get:JsonIgnore val flow: VFlow = FlowFactory.newFlow().apply {
-        isVisible = true
+    @get:JsonIgnore val flow: VFlow by lazy {
+        FlowFactory.newFlow().apply {
+            isVisible = true
 
-        val (embed, other) = graph.partition { it["type"] == "com.valaphee.flow.Value" && it.getOrDefault("embed", false) as Boolean }
-        val _embed = embed.associate { it["out"] as Int to it["value"] }
-        val connectors = other.mapIndexed { i, node ->
-            val type = node.remove("type") as String
-            val nodeSpec = spec.nodes.single { it.json == type }
-            val _node = newNode().apply {
-                title = nodeSpec.name
-                meta.nodes.getOrNull(i)?.let {
-                    x = it.x
-                    y = it.y
+            val (embed, other) = graph.partition { it["type"] == "com.valaphee.flow.Value" && it.getOrDefault("embed", false) as Boolean }
+            val _embed = embed.associate { it["out"] as Int to it["value"] }
+            val connectors = other.mapIndexed { i, node ->
+                val type = node.remove("type") as String
+                val nodeSpec = spec.nodes.single { it.json == type }
+                val _node = newNode().apply {
+                    title = nodeSpec.name
+                    meta.nodes.getOrNull(i)?.let {
+                        x = it.x
+                        y = it.y
+                    }
+                    valueObject.value = nodeSpec
+                    /*selectableProperty().value = false*/
                 }
-                valueObject.value = nodeSpec
-                /*selectableProperty().value = false*/
+                nodeSpec.ports.mapNotNull { nodePortSpec ->
+                    when (nodePortSpec.type) {
+                        Spec.Node.Port.Type.InControl -> node[nodePortSpec.json] as Int to _node.addInput("control").apply {
+                            /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
+                            localId = nodePortSpec.json
+                            valueObject.value = nodePortSpec to null
+                        }
+                        Spec.Node.Port.Type.OutControl -> node[nodePortSpec.json] as Int to _node.addOutput("control").apply {
+                            /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
+                            localId = nodePortSpec.json
+                            valueObject.value = nodePortSpec to null
+                        }
+                        Spec.Node.Port.Type.InData -> {
+                            val connectionId = node[nodePortSpec.json] as Int
+                            connectionId to _node.addInput("data").apply {
+                                localId = nodePortSpec.json
+                                valueObject.value = nodePortSpec to _embed[connectionId]
+                            }
+                        }
+                        Spec.Node.Port.Type.OutData -> node[nodePortSpec.json] as Int to _node.addOutput("data").apply {
+                            localId = nodePortSpec.json
+                            valueObject.value = nodePortSpec to null
+                        }
+                        Spec.Node.Port.Type.Const -> {
+                            _node.addInput("const").apply {
+                                localId = nodePortSpec.json
+                                valueObject.value = nodePortSpec to node[nodePortSpec.json]
+                            }
+                            null
+                        }
+                    }
+                }.toMap()
             }
-            nodeSpec.ports.mapNotNull { nodePortSpec ->
-                when (nodePortSpec.type) {
-                    Spec.Node.Port.Type.InControl -> node[nodePortSpec.json] as Int to _node.addInput("control").apply {
-                        /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
-                        localId = nodePortSpec.json
-                        valueObject.value = nodePortSpec to null
-                    }
-                    Spec.Node.Port.Type.OutControl -> node[nodePortSpec.json] as Int to _node.addOutput("control").apply {
-                        /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
-                        localId = nodePortSpec.json
-                        valueObject.value = nodePortSpec to null
-                    }
-                    Spec.Node.Port.Type.InData -> {
-                        val connectionId = node[nodePortSpec.json] as Int
-                        connectionId to _node.addInput("data").apply {
-                            localId = nodePortSpec.json
-                            valueObject.value = nodePortSpec to _embed[connectionId]
-                        }
-                    }
-                    Spec.Node.Port.Type.OutData -> node[nodePortSpec.json] as Int to _node.addOutput("data").apply {
-                        localId = nodePortSpec.json
-                        valueObject.value = nodePortSpec to null
-                    }
-                    Spec.Node.Port.Type.Const -> {
-                        _node.addInput("const").apply {
-                            localId = nodePortSpec.json
-                            valueObject.value = nodePortSpec to node[nodePortSpec.json]
-                        }
-                        null
-                    }
-                }
-            }.toMap()
+            graph.zip(connectors).forEach { it.first.entries.forEach { port -> it.second[port.value]?.let { connectorA -> connectors.forEach { it[port.value]?.let { connectorB -> connect(connectorA, connectorB) } } } } }
         }
-        graph.zip(connectors).forEach { it.first.entries.forEach { port -> it.second[port.value]?.let { connectorA -> connectors.forEach { it[port.value]?.let { connectorB -> connect(connectorA, connectorB) } } } } }
     }
 
     fun newNode(spec: Spec.Node, meta: Meta.Node) {

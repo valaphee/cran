@@ -22,5 +22,5 @@ package com.valaphee.flow.spec
 @Target(AnnotationTarget.PROPERTY_GETTER)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Const(
-    val value: String = ""
+    val name: String
 )

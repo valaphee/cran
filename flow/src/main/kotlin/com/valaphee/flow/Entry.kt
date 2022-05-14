@@ -24,5 +24,5 @@ import com.valaphee.flow.spec.Out
  */
 @com.valaphee.flow.spec.Node("Entry")
 class Entry(
-    @get:Out @get:JsonProperty("out") val out: ControlPath,
+    @get:Out("", "") @get:JsonProperty("out") val out: ControlPath,
 ) : Node()

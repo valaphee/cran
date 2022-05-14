@@ -20,8 +20,12 @@ dependencies {
     implementation(project(":flow"))
     implementation(project(":flow-ext-hid"))
     implementation(project(":flow-meta"))
+    implementation(project(":flow-spec"))
     implementation(project(":flow-svc"))
+
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.13.2")
     implementation("com.fasterxml.jackson.module:jackson-module-guice:2.13.2")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
     implementation("com.google.inject:guice:5.1.0")
     implementation("io.github.classgraph:classgraph:4.8.146")
     implementation("io.netty:netty-tcnative:2.0.51.Final")
@@ -32,7 +36,6 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-jul:2.17.2")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.17.2")
     implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.4")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
 }
 
 tasks {

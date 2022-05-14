@@ -30,8 +30,8 @@ import com.valaphee.flow.spec.Out
  */
 @Node("Logic/Not")
 class Not(
-    @get:In ("X" , DataType.Bin) @get:JsonProperty("in" ) val `in`: DataPath,
-    @get:Out("¬X", DataType.Bin) @get:JsonProperty("out") val out : DataPath
+    @get:In ("X" , DataType.Bin, "") @get:JsonProperty("in" ) val `in`: DataPath,
+    @get:Out("¬X", DataType.Bin    ) @get:JsonProperty("out") val out : DataPath
 ) : StatelessNode() {
     override fun initialize() {
         out.set {

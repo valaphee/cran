@@ -23,17 +23,16 @@ dependencies {
     implementation(project(":flow-meta"))
     implementation(project(":flow-spec"))
     implementation(project(":flow-svc"))
+
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.13.2")
     implementation("com.fasterxml.jackson.module:jackson-module-guice:2.13.2")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
     implementation("com.google.inject:guice:5.1.0")
     implementation("de.codecentric.centerdevice:javafxsvg:1.3.0")
-    implementation("io.ktor:ktor-client-content-negotiation:2.0.1")
-    implementation("io.ktor:ktor-client-okhttp:2.0.1")
-    implementation("io.ktor:ktor-serialization-jackson:2.0.1")
     implementation("no.tornado:tornadofx:1.7.20")
-    implementation("org.apache.commons:commons-text:1.9")
+    /*implementation("org.apache.commons:commons-text:1.9")*/
     implementation("org.controlsfx:controlsfx:11.1.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:1.6.1")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
     implementation("eu.mihosoft.vrl.workflow:vworkflows-fx:0.2.5.0")
 }
 

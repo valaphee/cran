@@ -20,10 +20,13 @@ plugins {
 }
 
 dependencies {
-    api("com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.13.2")
-    api("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
     implementation("com.google.auto.service:auto-service:1.0.1")
-    kapt("com.google.auto.service:auto-service:1.0-rc4")
+    kapt("com.google.auto.service:auto-service:1.0.1")
+
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.13.2")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
+
+    api("com.fasterxml.jackson.core:jackson-databind:2.13.2.2")
 }
 
 kapt { generateStubs = true }
@@ -39,8 +42,8 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             pom.apply {
-                name.set("Flow Spec")
-                description.set("Specifications for Flow")
+                name.set("Flow Specification")
+                description.set("Flow-based programming \"language\"")
                 url.set("https://valaphee.com")
                 scm {
                     connection.set("https://github.com/valaphee/flow.git")

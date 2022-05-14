@@ -36,7 +36,7 @@ import tornadofx.onChange
  * @author Kevin Ludwig
  */
 class NodeSkin(
-    private val skinFactory: SkinFactory,
+    skinFactory: SkinFactory,
     parent: Parent,
     node: VNode,
     controller: VFlow
@@ -53,7 +53,7 @@ class NodeSkin(
         fun icon(spec: Spec.Node?) {
             leftIcons.clear()
 
-            spec?.let { skinFactory.manifest.nodes[it.name]?.let { this::class.java.getResourceAsStream(it.icon)?.let { leftIcons += WindowIcon().apply { background = Background(BackgroundImage(Image(it, 32.0, 32.0, false, false), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, false, true))) } } } }
+            spec?.let { (skinFactory as SkinFactory).manifest.nodes[it.name]?.let { this::class.java.getResourceAsStream(it.icon)?.let { leftIcons += WindowIcon().apply { background = Background(BackgroundImage(Image(it, 32.0, 32.0, false, false), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, false, true))) } } } }
         }
 
         icon(@Suppress("UNCHECKED_CAST") (model.valueObject.value as Spec.Node?))

@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.StatefulNode
-import com.valaphee.flow.getOrThrow
+import com.valaphee.flow.spec.DataType
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
@@ -30,15 +30,15 @@ import com.valaphee.flow.spec.Out
  */
 @Node("HID/Mouse Button")
 class MouseButton(
-    @get:In           @get:JsonProperty("in"       ) override val `in`    : ControlPath,
-    @get:In           @get:JsonProperty("in_button")          val inButton: DataPath   ,
-    @get:In ("State") @get:JsonProperty("in_state" )          val inState : DataPath   ,
-    @get:Out          @get:JsonProperty("out"      )          val out     : ControlPath
+    @get:In (""     , ""          , "") @get:JsonProperty("in"       ) override val `in`    : ControlPath,
+    @get:In (""     , DataType.Num, "") @get:JsonProperty("in_button")          val inButton: DataPath   ,
+    @get:In ("State", DataType.Bin, "") @get:JsonProperty("in_state" )          val inState : DataPath   ,
+    @get:Out(""     , ""              ) @get:JsonProperty("out"      )          val out     : ControlPath
 ) : StatefulNode() {
     override fun initialize() {
         `in`.declare {
-            inButton.getOrThrow<Int>("in_button")
-            inState.getOrThrow<Boolean>("in_state")
+            val button = inButton.getOrThrow<Int>("in_button")
+            if (inState.getOrThrow("in_state")) Mouse.mouse.mousePress(button) else Mouse.mouse.mouseRelease(button)
             out()
         }
     }

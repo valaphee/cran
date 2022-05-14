@@ -32,9 +32,9 @@ import java.math.BigInteger
  */
 @Node("Math/Scalar/Multiply")
 class Multiply(
-    @get:In ("A"    , DataType.Num) @get:JsonProperty("in_a") val inA: DataPath,
-    @get:In ("B"    , DataType.Num) @get:JsonProperty("in_b") val inB: DataPath,
-    @get:Out("A × B", DataType.Num) @get:JsonProperty("out" ) val out: DataPath
+    @get:In ("A"    , DataType.Num, "") @get:JsonProperty("in_a") val inA: DataPath,
+    @get:In ("B"    , DataType.Num, "") @get:JsonProperty("in_b") val inB: DataPath,
+    @get:Out("A × B", DataType.Num    ) @get:JsonProperty("out" ) val out: DataPath
 ) : StatelessNode() {
     override fun initialize() {
         out.set {

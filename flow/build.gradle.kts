@@ -20,12 +20,14 @@ plugins {
 }
 
 dependencies {
-    api(project(":flow-spec"))
+    implementation(project(":flow-spec"))
     kapt(project(":flow-spec"))
+
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
     implementation("com.google.guava:guava:31.1-jre")
+
     api("com.valaphee:foundry-math:1.4.0")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.1-native-mt")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
 }
 
 java {

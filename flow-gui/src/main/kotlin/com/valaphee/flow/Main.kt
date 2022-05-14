@@ -51,18 +51,19 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.ObservableList
 import javafx.geometry.Side
 import javafx.scene.control.ContextMenu
-import javafx.scene.control.ListCell
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuItem
 import javafx.scene.control.SplitPane
 import javafx.scene.control.TabPane
 import javafx.scene.control.TextField
+import javafx.scene.control.cell.TextFieldListCell
 import javafx.scene.image.Image
 import javafx.scene.input.KeyCode
 import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
 import javafx.scene.text.Font
 import javafx.stage.FileChooser
+import javafx.util.StringConverter
 import jfxtras.labs.util.event.MouseControlUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -169,19 +170,20 @@ class Main : View("Flow"), CoroutineScope {
 
                 // Properties
                 setCellFactory {
-                    object : ListCell<Graph>() {
-                        init {
-                            setOnMouseClicked {
-                                if (isEmpty) selectionModel.clearSelection()
+                    TextFieldListCell<Graph>().apply {
+                        converter = object : StringConverter<Graph>() {
+                            override fun toString(`object`: Graph) = `object`.meta.name
 
-                                it.consume()
+                            override fun fromString(string: String): Graph {
+                                item.meta.name = string
+                                return item
                             }
                         }
 
-                        override fun updateItem(item: Graph?, empty: Boolean) {
-                            super.updateItem(item, empty)
+                        setOnMouseClicked {
+                            if (isEmpty) selectionModel.clearSelection()
 
-                            text = if (empty || item == null) "" else item.meta.name
+                            it.consume()
                         }
                     }
                 }
@@ -197,11 +199,7 @@ class Main : View("Flow"), CoroutineScope {
                                 }
                             }
                         }
-                        item("Rename") {
-                            action {
-
-                            }
-                        }
+                        item("Rename") { action {} }
                     }
                 }
 
@@ -256,7 +254,7 @@ class Main : View("Flow"), CoroutineScope {
 
                                             action {
                                                 val local = sceneToLocal(x - currentWindow!!.x, y - currentWindow!!.y)
-                                                graphProperty.get().newNode(node, Meta.Node(local.x, local.y))
+                                                graphProperty.get()?.newNode(node, Meta.Node(local.x, local.y))
                                             }
                                         } else Menu(element, icon).apply { treeItems += this }
                                         is Menu -> _item.items.find { it.text == element } ?: if (i == name.lastIndex) MenuItem(element, icon).apply {
@@ -265,7 +263,7 @@ class Main : View("Flow"), CoroutineScope {
 
                                             action {
                                                 val local = sceneToLocal(x - currentWindow!!.x, y - currentWindow!!.y)
-                                                graphProperty.get().newNode(node, Meta.Node(local.x, local.y))
+                                                graphProperty.get()?.newNode(node, Meta.Node(local.x, local.y))
                                             }
                                         } else Menu(element, icon).apply { _item.items += this }
                                         else -> error("")

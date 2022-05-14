@@ -61,32 +61,28 @@ class SpecGenerator : AbstractProcessor() {
                             } else if (const != null) {
                                 processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @In or @Const is allowed, not both.")
                                 return true
-                            } else {
-                                Spec.Node.Port(
-                                    `in`.value, when {
-                                        type.contains(Type.ControlPath) -> Spec.Node.Port.Type.InControl
-                                        type.contains(Type.DataPath) -> Spec.Node.Port.Type.InData
-                                        else -> {
-                                            processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @In type $type.")
-                                            return true
-                                        }
-                                    }, `in`.type, json.value
-                                )
-                            } else if (out != null) if (const != null) {
+                            } else Spec.Node.Port(
+                                `in`.name, when {
+                                    type.contains(Type.ControlPath) -> Spec.Node.Port.Type.InControl
+                                    type.contains(Type.DataPath) -> Spec.Node.Port.Type.InData
+                                    else -> {
+                                        processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @In type $type.")
+                                        return true
+                                    }
+                                }, `in`.type, `in`.def, json.value
+                            ) else if (out != null) if (const != null) {
                                 processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @Out or @Const is allowed, not both.")
                                 return true
-                            } else {
-                                Spec.Node.Port(
-                                    out.value, when {
-                                        type.contains(Type.ControlPath) -> Spec.Node.Port.Type.OutControl
-                                        type.contains(Type.DataPath) -> Spec.Node.Port.Type.OutData
-                                        else -> {
-                                            processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @Out type $type.")
-                                            return true
-                                        }
-                                    }, out.type, json.value
-                                )
-                            } else if (const != null) Spec.Node.Port(const.value, Spec.Node.Port.Type.Const, "", json.value) else null
+                            } else Spec.Node.Port(
+                                out.name, when {
+                                    type.contains(Type.ControlPath) -> Spec.Node.Port.Type.OutControl
+                                    type.contains(Type.DataPath) -> Spec.Node.Port.Type.OutData
+                                    else -> {
+                                        processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @Out type $type.")
+                                        return true
+                                    }
+                                }, out.type, "", json.value
+                            ) else if (const != null) Spec.Node.Port(const.name, Spec.Node.Port.Type.Const, "", "", json.value) else null
                         } else null
                     }, `class`.qualifiedName.toString())
                 } else null

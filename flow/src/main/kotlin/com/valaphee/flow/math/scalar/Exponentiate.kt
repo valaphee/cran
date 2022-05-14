@@ -32,9 +32,9 @@ import kotlin.math.pow
  */
 @Node("Math/Scalar/Exponentiate")
 class Exponentiate(
-    @get:In ("x" , DataType.Num) @get:JsonProperty("in_x") val inX: DataPath,
-    @get:In ("n" , DataType.Num) @get:JsonProperty("in_n") val inN: DataPath,
-    @get:Out("xⁿ", DataType.Num) @get:JsonProperty("out" ) val out: DataPath
+    @get:In ("x" , DataType.Num, "") @get:JsonProperty("in_x") val inX: DataPath,
+    @get:In ("n" , DataType.Num, "") @get:JsonProperty("in_n") val inN: DataPath,
+    @get:Out("xⁿ", DataType.Num    ) @get:JsonProperty("out" ) val out: DataPath
 ) : StatelessNode() {
     override fun initialize() {
         out.set {

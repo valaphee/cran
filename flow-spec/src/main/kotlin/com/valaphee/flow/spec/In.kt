@@ -22,6 +22,7 @@ package com.valaphee.flow.spec
 @Target(AnnotationTarget.PROPERTY_GETTER)
 @Retention(AnnotationRetention.SOURCE)
 annotation class In(
-    val value: String = "",
-    val type: String = ""
+    val name: String,
+    val type: String,
+    val def : String
 )

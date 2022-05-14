@@ -18,8 +18,8 @@ package com.valaphee.flow.graph
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.valaphee.flow.spec.Spec
 import com.valaphee.flow.spec.DataType
+import com.valaphee.flow.spec.Spec
 import eu.mihosoft.vrl.workflow.ConnectionEvent
 import eu.mihosoft.vrl.workflow.Connector
 import eu.mihosoft.vrl.workflow.VFlow
@@ -103,7 +103,7 @@ class ConnectorShape(
                             val objectMapper = jacksonObjectMapper()
                             textfield(const?.let { objectMapper.writeValueAsString(it) } ?: "") {
                                 // Properties
-                                minWidth = 100.0
+                                minWidth = connector.node.width / 2.0
 
                                 // Events
                                 focusedProperty().onChange {

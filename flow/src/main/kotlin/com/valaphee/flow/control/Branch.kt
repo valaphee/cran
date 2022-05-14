@@ -29,10 +29,10 @@ import com.valaphee.flow.spec.Out
  */
 @Node("Control/Branch")
 class Branch(
-    @get:In             @get:JsonProperty("in"         ) override val `in`      : ControlPath           ,
-    @get:In             @get:JsonProperty("in_value"   )          val inValue   : DataPath              ,
-    @get:Out            @get:JsonProperty("out"        )          val out       : Map<Any?, ControlPath>,
-    @get:Out("Default") @get:JsonProperty("out_default")          val outDefault: ControlPath
+    @get:In (""       , "", "") @get:JsonProperty("in"         ) override val `in`      : ControlPath           ,
+    @get:In (""       , "", "") @get:JsonProperty("in_value"   )          val inValue   : DataPath              ,
+    @get:Out(""       , ""    ) @get:JsonProperty("out"        )          val out       : Map<Any?, ControlPath>,
+    @get:Out("Default", ""    ) @get:JsonProperty("out_default")          val outDefault: ControlPath
 ) : StatefulNode() {
     override fun initialize() {
         `in`.declare { (out[inValue.get()] ?: outDefault)() }

@@ -16,10 +16,7 @@
 
 plugins { `maven-publish` }
 
-dependencies {
-    api("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
-}
+dependencies { implementation("com.fasterxml.jackson.core:jackson-annotations:2.13.2") }
 
 java {
     withJavadocJar()
@@ -32,8 +29,8 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             pom.apply {
-                name.set("Flow Meta")
-                description.set("Metadata for Flow")
+                name.set("Flow Metadata")
+                description.set("Flow-based programming \"language\"")
                 url.set("https://valaphee.com")
                 scm {
                     connection.set("https://github.com/valaphee/flow.git")

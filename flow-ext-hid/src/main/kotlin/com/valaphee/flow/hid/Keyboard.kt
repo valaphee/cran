@@ -16,6 +16,8 @@
 
 package com.valaphee.flow.hid
 
+import com.valaphee.flow.hid.impl.HidKeyboard
+
 /**
  * @author Kevin Ludwig
  */
@@ -23,4 +25,8 @@ abstract class Keyboard {
     abstract fun keyPress(key: Key): Boolean
 
     abstract fun keyRelease(key: Key): Boolean
+
+    companion object {
+        internal val keyboard = HidKeyboard()
+    }
 }

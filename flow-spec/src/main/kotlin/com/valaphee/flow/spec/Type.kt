@@ -21,5 +21,5 @@ package com.valaphee.flow.spec
  */
 object Type {
     const val ControlPath = "com.valaphee.flow.ControlPath"
-    const val DataPath = "com.valaphee.flow.DataPath"
+    const val DataPath    = "com.valaphee.flow.DataPath"
 }
