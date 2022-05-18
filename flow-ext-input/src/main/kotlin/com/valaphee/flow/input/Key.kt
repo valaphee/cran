@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.hid
+package com.valaphee.flow.input
 
 import com.fasterxml.jackson.annotation.JsonFormat
 

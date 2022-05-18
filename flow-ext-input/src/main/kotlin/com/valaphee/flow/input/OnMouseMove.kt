@@ -14,27 +14,21 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.hid.impl
+package com.valaphee.flow.input
 
-import com.valaphee.flow.hid.Key
-import com.valaphee.flow.hid.Keyboard
-import java.awt.Robot
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.flow.ControlPath
+import com.valaphee.flow.StatelessNode
+import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-class RobotKeyboard : Keyboard() {
-    override fun keyPress(key: Key): Boolean {
-        robot.keyPress(key.vkCode)
-        return true
-    }
-
-    override fun keyRelease(key: Key): Boolean {
-        robot.keyRelease(key.vkCode)
-        return true
-    }
-
-    companion object {
-        private val robot = Robot()
+@Node("Input/On Mouse Move")
+class OnMouseMove(
+    @get:Out("", "") @get:JsonProperty("out") val out: ControlPath
+) : StatelessNode() {
+    override fun initialize() {
     }
 }

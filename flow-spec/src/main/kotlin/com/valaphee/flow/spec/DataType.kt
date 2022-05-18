@@ -17,36 +17,33 @@
 package com.valaphee.flow.spec
 
 /**
- * Default types, numbers are reserved for dynamic types
- *
- * There are also some special notations:
- * a=b indicates that the value b is mapped to a (multiple inputs)
- *
- * @author Kevin Ludwig
+ * Binary, can be true or false
  */
-object DataType {
-    /**
-     * Binary, can be true or false
-     */
-    const val Bin = "-"
+const val Bin = "-"
 
-    /**
-     * Number, can be an integer or decimal of any size
-     */
-    const val Num = "~"
+/**
+ * Number, can be an integer or decimal of any size
+ */
+const val Num = "~"
 
-    /**
-     * String, can also represent binary
-     */
-    const val Str = "\""
+/**
+ * String, can also represent binary
+ */
+const val Str = "\""
 
-    /**
-     * Array, can be followed by a type specifier
-     */
-    const val Arr = "["
+/**
+ * Array, can be followed by a type specifier and fixed size
+ */
+const val Arr = "["
 
-    /**
-     * "Object", key-value pairs
-     */
-    const val Obj = "{"
-}
+/**
+ * "Object", key-value pairs
+ */
+const val Obj = "{"
+
+/**
+ * Combined types
+ */
+const val Vec2 = "${Arr}${Num}2"
+const val Vec3 = "${Arr}${Num}3"
+const val Vec4 = "${Arr}${Num}4"

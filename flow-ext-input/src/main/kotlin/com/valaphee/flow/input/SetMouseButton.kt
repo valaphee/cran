@@ -14,28 +14,38 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.hid
+package com.valaphee.flow.input
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
-import com.valaphee.flow.StatefulNode
+import com.valaphee.flow.spec.Bin
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.Num
 import com.valaphee.flow.spec.Out
+import com.valaphee.foundry.math.Int2
 
 /**
  * @author Kevin Ludwig
  */
-@Node("HID/Mouse Move")
-class MouseMove(
-    @get:In ("", "", "") @get:JsonProperty("in"     ) override val `in`  : ControlPath,
-    @get:In ("", "", "") @get:JsonProperty("in_move")          val inMove: DataPath   ,
-    @get:Out("", ""    ) @get:JsonProperty("out"    )          val out   : ControlPath
-) : StatefulNode() {
+@Node("Input/Set Mouse Button")
+class SetMouseButton(
+    @get:In (""     , "" , "") @get:JsonProperty("in"       ) override val `in`    : ControlPath,
+    @get:In ("Key"  , Num, "") @get:JsonProperty("in_button")          val inButton: DataPath   ,
+    @get:In ("State", Bin, "") @get:JsonProperty("in_state" )          val inState : DataPath   ,
+    @get:Out(""     , ""     ) @get:JsonProperty("out"      )          val out     : ControlPath
+) : Mouse() {
     override fun initialize() {
         `in`.declare {
-            Mouse.mouse.mouseMove(inMove.getOrThrow("in_move"))
+            val button = inButton.getOrThrow<Int>("in_button")
+            if (inState.getOrThrow("in_state")) {
+                buttons.set(button)
+                write(Int2.Zero)
+            } else {
+                buttons.clear(button)
+                write(Int2.Zero)
+            }
             out()
         }
     }

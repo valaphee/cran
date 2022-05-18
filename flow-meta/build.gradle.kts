@@ -16,7 +16,7 @@
 
 plugins { `maven-publish` }
 
-dependencies { implementation("com.fasterxml.jackson.core:jackson-annotations:2.13.2") }
+dependencies { implementation("com.fasterxml.jackson.core:jackson-annotations:2.13.3") }
 
 java {
     withJavadocJar()

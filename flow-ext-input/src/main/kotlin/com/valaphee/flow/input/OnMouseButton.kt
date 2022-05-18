@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.hid
+package com.valaphee.flow.input
 
-import com.valaphee.flow.hid.impl.HidKeyboard
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.flow.ControlPath
+import com.valaphee.flow.StatelessNode
+import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-abstract class Keyboard {
-    abstract fun keyPress(key: Key): Boolean
-
-    abstract fun keyRelease(key: Key): Boolean
-
-    companion object {
-        internal val keyboard = HidKeyboard()
+@Node("Input/On Mouse Button")
+class OnMouseButton(
+    @get:Out("", "") @get:JsonProperty("out") val out: ControlPath
+) : StatelessNode() {
+    override fun initialize() {
     }
 }

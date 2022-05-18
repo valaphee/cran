@@ -16,10 +16,12 @@
 
 rootProject.name = "flow"
 
-include("flow")
-include("flow-ext-hid")
-include("flow-gui")
-include("flow-meta")
 include("flow-spec")
+
+include("flow")
+include("flow-ext-input")
+
 include("flow-svc")
+include("flow-meta")
 include("flow-svc-all")
+include("flow-gui")

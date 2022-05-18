@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.hid
+package com.valaphee.flow.input
 
-import com.valaphee.flow.hid.impl.HidMouse
-import com.valaphee.foundry.math.Int2
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.flow.ControlPath
+import com.valaphee.flow.StatelessNode
+import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-abstract class Mouse {
-    abstract suspend fun mouseMove(target: Int2)
-
-    abstract fun mouseMoveRaw(move: Int2)
-
-    abstract fun mousePress(button: Int)
-
-    abstract fun mouseRelease(button: Int)
-
-    companion object {
-        internal val mouse = HidMouse(0.25f, 2 * 2)
+@Node("Input/On Keyboard Key")
+class OnKeyboardKey(
+    @get:Out("", "") @get:JsonProperty("out") val out: ControlPath
+) : StatelessNode() {
+    override fun initialize() {
     }
 }

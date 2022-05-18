@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.StatefulNode
-import com.valaphee.flow.spec.DataType
+import com.valaphee.flow.spec.Arr
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
@@ -30,11 +30,11 @@ import com.valaphee.flow.spec.Out
  */
 @Node("Control/For Each")
 class ForEach(
-    @get:In (""     , ""          , ""  ) @get:JsonProperty("in"       ) override val `in`    : ControlPath,
-    @get:In (""     , DataType.Arr, "[]") @get:JsonProperty("in_value" )          val inValue : DataPath   ,
-    @get:Out("Body" , ""                ) @get:JsonProperty("out_body" )          val outBody : ControlPath,
-    @get:Out("Exit" , ""                ) @get:JsonProperty("out"      )          val out     : ControlPath,
-    @get:Out("Value", ""                ) @get:JsonProperty("out_value")          val outValue: DataPath   ,
+    @get:In (""     , "" , ""  ) @get:JsonProperty("in"       ) override val `in`    : ControlPath,
+    @get:In (""     , Arr, "[]") @get:JsonProperty("in_value" )          val inValue : DataPath   ,
+    @get:Out("Body" , ""       ) @get:JsonProperty("out_body" )          val outBody : ControlPath,
+    @get:Out("Exit" , ""       ) @get:JsonProperty("out"      )          val out     : ControlPath,
+    @get:Out("Value", ""       ) @get:JsonProperty("out_value")          val outValue: DataPath   ,
 ) : StatefulNode() {
     override fun initialize() {
         `in`.declare {

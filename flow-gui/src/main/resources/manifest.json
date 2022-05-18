@@ -70,34 +70,70 @@
       "icon": "/math/scalar.png"
     },
     "Math/Scalar/Absolute": {
-      "icon": "/math/scalar/absolute.png"
+      "icon": "/math/absolute.png"
     },
     "Math/Scalar/Add": {
-      "icon": "/math/scalar/add.png"
+      "icon": "/math/add.png"
     },
     "Math/Scalar/Divide": {
-      "icon": "/math/scalar/divide.png"
+      "icon": "/math/divide.png"
     },
     "Math/Scalar/Exponentiate": {
-      "icon": "/math/scalar/exponentiate.png"
+      "icon": "/math/exponentiate.png"
     },
     "Math/Scalar/Modulo": {
-      "icon": "/math/scalar/modulo.png"
+      "icon": "/math/modulo.png"
     },
     "Math/Scalar/Multiply": {
-      "icon": "/math/scalar/multiply.png"
+      "icon": "/math/multiply.png"
     },
     "Math/Scalar/Normalize": {
-      "icon": "/math/scalar/normalize.png"
+      "icon": "/math/normalize.png"
     },
     "Math/Scalar/Root": {
-      "icon": "/math/scalar/root.png"
+      "icon": "/math/root.png"
     },
     "Math/Scalar/Round": {
-      "icon": "/math/scalar/round.png"
+      "icon": "/math/round.png"
     },
     "Math/Scalar/Subtract": {
-      "icon": "/math/scalar/subtract.png"
+      "icon": "/math/subtract.png"
+    },
+    "Math/Vector 2": {
+      "icon": "/math/vector2.png"
+    },
+    "Math/Vector 2/Absolute": {
+      "icon": "/math/absolute.png"
+    },
+    "Math/Vector 2/Add": {
+      "icon": "/math/add.png"
+    },
+    "Math/Vector 2/Subtract": {
+      "icon": "/math/subtract.png"
+    },
+    "Math/Vector 3": {
+      "icon": "/math/vector3.png"
+    },
+    "Math/Vector 3/Absolute": {
+      "icon": "/math/absolute.png"
+    },
+    "Math/Vector 3/Add": {
+      "icon": "/math/add.png"
+    },
+    "Math/Vector 3/Subtract": {
+      "icon": "/math/subtract.png"
+    },
+    "Math/Vector 4": {
+      "icon": "/math/vector4.png"
+    },
+    "Math/Vector 4/Absolute": {
+      "icon": "/math/absolute.png"
+    },
+    "Math/Vector 4/Add": {
+      "icon": "/math/add.png"
+    },
+    "Math/Vector 4/Subtract": {
+      "icon": "/math/subtract.png"
     },
     "List": {
       "icon": "/list.png"
@@ -128,6 +164,30 @@
     },
     "Debug/Log": {
       "icon": "/debug.png"
+    },
+    "Input": {
+      "icon": "/input/keyboard.png"
+    },
+    "Input/Set Keyboard Key": {
+      "icon": "/input/keyboard.png"
+    },
+    "Input/On Keyboard Key": {
+      "icon": "/input/keyboard.png"
+    },
+    "Input/Mouse Position": {
+      "icon": "/input/mouse.png"
+    },
+    "Input/Move Mouse": {
+      "icon": "/input/mouse.png"
+    },
+    "Input/Set Mouse Button": {
+      "icon": "/input/mouse.png"
+    },
+    "Input/On Mouse Button": {
+      "icon": "/input/mouse.png"
+    },
+    "Input/On Mouse Move": {
+      "icon": "/input/mouse.png"
     }
   }
 }

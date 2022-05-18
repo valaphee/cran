@@ -14,31 +14,28 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.hid.impl
+package com.valaphee.flow.input
 
-import com.valaphee.flow.hid.Mouse
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.flow.DataPath
+import com.valaphee.flow.StatelessNode
+import com.valaphee.flow.spec.In
+import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.Vec2
 import com.valaphee.foundry.math.Int2
-import java.awt.Robot
+import java.awt.MouseInfo
 
 /**
  * @author Kevin Ludwig
  */
-class RobotMouse : Mouse() {
-    override suspend fun mouseMove(target: Int2) {
-        robot.mouseMove(target.x, target.y)
-    }
-
-    override fun mouseMoveRaw(move: Int2) = TODO()
-
-    override fun mousePress(button: Int) {
-        robot.mousePress(button)
-    }
-
-    override fun mouseRelease(button: Int) {
-        robot.mouseRelease(button)
-    }
-
-    companion object {
-        private val robot = Robot()
+@Node("Input/Mouse Position")
+class MousePosition(
+    @get:In ("", Vec2, "") @get:JsonProperty("out_position") val out: DataPath,
+) : StatelessNode() {
+    override fun initialize() {
+        out.set {
+            val position = MouseInfo.getPointerInfo().location
+            Int2(position.x, position.y)
+        }
     }
 }

@@ -72,5 +72,5 @@ class NodeSkin(
         }
     }
 
-    override fun createConnectorShape(connector: Connector) = ConnectorShape(controller, connector)
+    override fun createConnectorShape(connector: Connector) = ConnectorShape(connector)
 }

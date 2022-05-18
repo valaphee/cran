@@ -19,9 +19,10 @@ package com.valaphee.flow.list
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.StatelessNode
-import com.valaphee.flow.spec.DataType
+import com.valaphee.flow.spec.Arr
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.Num
 import com.valaphee.flow.spec.Out
 
 /**
@@ -29,9 +30,9 @@ import com.valaphee.flow.spec.Out
  */
 @Node("List/Get")
 class Get(
-    @get:In (""     , "${DataType.Arr}0", "[]") @get:JsonProperty("in_list" ) val inList : DataPath,
-    @get:In ("Index", DataType.Num      , ""  ) @get:JsonProperty("in_index") val inIndex: DataPath,
-    @get:Out(""     , "0"                     ) @get:JsonProperty("out"     ) val out    : DataPath
+    @get:In (""     , "${Arr}0", "[]") @get:JsonProperty("in_list" ) val inList : DataPath,
+    @get:In ("Index", Num      , ""  ) @get:JsonProperty("in_index") val inIndex: DataPath,
+    @get:Out(""     , "0"            ) @get:JsonProperty("out"     ) val out    : DataPath
 ) : StatelessNode() {
     override fun initialize() {
         out.set { inList.getOrThrow<List<Any?>>("in_list")[inIndex.getOrThrow<Number>("in_index").toInt()] }

@@ -23,7 +23,7 @@ dependencies {
     implementation(project(":flow-spec"))
     kapt(project(":flow-spec"))
 
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
     implementation("com.google.guava:guava:31.1-jre")
 
     api("com.valaphee:foundry-math:1.4.0")
