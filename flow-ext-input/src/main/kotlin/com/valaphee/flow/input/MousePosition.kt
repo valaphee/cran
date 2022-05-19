@@ -19,8 +19,8 @@ package com.valaphee.flow.input
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.StatelessNode
-import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.Out
 import com.valaphee.flow.spec.Vec2
 import com.valaphee.foundry.math.Int2
 import java.awt.MouseInfo
@@ -30,7 +30,7 @@ import java.awt.MouseInfo
  */
 @Node("Input/Mouse Position")
 class MousePosition(
-    @get:In ("", Vec2, "") @get:JsonProperty("out_position") val out: DataPath,
+    @get:Out("", Vec2) @get:JsonProperty("out_position") val out: DataPath,
 ) : StatelessNode() {
     override fun initialize() {
         out.set {

@@ -16,30 +16,19 @@
 
 package com.valaphee.flow
 
-import javafx.geometry.Pos
+import javafx.scene.Scene
 import javafx.scene.image.Image
-import javafx.scene.text.TextAlignment
-import tornadofx.View
-import tornadofx.hbox
-import tornadofx.imageview
-import tornadofx.label
+import tornadofx.App
+import tornadofx.UIComponent
+import tornadofx.importStylesheet
 
 /**
  * @author Kevin Ludwig
  */
-class About : View("About") {
-    override val root = hbox {
-        // Properties
-        setPrefSize(300.0, 100.0)
-        alignment = Pos.CENTER
-
-        // Children
-        imageview(Image(About::class.java.getResourceAsStream("/app.png")))
-        label(
-            """
-                Flow${About::class.java.`package`.implementationVersion?.let { " $it" } ?: ""}
-                Copyright (c) 2022, Valaphee.
-            """.trimIndent()
-        ) { textAlignment = TextAlignment.CENTER }
+class FlowApp : App(Image(FlowApp::class.java.getResourceAsStream("/app.png")), FlowView::class, FlowStyle::class) {
+    override fun init() {
+        importStylesheet("/style.css")
     }
+
+    override fun createPrimaryScene(view: UIComponent) = Scene(view.root, 1000.0, 800.0)
 }

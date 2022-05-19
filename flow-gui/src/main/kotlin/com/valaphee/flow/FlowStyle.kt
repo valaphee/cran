@@ -30,7 +30,7 @@ import tornadofx.px
 /**
  * @author Kevin Ludwig
  */
-class Style : Stylesheet() {
+class FlowStyle : Stylesheet() {
     init {
         nodeWindow {
             backgroundColor = multi(LinearGradient(0.0, 0.0, 0.0, 1.0, true, CycleMethod.NO_CYCLE, Stop(0.0, Color.rgb(13, 13, 13, 0.95)), Stop(1.0, Color.rgb(27, 27, 27, 0.95))))
