@@ -16,7 +16,6 @@
 
 package com.valaphee.flow.graph
 
-import com.valaphee.flow.manifest.Manifest
 import eu.mihosoft.vrl.workflow.Connection
 import eu.mihosoft.vrl.workflow.VFlow
 import eu.mihosoft.vrl.workflow.VNode
@@ -28,7 +27,6 @@ import javafx.scene.Parent
  * @author Kevin Ludwig
  */
 class SkinFactory(
-    val manifest: Manifest,
     parent: Parent,
     parentFactory: FXSkinFactory? = null,
 ) : FXSkinFactory(parent, parentFactory) {

@@ -1,0 +1,275 @@
+.window {
+    -fx-background-color: linear-gradient(to bottom, rgb(13, 13, 13, 0.95), rgb(27, 27, 27, 0.95));
+    -fx-border-color: rgb(12, 12, 12);
+    -fx-border-width: 2px;
+}
+
+.window-titlebar {
+    -fx-background-color: radial-gradient(focus-angle 0, focus-distance 100%, center 0% 0%, radius 100%, rgb(50, 50, 50, 1.0), rgb(50, 50, 50, 0.1));
+}
+
+.window-icon {
+    -fx-border-width: 0px;
+}
+
+.vnode-connection {
+    -fx-stroke: rgb(255, 255, 255);
+    -fx-stroke-width: 3px;
+}
+
+.vnode-new-connection {
+    -fx-stroke: rgb(255, 255, 255);
+    -fx-stroke-width: 3px;
+}
+
+.menu-entry > .label {
+    -fx-graphic: url("entry@16x.png");
+}
+
+.menu-control > .label {
+    -fx-graphic: url("control/branch@16x.png")
+}
+
+.menu-control-select > .label {
+    -fx-graphic: url("control/select@16x.png")
+}
+
+.menu-control-branch > .label {
+    -fx-graphic: url("control/branch@16x.png")
+}
+
+.menu-control-while > .label {
+    -fx-graphic: url("control/loop@16x.png")
+}
+
+.menu-control-for > .label {
+    -fx-graphic: url("control/loop@16x.png")
+}
+
+.menu-control-for-each > .label {
+    -fx-graphic: url("control/loop@16x.png")
+}
+
+.menu-control-wait > .label {
+    -fx-graphic: url("time@16x.png")
+}
+
+.menu-value > .label {
+    -fx-graphic: url("value@16x.png")
+}
+
+.menu-logic > .label {
+    -fx-graphic: url("logic@16x.png")
+}
+
+.menu-logic-and > .label {
+    -fx-graphic: url("logic/and@16x.png")
+}
+
+.menu-logic-approximately-equal > .label {
+    -fx-graphic: url("logic/approximately-equal@16x.png")
+}
+
+.menu-logic-equal > .label {
+    -fx-graphic: url("logic/equal@16x.png")
+}
+
+.menu-logic-greater-than > .label {
+    -fx-graphic: url("logic/greater-than@16x.png")
+}
+
+.menu-logic-greater-than-or-equal > .label {
+    -fx-graphic: url("logic/greater-than-or-equal@16x.png")
+}
+
+.menu-logic-less-than > .label {
+    -fx-graphic: url("logic/less-than@16x.png")
+}
+
+.menu-logic-less-than-or-equal > .label {
+    -fx-graphic: url("logic/less-than-or-equal@16x.png")
+}
+
+.menu-logic-not > .label {
+    -fx-graphic: url("logic/not@16x.png")
+}
+
+.menu-logic-not-approximately-equal > .label {
+    -fx-graphic: url("logic/not-approximately-equal@16x.png")
+}
+
+.menu-logic-not-equal > .label {
+    -fx-graphic: url("logic/not-equal@16x.png")
+}
+
+.menu-logic-or > .label {
+    -fx-graphic: url("logic/or@16x.png")
+}
+
+.menu-math > .label {
+    -fx-graphic: url("math@16x.png")
+}
+
+.menu-math-scalar > .label {
+    -fx-graphic: url("math/scalar@16x.png")
+}
+
+.menu-math-scalar-absolute > .label {
+    -fx-graphic: url("math/absolute@16x.png")
+}
+
+.menu-math-scalar-add > .label {
+    -fx-graphic: url("math/add@16x.png")
+}
+
+.menu-math-scalar-divide > .label {
+    -fx-graphic: url("math/divide@16x.png")
+}
+
+.menu-math-scalar-exponentiate > .label {
+    -fx-graphic: url("math/exponentiate@16x.png")
+}
+
+.menu-math-scalar-modulo > .label {
+    -fx-graphic: url("math/modulo@16x.png")
+}
+
+.menu-math-scalar-multiply > .label {
+    -fx-graphic: url("math/multiply@16x.png")
+}
+
+.menu-math-scalar-normalize > .label {
+    -fx-graphic: url("math/normalize@16x.png")
+}
+
+.menu-math-scalar-root > .label {
+    -fx-graphic: url("math/root@16x.png")
+}
+
+.menu-math-scalar-round > .label {
+    -fx-graphic: url("math/round@16x.png")
+}
+
+.menu-math-scalar-subtract > .label {
+    -fx-graphic: url("math/subtract@16x.png")
+}
+
+.menu-math-vector-2 > .label {
+    -fx-graphic: url("math/vector2@16x.png")
+}
+
+.menu-math-vector-2-absolute > .label {
+    -fx-graphic: url("math/absolute@16x.png")
+}
+
+.menu-math-vector-2-add > .label {
+    -fx-graphic: url("math/add@16x.png")
+}
+
+.menu-math-vector-2-subtract > .label {
+    -fx-graphic: url("math/subtract@16x.png")
+}
+
+.menu-math-vector-3 > .label {
+    -fx-graphic: url("math/vector3@16x.png")
+}
+
+.menu-math-vector-3-absolute > .label {
+    -fx-graphic: url("math/absolute@16x.png")
+}
+
+.menu-math-vector-3-add > .label {
+    -fx-graphic: url("math/add@16x.png")
+}
+
+.menu-math-vector-3-subtract > .label {
+    -fx-graphic: url("math/subtract@16x.png")
+}
+
+.menu-math-vector-4 > .label {
+    -fx-graphic: url("math/vector4@16x.png")
+}
+
+.menu-math-vector-4-absolute > .label {
+    -fx-graphic: url("math/absolute@16x.png")
+}
+
+.menu-math-vector-4-add > .label {
+    -fx-graphic: url("math/add@16x.png")
+}
+
+.menu-math-vector-4-subtract > .label {
+    -fx-graphic: url("math/subtract@16x.png")
+}
+
+.menu-list > .label {
+    -fx-graphic: url("list@16x.png")
+}
+
+.menu-list-add > .label {
+    -fx-graphic: url("list/add@16x.png")
+}
+
+.menu-list-first > .label {
+    -fx-graphic: url("list/first-or-last@16x.png")
+}
+
+.menu-list-last > .label {
+    -fx-graphic: url("list/first-or-last@16x.png")
+}
+
+.menu-list-remove > .label {
+    -fx-graphic: url("list/remove@16x.png")
+}
+
+.menu-map > .label {
+    -fx-graphic: url("map@16x.png")
+}
+
+.menu-map-remove > .label {
+    -fx-graphic: url("map/remove@16x.png")
+}
+
+.menu-map-set > .label {
+    -fx-graphic: url("map/set@16x.png")
+}
+
+.menu-debug > .label {
+    -fx-graphic: url("debug@16x.png")
+}
+
+.menu-debug-log > .label {
+    -fx-graphic: url("debug@16x.png")
+}
+
+.menu-input > .label {
+    -fx-graphic: url("input/keyboard@16x.png")
+}
+
+.menu-input-set-keyboard-key > .label {
+    -fx-graphic: url("input/keyboard@16x.png")
+}
+
+.menu-input-on-keyboard-key > .label {
+    -fx-graphic: url("input/keyboard@16x.png")
+
+}
+.menu-input-mouse-position > .label {
+    -fx-graphic: url("input/mouse@16x.png")
+}
+
+.menu-input-move-mouse > .label {
+    -fx-graphic: url("input/mouse@16x.png")
+}
+
+.menu-input-set-mouse-button > .label {
+    -fx-graphic: url("input/mouse@16x.png")
+}
+
+.menu-input-on-mouse-button > .label {
+    -fx-graphic: url("input/mouse@16x.png")
+}
+
+.menu-input-on-mouse-move > .label {
+    -fx-graphic: url("input/mouse@16x.png")
+}

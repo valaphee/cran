@@ -25,9 +25,10 @@ import tornadofx.importStylesheet
 /**
  * @author Kevin Ludwig
  */
-class FlowApp : App(Image(FlowApp::class.java.getResourceAsStream("/app.png")), FlowView::class, FlowStyle::class) {
+class FlowApp : App(Image(FlowApp::class.java.getResourceAsStream("/app@48x.png")), FlowView::class) {
     override fun init() {
         importStylesheet("/style.css")
+        importStylesheet("/style-graph.css")
     }
 
     override fun createPrimaryScene(view: UIComponent) = Scene(view.root, 1000.0, 800.0)

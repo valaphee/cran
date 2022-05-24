@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair
 import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper
 import com.fasterxml.jackson.module.guice.GuiceAnnotationIntrospector
 import com.fasterxml.jackson.module.guice.GuiceInjectableValues
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.google.inject.AbstractModule
@@ -29,7 +28,6 @@ import com.google.inject.Guice
 import com.google.inject.Injector
 import com.google.inject.Provides
 import com.google.inject.Singleton
-import com.valaphee.flow.manifest.Manifest
 import com.valaphee.flow.spec.Spec
 import com.valaphee.svc.graph.v1.GetSpecRequest
 import com.valaphee.svc.graph.v1.GraphServiceGrpc
@@ -65,10 +63,6 @@ fun main(arguments: Array<String>) {
         @Provides
         @Singleton
         fun spec(objectMapper: ObjectMapper, graphService: GraphServiceGrpc.GraphServiceBlockingStub) = objectMapper.readValue<Spec>(graphService.getSpec(GetSpecRequest.getDefaultInstance()).spec.toByteArray())
-
-        @Provides
-        @Singleton
-        fun manifest() = jacksonObjectMapper().readValue<Manifest>(this::class.java.getResource("/manifest.json")!!)
     })
 
     FX.dicontainer = object : DIContainer {

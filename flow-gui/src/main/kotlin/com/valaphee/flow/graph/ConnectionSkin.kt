@@ -38,6 +38,7 @@ class ConnectionSkin(
     type: String
 ) : DefaultFXConnectionSkin(skinFactory, parent, connection, flow, type) {
     override fun initConnnectionPath() {
+        // Fix top-down connection path
         val senderNode = senderShape.node
         val senderTopDown = senderShape.connector.visualizationRequest.get<Boolean>(VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN).orElseGet { false }
         val receiverTopDown = receiverShape.connector.visualizationRequest.get<Boolean>(VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN).orElseGet { false }

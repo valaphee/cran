@@ -150,8 +150,8 @@ class ConnectorShape(
             }
         }
 
-        content(@Suppress("UNCHECKED_CAST") (connector.valueObject.value as ConnectorValue?))
-        connector.valueObject.valueProperty().onChange { content(@Suppress("UNCHECKED_CAST") (it as ConnectorValue?)) }
+        content(connector.valueObject.value as ConnectorValue?)
+        connector.valueObject.valueProperty().onChange { content(it as ConnectorValue?) }
     }
 
     override fun radiusProperty() = radiusProperty

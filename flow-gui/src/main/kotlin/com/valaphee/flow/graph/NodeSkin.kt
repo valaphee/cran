@@ -16,20 +16,12 @@
 
 package com.valaphee.flow.graph
 
-import com.valaphee.flow.spec.Spec
 import eu.mihosoft.vrl.workflow.Connector
 import eu.mihosoft.vrl.workflow.VFlow
 import eu.mihosoft.vrl.workflow.VNode
 import eu.mihosoft.vrl.workflow.fx.FXFlowNodeSkin
 import eu.mihosoft.vrl.workflow.fx.FlowNodeWindow
 import javafx.scene.Parent
-import javafx.scene.image.Image
-import javafx.scene.layout.Background
-import javafx.scene.layout.BackgroundImage
-import javafx.scene.layout.BackgroundPosition
-import javafx.scene.layout.BackgroundRepeat
-import javafx.scene.layout.BackgroundSize
-import jfxtras.scene.control.window.WindowIcon
 import tornadofx.onChange
 
 /**
@@ -48,16 +40,6 @@ class NodeSkin(
         setShowCloseIconCallback { null }
         isResizableWindow = false
         resizeableWindowProperty().onChange { if (it) isResizableWindow = false }
-
-        // Icon
-        fun icon(spec: Spec.Node?) {
-            leftIcons.clear()
-
-            spec?.let { (skinFactory as SkinFactory).manifest.nodes[it.name]?.let { this::class.java.getResourceAsStream(it.icon)?.let { leftIcons += WindowIcon().apply { background = Background(BackgroundImage(Image(it, 32.0, 32.0, false, false), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, false, true))) } } } }
-        }
-
-        icon(@Suppress("UNCHECKED_CAST") (model.valueObject.value as Spec.Node?))
-        model.valueObject.valueProperty().onChange { icon(@Suppress("UNCHECKED_CAST") (it as Spec.Node?)) }
     }
 
     override fun addConnector(connector: Connector) {

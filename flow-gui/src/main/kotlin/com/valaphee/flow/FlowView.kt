@@ -23,7 +23,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.protobuf.ByteString
 import com.valaphee.flow.graph.Graph
 import com.valaphee.flow.graph.SkinFactory
-import com.valaphee.flow.manifest.Manifest
+import com.valaphee.flow.graph.asNodeStyleClass
 import com.valaphee.flow.meta.Meta
 import com.valaphee.flow.spec.Spec
 import com.valaphee.svc.graph.v1.DeleteGraphRequest
@@ -42,7 +42,6 @@ import javafx.scene.control.SplitPane
 import javafx.scene.control.TabPane
 import javafx.scene.control.TextField
 import javafx.scene.control.cell.TextFieldListCell
-import javafx.scene.image.Image
 import javafx.scene.input.KeyCode
 import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
@@ -62,7 +61,6 @@ import tornadofx.chooseFile
 import tornadofx.contextmenu
 import tornadofx.customitem
 import tornadofx.dynamicContent
-import tornadofx.imageview
 import tornadofx.item
 import tornadofx.listview
 import tornadofx.menu
@@ -93,7 +91,6 @@ class FlowView : View("Flow"), CoroutineScope {
 
     private val objectMapper by di<ObjectMapper>()
     private val spec by di<Spec>()
-    private val manifest by di<Manifest>()
     private val graphService by di<GraphServiceBlockingStub>()
 
     private val jsonObjectMapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
@@ -201,7 +198,7 @@ class FlowView : View("Flow"), CoroutineScope {
                             isFitToWidth = true*/
 
                             // Children
-                            dynamicContent(graphProperty) { it?.flow?.setSkinFactories(SkinFactory(manifest, this)) }
+                            dynamicContent(graphProperty) { it?.flow?.setSkinFactories(SkinFactory(this)) }
 
                             // Events
                             MouseControlUtil.addSelectionRectangleGesture(this, rectangle {
@@ -224,26 +221,38 @@ class FlowView : View("Flow"), CoroutineScope {
                                 var item: MenuItem? = null
                                 name.forEachIndexed { i, element ->
                                     path.append("${element}/")
-                                    val icon = manifest.nodes[path.toString().removeSuffix("/")]?.let { this::class.java.getResourceAsStream(it.icon)?.let { imageview(Image(it, 16.0, 16.0, false, false)) } }
+                                    val _styleClass = "menu-${path.toString().asNodeStyleClass()}"
                                     item = when (val _item = item) {
-                                        null -> treeItems.find { it.text == element } ?: if (i == name.lastIndex) MenuItem(element, icon).apply {
+                                        null -> treeItems.find { it.text == element } ?: if (i == name.lastIndex) MenuItem(element).apply {
                                             treeItems += this
                                             nodeItems[node.name] = this
 
-                                            action {
-                                                val local = sceneToLocal(x - currentWindow!!.x, y - currentWindow!!.y)
-                                                graphProperty.get()?.newNode(node, Meta.Node(local.x, local.y))
-                                            }
-                                        } else Menu(element, icon).apply { treeItems += this }
-                                        is Menu -> _item.items.find { it.text == element } ?: if (i == name.lastIndex) MenuItem(element, icon).apply {
-                                            _item.items += this
-                                            nodeItems[node.name] = this
+                                            styleClass += _styleClass
 
                                             action {
                                                 val local = sceneToLocal(x - currentWindow!!.x, y - currentWindow!!.y)
                                                 graphProperty.get()?.newNode(node, Meta.Node(local.x, local.y))
                                             }
-                                        } else Menu(element, icon).apply { _item.items += this }
+                                        } else Menu(element).apply {
+                                            treeItems += this
+
+                                            styleClass += _styleClass
+                                        }
+                                        is Menu -> _item.items.find { it.text == element } ?: if (i == name.lastIndex) MenuItem(element).apply {
+                                            _item.items += this
+                                            nodeItems[node.name] = this
+
+                                            styleClass += _styleClass
+
+                                            action {
+                                                val local = sceneToLocal(x - currentWindow!!.x, y - currentWindow!!.y)
+                                                graphProperty.get()?.newNode(node, Meta.Node(local.x, local.y))
+                                            }
+                                        } else Menu(element).apply {
+                                            _item.items += this
+
+                                            styleClass += _styleClass
+                                        }
                                         else -> error("")
                                     }
                                 }

@@ -72,7 +72,6 @@ class Graph(
                         y = it.y
                     }
                     valueObject.value = nodeSpec
-                    /*selectableProperty().value = false*/
                 }
                 nodeSpec.ports.mapNotNull { nodePortSpec ->
                     when (nodePortSpec.type) {
@@ -95,7 +94,7 @@ class Graph(
                         }
                         Spec.Node.Port.Type.OutData -> node[nodePortSpec.json] as Int to _node.addOutput("data").apply {
                             localId = nodePortSpec.json
-                            valueObject.value = nodePortSpec to null
+                            valueObject.value = ConnectorValue(nodePortSpec)
                         }
                         Spec.Node.Port.Type.Const -> {
                             _node.addInput("const").apply {
@@ -117,7 +116,6 @@ class Graph(
             x = meta.x
             y = meta.y
             valueObject.value = spec
-            /*selectableProperty().value = false*/
         }
         spec.ports.forEach { nodePortSpec ->
             when (nodePortSpec.type) {
