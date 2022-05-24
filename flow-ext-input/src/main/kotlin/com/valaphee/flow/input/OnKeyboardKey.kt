@@ -27,7 +27,7 @@ import com.valaphee.flow.spec.Out
  */
 @Node("Input/On Keyboard Key")
 class OnKeyboardKey(
-    @get:Out("", "") @get:JsonProperty("out") val out: ControlPath
+    @get:Out("") @get:JsonProperty("out") val out: ControlPath
 ) : StatelessNode() {
     override fun initialize() {
     }

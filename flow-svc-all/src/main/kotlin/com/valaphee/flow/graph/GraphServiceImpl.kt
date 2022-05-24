@@ -42,7 +42,7 @@ import java.util.UUID
 class GraphServiceImpl @Inject constructor(
     private val objectMapper: ObjectMapper
 ) : GraphServiceImplBase() {
-    private val spec = GetSpecResponse.newBuilder().setSpec(ByteString.copyFrom(objectMapper.writeValueAsBytes(ClassGraph().scan().use { Spec(it.getResourcesMatchingWildcard("spec.*.json").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes }) }))).build()
+    private val spec = GetSpecResponse.newBuilder().setSpec(ByteString.copyFrom(objectMapper.writeValueAsBytes(ClassGraph().scan().use { Spec(it.getResourcesMatchingWildcard("spec.*.dat").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes }) }))).build()
     private val graphs = mutableMapOf<UUID, GraphImpl>()
 
     override fun getSpec(request: GetSpecRequest, responseObserver: StreamObserver<GetSpecResponse>) {

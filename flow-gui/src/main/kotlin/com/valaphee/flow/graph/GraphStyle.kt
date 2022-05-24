@@ -14,36 +14,6 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.spec
+package com.valaphee.flow.graph
 
-/**
- * Binary, can be true or false
- */
-const val Bin = "-"
-
-/**
- * Number, can be an integer or decimal of any size
- */
-const val Num = "~"
-
-/**
- * String, can also represent binary
- */
-const val Str = "\""
-
-/**
- * Array, can be followed by a type specifier and fixed size
- */
-const val Arr = "["
-
-/**
- * "Object", key-value pairs
- */
-const val Obj = "{"
-
-/**
- * Combined types
- */
-const val Vec2 = "${Arr}${Num}2"
-const val Vec3 = "${Arr}${Num}3"
-const val Vec4 = "${Arr}${Num}4"
+fun String.asNodeStyleClass() = removeSuffix("/").replace('/', '-').replace(' ', '-').lowercase()

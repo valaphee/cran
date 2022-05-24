@@ -27,7 +27,7 @@ import com.valaphee.flow.spec.Out
  */
 @Node("Input/On Mouse Button")
 class OnMouseButton(
-    @get:Out("", "") @get:JsonProperty("out") val out: ControlPath
+    @get:Out("") @get:JsonProperty("out") val out: ControlPath
 ) : StatelessNode() {
     override fun initialize() {
     }

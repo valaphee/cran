@@ -19,6 +19,7 @@ package com.valaphee.flow.control
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.StatelessNode
+import com.valaphee.flow.Und
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
@@ -28,10 +29,10 @@ import com.valaphee.flow.spec.Out
  */
 @Node("Control/Select")
 class Select(
-    @get:In (""       , "0"  , "") @get:JsonProperty("in"        ) val `in`     : DataPath           ,
-    @get:In (""       , "0=1", "") @get:JsonProperty("in_value"  ) val inValue  : Map<Any?, DataPath>,
-    @get:In ("Default", "1"  , "") @get:JsonProperty("in_default") val inDefault: DataPath           ,
-    @get:Out(""       , "1"      ) @get:JsonProperty("out"       ) val out      : DataPath
+    @get:In (""       , Und) @get:JsonProperty("in"        ) val `in`     : DataPath           ,
+    @get:In (""       , Und) @get:JsonProperty("in_value"  ) val inValue  : Map<Any?, DataPath>,
+    @get:In ("Default", Und) @get:JsonProperty("in_default") val inDefault: DataPath           ,
+    @get:Out(""       , Und) @get:JsonProperty("out"       ) val out      : DataPath
 ) : StatelessNode() {
     override fun initialize() {
         out.set { (inValue[`in`.get()] ?: inDefault).get() }

@@ -30,11 +30,10 @@ class Spec(
         @get:JsonProperty("json" ) val json : String
     ) {
         class Port(
-            @get:JsonProperty("name"        ) val name       : String,
-            @get:JsonProperty("type"        ) val type       : Type  ,
-            @get:JsonProperty("data_type"   ) val dataType   : String,
-            @get:JsonProperty("data_default") val dataDefault: String,
-            @get:JsonProperty("json"        ) val json       : String,
+            @get:JsonProperty("name") val name: String ,
+            @get:JsonProperty("type") val type: Type   ,
+            @get:JsonProperty("data") val data: String?,
+            @get:JsonProperty("json") val json: String ,
         ) {
             enum class Type {
                 @JsonProperty("in_control" ) InControl,

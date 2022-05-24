@@ -17,13 +17,13 @@
 package com.valaphee.flow.input
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.flow.Bit
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
+import com.valaphee.flow.Num
 import com.valaphee.flow.StatefulNode
-import com.valaphee.flow.spec.Bin
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
-import com.valaphee.flow.spec.Num
 import com.valaphee.flow.spec.Out
 import org.hid4java.HidDevice
 import org.hid4java.HidManager
@@ -35,14 +35,14 @@ import kotlin.concurrent.thread
  */
 @Node("Input/Set Keyboard Key")
 class SetKeyboardKey(
-    @get:In (""     , "" , "") @get:JsonProperty("in"      ) override val `in`   : ControlPath,
-    @get:In ("Key"  , Num, "") @get:JsonProperty("in_key"  )          val inKey  : DataPath   ,
-    @get:In ("State", Bin, "") @get:JsonProperty("in_state")          val inState: DataPath   ,
-    @get:Out(""     , ""     ) @get:JsonProperty("out"     )          val out    : ControlPath
+    @get:In (""          ) @get:JsonProperty("in"      ) override val `in`   : ControlPath,
+    @get:In ("Key"  , Num) @get:JsonProperty("in_key"  )          val inKey  : DataPath   ,
+    @get:In ("State", Bit) @get:JsonProperty("in_state")          val inState: DataPath   ,
+    @get:Out(""          ) @get:JsonProperty("out"     )          val out    : ControlPath
 ) : StatefulNode() {
     override fun initialize() {
         `in`.declare {
-            val key = Key.values()[inKey.getOrThrow("in_key")]
+            val key = inKey.getOrThrow<Key>("in_key")
             if (inState.getOrThrow("in_state")) {
                 if (!keys.contains(key) && keys.size <= 6) {
                     keys += key

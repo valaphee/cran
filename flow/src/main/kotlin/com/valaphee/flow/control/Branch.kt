@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.StatefulNode
+import com.valaphee.flow.Und
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
@@ -29,10 +30,10 @@ import com.valaphee.flow.spec.Out
  */
 @Node("Control/Branch")
 class Branch(
-    @get:In (""       , "", "") @get:JsonProperty("in"         ) override val `in`      : ControlPath           ,
-    @get:In (""       , "", "") @get:JsonProperty("in_value"   )          val inValue   : DataPath              ,
-    @get:Out(""       , ""    ) @get:JsonProperty("out"        )          val out       : Map<Any?, ControlPath>,
-    @get:Out("Default", ""    ) @get:JsonProperty("out_default")          val outDefault: ControlPath
+    @get:In (""            ) @get:JsonProperty("in"         ) override val `in`      : ControlPath           ,
+    @get:In (""       , Und) @get:JsonProperty("in_value"   )          val inValue   : DataPath              ,
+    @get:Out(""            ) @get:JsonProperty("out"        )          val out       : Map<Any?, ControlPath>,
+    @get:Out("Default"     ) @get:JsonProperty("out_default")          val outDefault: ControlPath
 ) : StatefulNode() {
     override fun initialize() {
         `in`.declare { (out[inValue.get()] ?: outDefault)() }

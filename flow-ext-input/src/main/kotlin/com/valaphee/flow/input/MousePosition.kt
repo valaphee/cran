@@ -19,9 +19,9 @@ package com.valaphee.flow.input
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
 import com.valaphee.flow.StatelessNode
+import com.valaphee.flow.math.vector2.Vec2
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
-import com.valaphee.flow.spec.Vec2
 import com.valaphee.foundry.math.Int2
 import java.awt.MouseInfo
 

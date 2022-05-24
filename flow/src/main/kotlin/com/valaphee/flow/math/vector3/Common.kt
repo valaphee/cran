@@ -14,23 +14,6 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow
+package com.valaphee.flow.math.vector3
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.spec.Const
-import com.valaphee.flow.spec.Node
-import com.valaphee.flow.spec.Out
-
-/**
- * @author Kevin Ludwig
- */
-@Node("Value")
-class Value(
-    @get:Const(""     ) @get:JsonProperty("value") val value: Any?           ,
-    @get:Out  ("", Und) @get:JsonProperty("out"  ) val out  : DataPath       ,
-                        @get:JsonProperty("embed") val embed: Boolean = false
-) : StatelessNode() {
-    override fun initialize() {
-        out.set(value)
-    }
-}
+const val Vec3 = """{"type":"array","items":{"type":"number"},"minItems":3,"maxItems":3}"""

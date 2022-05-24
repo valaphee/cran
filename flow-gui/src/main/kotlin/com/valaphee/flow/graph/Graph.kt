@@ -24,7 +24,6 @@ import com.valaphee.flow.spec.Spec
 import eu.mihosoft.vrl.workflow.Connector
 import eu.mihosoft.vrl.workflow.FlowFactory
 import eu.mihosoft.vrl.workflow.VFlow
-import eu.mihosoft.vrl.workflow.VisualizationRequest
 import java.util.UUID
 
 /**
@@ -76,12 +75,12 @@ class Graph(
                 nodeSpec.ports.mapNotNull { nodePortSpec ->
                     when (nodePortSpec.type) {
                         Spec.Node.Port.Type.InControl -> node[nodePortSpec.json] as Int to _node.addInput("control").apply {
-                            visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true
+                            /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
                             localId = nodePortSpec.json
                             valueObject.value = ConnectorValue(nodePortSpec)
                         }
                         Spec.Node.Port.Type.OutControl -> node[nodePortSpec.json] as Int to _node.addOutput("control").apply {
-                            visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true
+                            /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
                             localId = nodePortSpec.json
                             valueObject.value = ConnectorValue(nodePortSpec)
                         }
@@ -120,12 +119,12 @@ class Graph(
         spec.ports.forEach { nodePortSpec ->
             when (nodePortSpec.type) {
                 Spec.Node.Port.Type.InControl -> node.addInput("control").apply {
-                    visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true
+                    /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
                     localId = nodePortSpec.json
                     valueObject.value = ConnectorValue(nodePortSpec)
                 }
                 Spec.Node.Port.Type.OutControl -> node.addOutput("control").apply {
-                    visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true
+                    /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
                     localId = nodePortSpec.json
                     valueObject.value = ConnectorValue(nodePortSpec)
                 }

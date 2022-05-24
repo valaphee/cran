@@ -19,11 +19,11 @@ package com.valaphee.flow.input
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
+import com.valaphee.flow.Num
+import com.valaphee.flow.math.vector2.Vec2
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
-import com.valaphee.flow.spec.Num
 import com.valaphee.flow.spec.Out
-import com.valaphee.flow.spec.Vec2
 import com.valaphee.foundry.math.Int2
 import kotlin.math.abs
 
@@ -32,10 +32,10 @@ import kotlin.math.abs
  */
 @Node("Input/Move Mouse")
 class MoveMouse(
-    @get:In (""           , ""  , ""    ) @get:JsonProperty("in"            ) override val `in`         : ControlPath,
-    @get:In ("Sensitivity", Num , "0.25") @get:JsonProperty("in_sensitivity")          val inSensitivity: DataPath   ,
-    @get:In ("Move"       , Vec2, ""    ) @get:JsonProperty("in_move"       )          val inMove       : DataPath   ,
-    @get:Out(""           , ""          ) @get:JsonProperty("out"           )          val out          : ControlPath
+    @get:In (""                 ) @get:JsonProperty("in"            ) override val `in`         : ControlPath,
+    @get:In ("Sensitivity", Num ) @get:JsonProperty("in_sensitivity")          val inSensitivity: DataPath   ,
+    @get:In ("Move"       , Vec2) @get:JsonProperty("in_move"       )          val inMove       : DataPath   ,
+    @get:Out(""                 ) @get:JsonProperty("out"           )          val out          : ControlPath
 ) : Mouse() {
     private val moves: IntArray
 

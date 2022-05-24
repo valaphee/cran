@@ -23,7 +23,6 @@ import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
-import com.valaphee.flow.spec.Vec4
 import com.valaphee.foundry.math.Double4
 import com.valaphee.foundry.math.Float4
 import com.valaphee.foundry.math.Int4
@@ -34,8 +33,8 @@ import kotlin.math.absoluteValue
  */
 @Node("Math/Vector 4/Absolute")
 class Absolute(
-    @get:In ("X"  , Vec4, "") @get:JsonProperty("in" ) val `in`: DataPath,
-    @get:Out("|X|", Vec4    ) @get:JsonProperty("out") val out : DataPath
+    @get:In ("X"  , Vec4) @get:JsonProperty("in" ) val `in`: DataPath,
+    @get:Out("|X|", Vec4) @get:JsonProperty("out") val out : DataPath
 ) : StatelessNode() {
     override fun initialize() {
         out.set {

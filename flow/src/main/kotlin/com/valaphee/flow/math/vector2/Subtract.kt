@@ -23,7 +23,6 @@ import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
-import com.valaphee.flow.spec.Vec2
 import com.valaphee.foundry.math.Double2
 import com.valaphee.foundry.math.Float2
 import com.valaphee.foundry.math.Int2
@@ -33,9 +32,9 @@ import com.valaphee.foundry.math.Int2
  */
 @Node("Math/Vector 2/Subtract")
 class Subtract(
-    @get:In ("A"    , Vec2, "") @get:JsonProperty("in_a") val inA: DataPath,
-    @get:In ("B"    , Vec2, "") @get:JsonProperty("in_b") val inB: DataPath,
-    @get:Out("A - B", Vec2    ) @get:JsonProperty("out" ) val out: DataPath
+    @get:In ("A"    , Vec2) @get:JsonProperty("in_a") val inA: DataPath,
+    @get:In ("B"    , Vec2) @get:JsonProperty("in_b") val inB: DataPath,
+    @get:Out("A - B", Vec2) @get:JsonProperty("out" ) val out: DataPath
 ) : StatelessNode() {
     override fun initialize() {
         out.set {

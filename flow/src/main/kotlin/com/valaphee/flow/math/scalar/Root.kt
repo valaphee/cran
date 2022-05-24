@@ -18,10 +18,10 @@ package com.valaphee.flow.math.scalar
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
+import com.valaphee.flow.Num
 import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
-import com.valaphee.flow.spec.Num
 import com.valaphee.flow.spec.Out
 
 /**
@@ -29,7 +29,7 @@ import com.valaphee.flow.spec.Out
  */
 @Node("Math/Scalar/Root")
 class Root(
-    @get:In ("x"  , Num, "") @get:JsonProperty("in_x") val inX: DataPath,
-    @get:In ("n"  , Num, "") @get:JsonProperty("in_n") val inN: DataPath,
-    @get:Out("ⁿ√x", Num    ) @get:JsonProperty("out" ) val out: DataPath
+    @get:In ("x"  , Num) @get:JsonProperty("in_x") val inX: DataPath,
+    @get:In ("n"  , Num) @get:JsonProperty("in_n") val inN: DataPath,
+    @get:Out("ⁿ√x", Num) @get:JsonProperty("out" ) val out: DataPath
 ) : StatelessNode()

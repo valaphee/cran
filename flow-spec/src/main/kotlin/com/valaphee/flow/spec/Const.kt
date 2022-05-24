@@ -21,6 +21,7 @@ package com.valaphee.flow.spec
  */
 @Target(AnnotationTarget.PROPERTY_GETTER)
 @Retention(AnnotationRetention.SOURCE)
+@Deprecated("")
 annotation class Const(
     val name: String
 )

@@ -23,7 +23,6 @@ import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
 import com.valaphee.flow.spec.Out
-import com.valaphee.flow.spec.Vec4
 import com.valaphee.foundry.math.Double4
 import com.valaphee.foundry.math.Float4
 import com.valaphee.foundry.math.Int4
@@ -33,9 +32,9 @@ import com.valaphee.foundry.math.Int4
  */
 @Node("Math/Vector 4/Add")
 class Add(
-    @get:In ("A"    , Vec4, "") @get:JsonProperty("in_a") val inA: DataPath,
-    @get:In ("B"    , Vec4, "") @get:JsonProperty("in_b") val inB: DataPath,
-    @get:Out("A + B", Vec4    ) @get:JsonProperty("out" ) val out: DataPath
+    @get:In ("A"    , Vec4) @get:JsonProperty("in_a") val inA: DataPath,
+    @get:In ("B"    , Vec4) @get:JsonProperty("in_b") val inB: DataPath,
+    @get:Out("A + B", Vec4) @get:JsonProperty("out" ) val out: DataPath
 ) : StatelessNode() {
     override fun initialize() {
         out.set {

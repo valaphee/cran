@@ -17,12 +17,12 @@
 package com.valaphee.flow.input
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.flow.Bit
 import com.valaphee.flow.ControlPath
 import com.valaphee.flow.DataPath
-import com.valaphee.flow.spec.Bin
+import com.valaphee.flow.Num
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
-import com.valaphee.flow.spec.Num
 import com.valaphee.flow.spec.Out
 import com.valaphee.foundry.math.Int2
 
@@ -31,10 +31,10 @@ import com.valaphee.foundry.math.Int2
  */
 @Node("Input/Set Mouse Button")
 class SetMouseButton(
-    @get:In (""     , "" , "") @get:JsonProperty("in"       ) override val `in`    : ControlPath,
-    @get:In ("Key"  , Num, "") @get:JsonProperty("in_button")          val inButton: DataPath   ,
-    @get:In ("State", Bin, "") @get:JsonProperty("in_state" )          val inState : DataPath   ,
-    @get:Out(""     , ""     ) @get:JsonProperty("out"      )          val out     : ControlPath
+    @get:In (""          ) @get:JsonProperty("in"       ) override val `in`    : ControlPath,
+    @get:In ("Key"  , Num) @get:JsonProperty("in_button")          val inButton: DataPath   ,
+    @get:In ("State", Bit) @get:JsonProperty("in_state" )          val inState : DataPath   ,
+    @get:Out(""          ) @get:JsonProperty("out"      )          val out     : ControlPath
 ) : Mouse() {
     override fun initialize() {
         `in`.declare {

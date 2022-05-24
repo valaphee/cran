@@ -18,7 +18,6 @@ package com.valaphee.flow.graph
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.valaphee.flow.spec.Bin
 import eu.mihosoft.vrl.workflow.ConnectionEvent
 import eu.mihosoft.vrl.workflow.Connector
 import eu.mihosoft.vrl.workflow.VFlow
@@ -95,8 +94,8 @@ class ConnectorShape(
                         textFill = Color.WHITE
                     }
                     if (connector.type == "data" || connector.type == "const") {
-                        when (spec.dataType) {
-                            Bin -> checkbox(null, (value as? Boolean ?: false).toProperty().apply { onChange { (connector.valueObject.value as ConnectorValue).value = it } })
+                        when (spec.data) {
+                            """{"type":"boolean"}""" -> checkbox(null, (value as? Boolean ?: false).toProperty().apply { onChange { (connector.valueObject.value as ConnectorValue).value = it } })
                             else -> {
                                 val objectMapper = jacksonObjectMapper()
                                 textfield(value?.let { objectMapper.writeValueAsString(it) } ?: "") {

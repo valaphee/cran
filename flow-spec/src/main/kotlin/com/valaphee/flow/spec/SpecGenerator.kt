@@ -51,10 +51,11 @@ class SpecGenerator : AbstractProcessor() {
                     Spec.Node(node.value, `class`.enclosedElements.mapNotNull { getter ->
                         if (getter.kind == ElementKind.METHOD && getter is ExecutableElement) {
                             val type = getter.returnType.toString()
+                            val json = getter.getAnnotation(JsonProperty::class.java)
+
                             val `in` = getter.getAnnotation(In::class.java)
                             val out = getter.getAnnotation(Out::class.java)
                             val const = getter.getAnnotation(Const::class.java)
-                            val json = getter.getAnnotation(JsonProperty::class.java)
                             if (`in` != null) if (out != null) {
                                 processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @In or @Out is allowed, not both.")
                                 return true
@@ -69,7 +70,7 @@ class SpecGenerator : AbstractProcessor() {
                                         processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @In type $type.")
                                         return true
                                     }
-                                }, `in`.type, `in`.def, json.value
+                                }, `in`.data.takeIf { it.isNotEmpty() }, json.value
                             ) else if (out != null) if (const != null) {
                                 processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @Out or @Const is allowed, not both.")
                                 return true
@@ -81,15 +82,15 @@ class SpecGenerator : AbstractProcessor() {
                                         processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @Out type $type.")
                                         return true
                                     }
-                                }, out.type, "", json.value
-                            ) else if (const != null) Spec.Node.Port(const.name, Spec.Node.Port.Type.Const, "", "", json.value) else null
+                                }, out.data.takeIf { it.isNotEmpty() }, json.value
+                            ) else if (const != null) Spec.Node.Port(const.name, Spec.Node.Port.Type.Const, "{}", json.value) else null
                         } else null
                     }, `class`.qualifiedName.toString())
                 } else null
             } else null
         }?.let {
             val bytes = SmileMapper().registerKotlinModule().writeValueAsBytes(Spec(it))
-            processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", "spec.${MessageDigest.getInstance("MD5").digest(bytes).toHexString()}.json").openOutputStream().use { it.write(bytes) }
+            processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", "spec.${MessageDigest.getInstance("MD5").digest(bytes).toHexString()}.dat").openOutputStream().use { it.write(bytes) }
         }
         return true
     }
