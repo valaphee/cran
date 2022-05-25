@@ -28,8 +28,6 @@
 .menu-control-for-each              > .label { -fx-graphic: url("control/loop@16x.png"                 ) }
 .menu-control-select                > .label { -fx-graphic: url("control/select@16x.png"               ) }
 .menu-control-while                 > .label { -fx-graphic: url("control/loop@16x.png"                 ) }
-.menu-debug                         > .label { -fx-graphic: url("debug@16x.png"                        ) }
-.menu-debug-log                     > .label { -fx-graphic: url("debug@16x.png"                        ) }
 .menu-entry                         > .label { -fx-graphic: url("entry@16x.png"                        ) }
 .menu-logic                         > .label { -fx-graphic: url("logic@16x.png"                        ) }
 .menu-logic-and                     > .label { -fx-graphic: url("logic/and@16x.png"                    ) }
@@ -70,9 +68,15 @@
 .menu-math-vector-4-add             > .label { -fx-graphic: url("math/add@16x.png"                     ) }
 .menu-math-vector-4-distance        > .label { -fx-graphic: url("math/distance@16x.png"                ) }
 .menu-math-vector-4-subtract        > .label { -fx-graphic: url("math/subtract@16x.png"                ) }
+.menu-nesting                       > .label { -fx-graphic: url("nesting@16x.png"                      ) }
+.menu-nesting-control-input         > .label { -fx-graphic: url("nesting/input@16x.png"                ) }
+.menu-nesting-control-output        > .label { -fx-graphic: url("nesting/output@16x.png"               ) }
+.menu-nesting-data-input            > .label { -fx-graphic: url("nesting/input@16x.png"                ) }
+.menu-nesting-data-output           > .label { -fx-graphic: url("nesting/output@16x.png"               ) }
 .menu-list                          > .label { -fx-graphic: url("list@16x.png"                         ) }
 .menu-list-add                      > .label { -fx-graphic: url("list/add@16x.png"                     ) }
 .menu-list-first                    > .label { -fx-graphic: url("list/first-or-last@16x.png"           ) }
+.menu-list-get                      > .label { -fx-graphic: url("list@16x.png"                         ) }
 .menu-list-last                     > .label { -fx-graphic: url("list/first-or-last@16x.png"           ) }
 .menu-list-remove                   > .label { -fx-graphic: url("list/remove@16x.png"                  ) }
 .menu-map                           > .label { -fx-graphic: url("map@16x.png"                          ) }

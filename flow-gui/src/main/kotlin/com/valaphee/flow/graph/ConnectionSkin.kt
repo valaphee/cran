@@ -22,7 +22,10 @@ import eu.mihosoft.vrl.workflow.VisualizationRequest
 import eu.mihosoft.vrl.workflow.fx.DefaultFXConnectionSkin
 import eu.mihosoft.vrl.workflow.fx.FXSkinFactory
 import javafx.beans.binding.DoubleBinding
+import javafx.event.EventHandler
+import javafx.scene.Node
 import javafx.scene.Parent
+import javafx.scene.input.ContextMenuEvent
 import javafx.scene.shape.CubicCurveTo
 import javafx.scene.shape.MoveTo
 import javafx.scene.shape.Path
@@ -106,5 +109,16 @@ class ConnectionSkin(
             xProperty().bind(endXBinding)
             yProperty().bind(endYBinding)
         })
+    }
+
+    override fun initMouseEventHandler() {
+        // Fix context menu propagation
+        val contextMenu = createContextMenu()
+        val contextMenuHandler = EventHandler<ContextMenuEvent> {
+            contextMenu.show(it.source as Node, it.screenX, it.screenY)
+            it.consume()
+        }
+        connectionPath.addEventHandler(ContextMenuEvent.CONTEXT_MENU_REQUESTED, contextMenuHandler)
+        receiverUI.addEventHandler(ContextMenuEvent.CONTEXT_MENU_REQUESTED, contextMenuHandler)
     }
 }

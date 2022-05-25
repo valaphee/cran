@@ -27,14 +27,14 @@ class Spec(
 ) {
     class Node(
         @get:JsonProperty("name" ) val name : String    ,
+        @get:JsonProperty("java" ) val java : String    ,
         @get:JsonProperty("ports") val ports: List<Port>,
-        @get:JsonProperty("json" ) val json : String
     ) {
         class Port(
-            @get:JsonProperty("name") val name: String  ,
-            @get:JsonProperty("type") val type: Type    ,
+            @get:JsonProperty("name") val name: String   ,
+            @get:JsonProperty("json") val json: String   ,
+            @get:JsonProperty("type") val type: Type     ,
             @get:JsonProperty("data") val data: JsonNode?,
-            @get:JsonProperty("json") val json: String  ,
         ) {
             enum class Type {
                 @JsonProperty("in_control" ) InControl,

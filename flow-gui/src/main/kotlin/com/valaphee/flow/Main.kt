@@ -18,12 +18,10 @@ package com.valaphee.flow
 
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair
-import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper
 import com.fasterxml.jackson.module.guice.GuiceAnnotationIntrospector
 import com.fasterxml.jackson.module.guice.GuiceInjectableValues
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.google.inject.AbstractModule
 import com.google.inject.Guice
 import com.google.inject.Injector
@@ -44,7 +42,7 @@ fun main(arguments: Array<String>) {
     val injector = Guice.createInjector(object : AbstractModule() {
         @Provides
         @Singleton
-        fun objectMapper(injector: Injector) = SmileMapper().registerKotlinModule().apply {
+        fun objectMapper(injector: Injector) = jacksonObjectMapper().apply {
             val guiceAnnotationIntrospector = GuiceAnnotationIntrospector()
             setAnnotationIntrospectors(AnnotationIntrospectorPair(guiceAnnotationIntrospector, serializationConfig.annotationIntrospector), AnnotationIntrospectorPair(guiceAnnotationIntrospector, deserializationConfig.annotationIntrospector))
             injectableValues = GuiceInjectableValues(injector)

@@ -17,9 +17,7 @@
 package com.valaphee.flow.spec
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.google.auto.service.AutoService
 import com.valaphee.flow.spec.util.toHexString
 import java.security.MessageDigest
@@ -49,7 +47,7 @@ class SpecGenerator : AbstractProcessor() {
             if (`class`.kind == ElementKind.CLASS && `class` is TypeElement) {
                 if (!`class`.modifiers.contains(Modifier.ABSTRACT)) {
                     val node = `class`.getAnnotation(Node::class.java)
-                    Spec.Node(node.value, `class`.enclosedElements.mapNotNull { getter ->
+                    Spec.Node(node.value, `class`.qualifiedName.toString(), `class`.enclosedElements.mapNotNull { getter ->
                         if (getter.kind == ElementKind.METHOD && getter is ExecutableElement) {
                             val type = getter.returnType.toString()
                             val json = getter.getAnnotation(JsonProperty::class.java)
@@ -64,33 +62,33 @@ class SpecGenerator : AbstractProcessor() {
                                 processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @In or @Const is allowed, not both.")
                                 return true
                             } else Spec.Node.Port(
-                                `in`.name, when {
+                                `in`.name, json.value, when {
                                     type.contains(Type.ControlPath) -> Spec.Node.Port.Type.InControl
                                     type.contains(Type.DataPath) -> Spec.Node.Port.Type.InData
                                     else -> {
                                         processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @In type $type.")
                                         return true
                                     }
-                                }, `in`.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }, json.value
+                                }, `in`.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }
                             ) else if (out != null) if (const != null) {
                                 processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @Out or @Const is allowed, not both.")
                                 return true
                             } else Spec.Node.Port(
-                                out.name, when {
+                                out.name, json.value, when {
                                     type.contains(Type.ControlPath) -> Spec.Node.Port.Type.OutControl
                                     type.contains(Type.DataPath) -> Spec.Node.Port.Type.OutData
                                     else -> {
                                         processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @Out type $type.")
                                         return true
                                     }
-                                }, out.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }, json.value
-                            ) else if (const != null) Spec.Node.Port(const.name, Spec.Node.Port.Type.Const, objectMapper.readTree("""{}"""), json.value) else null
+                                }, out.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }
+                            ) else if (const != null) Spec.Node.Port(const.name, json.value, Spec.Node.Port.Type.Const, const.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }) else null
                         } else null
-                    }, `class`.qualifiedName.toString())
+                    })
                 } else null
             } else null
         }?.let {
-            val bytes = SmileMapper().registerKotlinModule().writeValueAsBytes(Spec(it))
+            val bytes = objectMapper.writeValueAsBytes(Spec(it))
             processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", "spec.${MessageDigest.getInstance("MD5").digest(bytes).toHexString()}.dat").openOutputStream().use { it.write(bytes) }
         }
         return true

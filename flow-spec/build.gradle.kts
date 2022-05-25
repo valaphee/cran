@@ -23,7 +23,6 @@ dependencies {
     implementation("com.google.auto.service:auto-service:1.0.1")
     kapt("com.google.auto.service:auto-service:1.0.1")
 
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.13.3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
 
     api("com.fasterxml.jackson.core:jackson-databind:2.13.3")

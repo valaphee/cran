@@ -17,13 +17,34 @@
 package com.valaphee.flow
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.databind.DatabindContext
+import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver
+import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase
+import com.google.common.collect.HashBiMap
+import kotlin.reflect.KClass
 
 /**
  * @author Kevin Ludwig
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, property = "type")
+@JsonTypeIdResolver(Node.TypeResolver::class)
 abstract class Node {
+    class TypeResolver : TypeIdResolverBase() {
+        override fun idFromValue(value: Any) = checkNotNull(/*value::class.findAnnotation<com.valaphee.flow.spec.Node>()*/types.inverse()[value::class])/*.value*/
+
+        override fun idFromValueAndType(value: Any?, suggestedType: Class<*>) = value?.let { idFromValue(it) } ?: checkNotNull(/*suggestedType.kotlin.findAnnotation<com.valaphee.flow.spec.Node>()*/types.inverse()[suggestedType.kotlin])/*.value*/
+
+        override fun typeFromId(context: DatabindContext, id: String): JavaType = context.constructType(checkNotNull(types[id]).java)
+
+        override fun getMechanism() = JsonTypeInfo.Id.NAME
+    }
+
     open fun initialize() = Unit
 
     open fun shutdown() = Unit
+
+    companion object {
+        val types: HashBiMap<String, KClass<*>> = HashBiMap.create()
+    }
 }

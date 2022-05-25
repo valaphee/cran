@@ -46,7 +46,7 @@ class Graph(
             var index = connections.lastOrNull()?.index?.let { it + 1 } ?: 0
             val embed = mutableListOf<Map<String, Any?>>()
             return flow.nodes.map {
-                mapOf<String, Any?>("type" to (it.valueObject.value as Spec.Node).json) + it.inputs.associate { input ->
+                mapOf<String, Any?>("type" to (it.valueObject.value as Spec.Node).name) + it.inputs.associate { input ->
                     val value = input.valueObject.value as ConnectorValue
                     input.localId to (connections.singleOrNull { it.value.value.contains(input) }?.index ?: value.value?.let {
                         if (input.type != "const") {
@@ -68,17 +68,20 @@ class Graph(
             val _embed = embed.associate { it["out"] as Int to it["value"] }
             val connectors = other.mapIndexed { i, node ->
                 val type = node.remove("type") as String
-                val nodeSpec = spec.nodes.single { it.json == type }
-                newNode(nodeSpec, meta.nodes.getOrNull(i), settings).connectors.associateBy {
+                val nodeSpec = spec.nodes.single { it.name == type }
+                newNode(nodeSpec, meta.nodes.getOrNull(i), settings).connectors.mapNotNull {
                     val value = (it.valueObject.value as ConnectorValue)
-                    val connectionId = node[(it.valueObject.value as ConnectorValue).spec.json] as Int
-                    when (value.spec.type) {
-                        Spec.Node.Port.Type.InData -> value.value = _embed[connectionId]
-                        Spec.Node.Port.Type.Const -> value.value = node[value.spec.json]
-                        else -> Unit
+                    if (value.spec.type == Spec.Node.Port.Type.Const) {
+                        value.value = node[value.spec.json]
+
+                        null
+                    } else {
+                        val connectionId = node[value.spec.json] as Int
+                        if (value.spec.type == Spec.Node.Port.Type.InData) value.value = _embed[connectionId]
+
+                        connectionId to it
                     }
-                    connectionId
-                }
+                }.toMap()
             }
             graph.zip(connectors).forEach { it.first.entries.forEach { port -> it.second[port.value]?.let { connectorA -> connectors.forEach { it[port.value]?.let { connectorB -> connect(connectorA, connectorB) } } } } }
         }
@@ -91,6 +94,8 @@ class Graph(
             title = spec.name
             xProperty().onChange { if (settings.gridX > 0) x = round(it / settings.gridX) * settings.gridX }
             yProperty().onChange { if (settings.gridY > 0) y = round(it / settings.gridY) * settings.gridY }
+            widthProperty().onChange { if (settings.gridX > 0) width = round(it / settings.gridX) * settings.gridX }
+            heightProperty().onChange { if (settings.gridY > 0) height = round(it / settings.gridY) * settings.gridY }
             meta?.let {
                 x = it.x
                 y = it.y

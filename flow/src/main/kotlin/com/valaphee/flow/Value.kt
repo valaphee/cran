@@ -26,7 +26,7 @@ import com.valaphee.flow.spec.Out
  */
 @Node("Value")
 class Value(
-    @get:Const(""     ) @get:JsonProperty("value") val value: Any?           ,
+    @get:Const("", Und) @get:JsonProperty("value") val value: Any?           ,
     @get:Out  ("", Und) @get:JsonProperty("out"  ) val out  : DataPath       ,
                         @get:JsonProperty("embed") val embed: Boolean = false
 ) : StatelessNode() {

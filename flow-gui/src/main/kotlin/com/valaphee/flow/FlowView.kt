@@ -17,9 +17,8 @@
 package com.valaphee.flow
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.google.inject.Injector
 import com.google.protobuf.ByteString
 import com.valaphee.flow.graph.Graph
 import com.valaphee.flow.graph.SkinFactory
@@ -43,7 +42,6 @@ import javafx.geometry.Side
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuItem
-import javafx.scene.control.SplitPane
 import javafx.scene.control.TabPane
 import javafx.scene.control.cell.TextFieldListCell
 import javafx.scene.input.KeyCode
@@ -64,7 +62,10 @@ import tornadofx.bindSelected
 import tornadofx.chooseFile
 import tornadofx.contextmenu
 import tornadofx.customitem
+import tornadofx.drawer
 import tornadofx.dynamicContent
+import tornadofx.hbox
+import tornadofx.hgrow
 import tornadofx.item
 import tornadofx.listview
 import tornadofx.menu
@@ -74,7 +75,6 @@ import tornadofx.pane
 import tornadofx.rectangle
 import tornadofx.scrollpane
 import tornadofx.separator
-import tornadofx.splitpane
 import tornadofx.tab
 import tornadofx.tabpane
 import tornadofx.textarea
@@ -96,15 +96,21 @@ class FlowView(
 
     private val objectMapper by di<ObjectMapper>()
     private val spec = objectMapper.readValue<Spec>(graphService.getSpec(GetSpecRequest.getDefaultInstance()).spec.toByteArray())
-
-    private val jsonObjectMapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
-    private val jsonProperty = "".toProperty()
+    private val injector by di<Injector>()
+    private var graphProvider = injector.getProvider(Graph::class.java)
 
     private val graphsProperty = SimpleListProperty(mutableListOf<Graph>().toObservable())
-    private val graphProperty = SimpleObjectProperty<Graph>().apply {
-        onChange {
-            title = "http://localhost:8080/${(it?.meta?.name ?: it?.id)?.let { " - $it" } ?: ""}"
-            jsonProperty.set(it?.let { jsonObjectMapper.writeValueAsString(it) } ?: "")
+    private val graphProperty = SimpleObjectProperty<Graph>()
+
+    private val nodesProperty = SimpleListProperty(mutableListOf<VNode>().toObservable()).apply {
+        graphProperty.onChange {
+            it?.let {
+                it.flow.nodes.forEach { node -> node.selectedProperty().onChange { if (it) this += node else this -= node } }
+                it.flow.nodes.onChange {
+                    this -= it.removed.toSet()
+                    it.addedSubList.map { node -> node.selectedProperty().onChange { if (it) this += node else this -= node } }
+                }
+            }
         }
     }
 
@@ -170,63 +176,64 @@ class FlowView(
         }
 
         // Children
-        splitpane {
+        hbox {
             // Parent Properties
             vgrow = Priority.ALWAYS
 
-            // Properties
-            setDividerPositions(0.25)
-
             // Children
-            listview(graphsProperty) {
-                // Parent Properties
-                SplitPane.setResizableWithParent(this, false)
+            drawer {
+                item("Graphs") {
+                    listview(graphsProperty) {
+                        // Value
+                        bindSelected(graphProperty)
 
-                // Value
-                bindSelected(graphProperty)
+                        // Properties
+                        setCellFactory {
+                            TextFieldListCell<Graph>().apply {
+                                converter = object : StringConverter<Graph>() {
+                                    override fun toString(`object`: Graph) = `object`.meta.name
 
-                // Properties
-                setCellFactory {
-                    TextFieldListCell<Graph>().apply {
-                        converter = object : StringConverter<Graph>() {
-                            override fun toString(`object`: Graph) = `object`.meta.name
+                                    override fun fromString(string: String): Graph {
+                                        item.meta.name = string
+                                        return item
+                                    }
+                                }
 
-                            override fun fromString(string: String): Graph {
-                                item.meta.name = string
-                                return item
-                            }
-                        }
+                                setOnMouseClicked {
+                                    if (isEmpty) selectionModel.clearSelection()
 
-                        setOnMouseClicked {
-                            if (isEmpty) selectionModel.clearSelection()
-
-                            it.consume()
-                        }
-                    }
-                }
-
-                fun contextMenu(selectedComponents: ObservableList<out Graph>) = ContextMenu().apply {
-                    if (selectedComponents.isEmpty()) item("New Graph") { action { graphsProperty.value += Graph() } }
-                    else {
-                        item("Delete") {
-                            action {
-                                launch {
-                                    delete(selectedComponents)
-                                    this@FlowView.refresh()
+                                    it.consume()
                                 }
                             }
                         }
-                        item("Rename") { action {} }
+
+                        fun contextMenu(selectedComponents: ObservableList<out Graph>) = ContextMenu().apply {
+                            if (selectedComponents.isEmpty()) item("New Graph") { action { graphsProperty.value += graphProvider.get() } }
+                            else {
+                                item("Delete") {
+                                    action {
+                                        launch {
+                                            delete(selectedComponents)
+                                            this@FlowView.refresh()
+                                        }
+                                    }
+                                }
+                                item("Rename") { action {} }
+                            }
+                        }
+
+                        contextMenu = contextMenu(selectionModel.selectedItems)
+                        selectionModel.selectedItems.onChange { contextMenu = contextMenu(it.list) }
+
+                        // Initialization
+                        launch { this@FlowView.refresh() }
                     }
                 }
-
-                contextMenu = contextMenu(selectionModel.selectedItems)
-                selectionModel.selectedItems.onChange { contextMenu = contextMenu(it.list) }
-
-                // Initialization
-                launch { this@FlowView.refresh() }
             }
             tabpane {
+                // Parent Properties
+                hgrow = Priority.ALWAYS
+
                 // Properties
                 side = Side.BOTTOM
                 tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
@@ -235,10 +242,6 @@ class FlowView(
                 tab("Graph") {
                     scrollpane {
                         pane {
-                            // Properties
-                            /*isFitToHeight = true
-                            isFitToWidth = true*/
-
                             // Children
                             dynamicContent(graphProperty) { it?.flow?.setSkinFactories(SkinFactory(this)) }
 
@@ -251,6 +254,7 @@ class FlowView(
 
                         contextMenu = contextmenu {
                             val searchProperty = "".toProperty()
+
                             customitem(hideOnClick = false) {
                                 textfield { textProperty().onChange { searchProperty.set(it) } }.also {
                                     setOnKeyPressed { _ ->
@@ -270,22 +274,6 @@ class FlowView(
                                     path.append("${element}/")
                                     val _styleClass = "menu-${path.toString().asNodeStyleClass()}"
                                     item = when (val _item = item) {
-                                        null -> treeItems.find { it.text == element } ?: if (i == name.lastIndex) MenuItem(element).apply {
-                                            treeItems += this
-                                            nodeItems[node.name] = this
-
-                                            styleClass += _styleClass
-
-                                            action {
-                                                val local = sceneToLocal(x - currentWindow!!.x, y - currentWindow!!.y)
-
-                                                graphProperty.get()?.newNode(node, Meta.Node(if (local.x.isNaN()) 0.0 else local.x, if (local.y.isNaN()) 0.0 else local.y))
-                                            }
-                                        } else Menu(element).apply {
-                                            treeItems += this
-
-                                            styleClass += _styleClass
-                                        }
                                         is Menu -> _item.items.find { it.text == element } ?: if (i == name.lastIndex) MenuItem(element).apply {
                                             _item.items += this
                                             nodeItems[node.name] = this
@@ -301,7 +289,22 @@ class FlowView(
 
                                             styleClass += _styleClass
                                         }
-                                        else -> error("")
+                                        null -> treeItems.find { it.text == element } ?: if (i == name.lastIndex) MenuItem(element).apply {
+                                            treeItems += this
+                                            nodeItems[node.name] = this
+
+                                            styleClass += _styleClass
+
+                                            action {
+                                                val local = sceneToLocal(x - currentWindow!!.x, y - currentWindow!!.y)
+                                                graphProperty.get()?.newNode(node, Meta.Node(if (local.x.isNaN()) 0.0 else local.x, if (local.y.isNaN()) 0.0 else local.y))
+                                            }
+                                        } else Menu(element).apply {
+                                            treeItems += this
+
+                                            styleClass += _styleClass
+                                        }
+                                        else -> error("$_item")
                                     }
                                 }
                             }
@@ -311,12 +314,13 @@ class FlowView(
                             searchProperty.onChange { _search ->
                                 this.items.setAll(items)
                                 this.items.addAll(if (_search!!.isEmpty()) treeItems else nodeItems.filterKeys { it.contains(_search, true) }.values)
-                                /*this.items.addAll(if (_search!!.isEmpty()) treeItems else nodeItems.entries.sortedBy { LevenshteinDistance.getDefaultInstance().apply(_search, it.key.split('/').last()) }.map { it.value })*/
                             }
                         }
                     }
                 }
                 tab("JSON") {
+                    val jsonProperty = "".toProperty().apply { graphProperty.onChange { value = it?.let { objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it) } ?: "" } }
+
                     // Children
                     textarea(jsonProperty) {
                         font = Font.font("monospaced", -1.0)
@@ -324,7 +328,12 @@ class FlowView(
                     }
 
                     // Events
-                    setOnSelectionChanged { jsonProperty.set(graphProperty.get()?.let { jsonObjectMapper.writeValueAsString(it) } ?: "") }
+                    setOnSelectionChanged { jsonProperty.set(graphProperty.get()?.let { objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it) } ?: "") }
+                }
+            }
+            drawer(Side.RIGHT) {
+                item("Details") {
+
                 }
             }
         }
@@ -354,6 +363,10 @@ class FlowView(
                 else -> Unit
             }
         }
+    }
+
+    init {
+        graphProperty.onChange { title = "http://localhost:8080/${(it?.meta?.name ?: it?.id)?.let { " - $it" } ?: ""}" }
     }
 
     constructor() : this(GraphServiceGrpc.newBlockingStub(ManagedChannelBuilder.forAddress("localhost", 8080).usePlaintext().build()))

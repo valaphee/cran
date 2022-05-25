@@ -21,6 +21,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.google.protobuf.ByteString
+import com.valaphee.flow.Node
 import com.valaphee.flow.spec.Spec
 import com.valaphee.svc.graph.v1.DeleteGraphRequest
 import com.valaphee.svc.graph.v1.DeleteGraphResponse
@@ -42,11 +43,16 @@ import java.util.UUID
 class GraphServiceImpl @Inject constructor(
     private val objectMapper: ObjectMapper
 ) : GraphServiceImplBase() {
-    private val spec = GetSpecResponse.newBuilder().setSpec(ByteString.copyFrom(objectMapper.writeValueAsBytes(ClassGraph().scan().use { Spec(it.getResourcesMatchingWildcard("spec.*.dat").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes }) }))).build()
+    private val spec = ClassGraph().scan().use { Spec(it.getResourcesMatchingWildcard("spec.*.dat").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes }) }
+    private val _spec = GetSpecResponse.newBuilder().setSpec(ByteString.copyFrom(objectMapper.writeValueAsBytes(spec))).build()
     private val graphs = mutableMapOf<UUID, GraphImpl>()
 
+    init {
+        spec.nodes.forEach { Node.types[it.name] = Class.forName(it.java).kotlin }
+    }
+
     override fun getSpec(request: GetSpecRequest, responseObserver: StreamObserver<GetSpecResponse>) {
-        responseObserver.onNext(spec)
+        responseObserver.onNext(_spec)
         responseObserver.onCompleted()
     }
 

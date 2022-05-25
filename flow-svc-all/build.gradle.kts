@@ -23,7 +23,6 @@ dependencies {
     implementation(project(":flow-spec"))
     implementation(project(":flow-svc"))
 
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.13.3")
     implementation("com.fasterxml.jackson.module:jackson-module-guice:2.13.3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
     implementation("com.google.inject:guice:5.1.0")
