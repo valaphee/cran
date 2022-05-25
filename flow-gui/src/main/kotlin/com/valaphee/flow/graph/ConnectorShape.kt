@@ -76,7 +76,7 @@ class ConnectorShape(
 
                     // Children
                     when (connector.type) {
-                        "control" -> polygon(
+                        "graph/control" -> polygon(
                             0.0, -4.0,
                             8.0,  0.0,
                             0.0,  4.0,
@@ -133,7 +133,7 @@ class ConnectorShape(
                         textFill = Color.WHITE
                     }
                     when (connector.type) {
-                        "control" -> polygon(
+                        "graph/control" -> polygon(
                             0.0, -4.0,
                             8.0,  0.0,
                             0.0,  4.0,

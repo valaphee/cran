@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<!--
+  ~ Copyright (c) 2022, Valaphee.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#keyPressed" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <MenuBar>
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem mnemonicParsing="false" onAction="#fileSettingsMenuItemAction" text="Settings" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" onAction="#fileImportMenuItemAction" text="Import" />
+                  <MenuItem mnemonicParsing="false" onAction="#fileExportAsMenuItemAction" text="Export As..." />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" onAction="#fileExitMenuItemAction" text="Exit" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Edit">
+            <items>
+                  <Menu mnemonicParsing="false" text="Layout">
+                    <items>
+                      <MenuItem mnemonicParsing="false" onAction="#editLayoutIsomMenuItemAction" text="Interpretable Self-Organizing Maps" />
+                    <MenuItem mnemonicParsing="false" onAction="#editLayoutFrMenuItemAction" text="Fruchterman-Reingold" />
+                        <MenuItem mnemonicParsing="false" onAction="#editLayoutKkMenuItemAction" text="Kamada-Kawai" />
+                        <MenuItem mnemonicParsing="false" onAction="#editLayoutDacMenuItemAction" text="Directed Acyclic Graph" />
+                    </items>
+                  </Menu>
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" onAction="#helpAboutMenuItemAction" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+      <HBox VBox.vgrow="ALWAYS">
+         <children>
+            <ListView fx:id="graphsListView" prefHeight="200.0" prefWidth="200.0" />
+            <TabPane prefHeight="200.0" prefWidth="200.0" side="BOTTOM" tabClosingPolicy="UNAVAILABLE" HBox.hgrow="ALWAYS">
+              <tabs>
+                <Tab text="Graph">
+                    <ScrollPane fx:id="graphScrollPane">
+                        <content>
+                           <Pane fx:id="graphPane" />
+                        </content>
+                    </ScrollPane>
+                </Tab>
+                <Tab onSelectionChanged="#jsonTabSelectionChanged" text="JSON">
+                    <TextArea fx:id="jsonTextArea" editable="false">
+                        <font>
+                           <Font name="Monospaced Regular" size="12.0" />
+                        </font>
+                     </TextArea>
+                </Tab>
+              </tabs>
+            </TabPane>
+         </children>
+      </HBox>
+   </children>
+</VBox>

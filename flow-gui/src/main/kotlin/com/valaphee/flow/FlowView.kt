@@ -35,19 +35,20 @@ import com.valaphee.svc.graph.v1.UpdateGraphRequest
 import eu.mihosoft.vrl.workflow.VNode
 import eu.mihosoft.vrl.workflow.incubating.LayoutGeneratorSmart
 import io.grpc.ManagedChannelBuilder
-import javafx.beans.property.SimpleListProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.ObservableList
-import javafx.geometry.Side
+import javafx.scene.Parent
 import javafx.scene.control.ContextMenu
+import javafx.scene.control.ListView
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuItem
-import javafx.scene.control.TabPane
+import javafx.scene.control.ScrollPane
+import javafx.scene.control.TextArea
 import javafx.scene.control.cell.TextFieldListCell
 import javafx.scene.input.KeyCode
-import javafx.scene.layout.Priority
+import javafx.scene.input.KeyEvent
+import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
-import javafx.scene.text.Font
 import javafx.stage.FileChooser
 import javafx.util.StringConverter
 import jfxtras.labs.util.event.MouseControlUtil
@@ -58,31 +59,19 @@ import kotlinx.coroutines.withContext
 import tornadofx.FileChooserMode
 import tornadofx.View
 import tornadofx.action
+import tornadofx.asyncItems
 import tornadofx.bindSelected
 import tornadofx.chooseFile
 import tornadofx.contextmenu
 import tornadofx.customitem
-import tornadofx.drawer
 import tornadofx.dynamicContent
-import tornadofx.hbox
-import tornadofx.hgrow
+import tornadofx.getValue
 import tornadofx.item
-import tornadofx.listview
-import tornadofx.menu
-import tornadofx.menubar
 import tornadofx.onChange
-import tornadofx.pane
 import tornadofx.rectangle
-import tornadofx.scrollpane
-import tornadofx.separator
-import tornadofx.tab
-import tornadofx.tabpane
-import tornadofx.textarea
+import tornadofx.setValue
 import tornadofx.textfield
-import tornadofx.toObservable
 import tornadofx.toProperty
-import tornadofx.vbox
-import tornadofx.vgrow
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
@@ -99,284 +88,229 @@ class FlowView(
     private val injector by di<Injector>()
     private var graphProvider = injector.getProvider(Graph::class.java)
 
-    private val graphsProperty = SimpleListProperty(mutableListOf<Graph>().toObservable())
     private val graphProperty = SimpleObjectProperty<Graph>()
+    private var graph by graphProperty
 
-    private val nodesProperty = SimpleListProperty(mutableListOf<VNode>().toObservable()).apply {
-        graphProperty.onChange {
-            it?.let {
-                it.flow.nodes.forEach { node -> node.selectedProperty().onChange { if (it) this += node else this -= node } }
-                it.flow.nodes.onChange {
-                    this -= it.removed.toSet()
-                    it.addedSubList.map { node -> node.selectedProperty().onChange { if (it) this += node else this -= node } }
-                }
-            }
-        }
-    }
+    override val root by fxml<Parent>("/flow.fxml")
 
-    override val root = vbox {
-        // Properties
-        setPrefSize(1000.0, 800.0)
+    private val graphsListView by fxid<ListView<Graph>>()
 
-        // Children
-        menubar {
-            menu("File") {
-                item("Settings") { action { find<SettingsView>().openModal() } }
-                separator()
-                item("Import") {
-                    action {
-                        chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Flow", "*.flw"), FileChooser.ExtensionFilter("All Files", "*.*"))).singleOrNull()?.let {
-                            val graph = it.inputStream().use { objectMapper.readValue<Graph>(GZIPInputStream(it)).also { it.spec = spec } }
-                            graphsProperty += graph
-                            graphProperty.value = graph
-                        }
-                    }
-                }
-                item("Export As...") { action { chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Flow", "*.flw"), FileChooser.ExtensionFilter("All Files", "*.*")), mode = FileChooserMode.Save).singleOrNull()?.let { it.outputStream().use { objectMapper.writeValue(GZIPOutputStream(it), graphProperty.get()) } } } }
-                separator()
-                item("Exit") { action { close() } }
-            }
-            menu("Graph") {
-                menu("Layout") {
-                    item("Interpretable Self-Organizing Maps") {
-                        action {
-                            LayoutGeneratorSmart().apply {
-                                layoutSelector = 0
-                                workflow = graphProperty.value.flow.model
-                            }.generateLayout()
-                        }
-                    }
-                    item("Fruchterman-Reingold") {
-                        action {
-                            LayoutGeneratorSmart().apply {
-                                layoutSelector = 1
-                                workflow = graphProperty.value.flow.model
-                            }.generateLayout()
-                        }
-                    }
-                    item("Kamada-Kawai") {
-                        action {
-                            LayoutGeneratorSmart().apply {
-                                layoutSelector = 2
-                                workflow = graphProperty.value.flow.model
-                            }.generateLayout()
-                        }
-                    }
-                    item("Directed Acyclic Graph") {
-                        action {
-                            LayoutGeneratorSmart().apply {
-                                layoutSelector = 3
-                                workflow = graphProperty.value.flow.model
-                            }.generateLayout()
-                        }
-                    }
-                }
-            }
-            menu("Help") { item("About") { action { find<AboutView>().openModal(resizable = false) } } }
-        }
+    private val graphScrollPane by fxid<ScrollPane>()
+    private val graphPane by fxid<Pane>()
 
-        // Children
-        hbox {
-            // Parent Properties
-            vgrow = Priority.ALWAYS
-
-            // Children
-            drawer {
-                item("Graphs") {
-                    listview(graphsProperty) {
-                        // Value
-                        bindSelected(graphProperty)
-
-                        // Properties
-                        setCellFactory {
-                            TextFieldListCell<Graph>().apply {
-                                converter = object : StringConverter<Graph>() {
-                                    override fun toString(`object`: Graph) = `object`.meta.name
-
-                                    override fun fromString(string: String): Graph {
-                                        item.meta.name = string
-                                        return item
-                                    }
-                                }
-
-                                setOnMouseClicked {
-                                    if (isEmpty) selectionModel.clearSelection()
-
-                                    it.consume()
-                                }
-                            }
-                        }
-
-                        fun contextMenu(selectedComponents: ObservableList<out Graph>) = ContextMenu().apply {
-                            if (selectedComponents.isEmpty()) item("New Graph") { action { graphsProperty.value += graphProvider.get() } }
-                            else {
-                                item("Delete") {
-                                    action {
-                                        launch {
-                                            delete(selectedComponents)
-                                            this@FlowView.refresh()
-                                        }
-                                    }
-                                }
-                                item("Rename") { action {} }
-                            }
-                        }
-
-                        contextMenu = contextMenu(selectionModel.selectedItems)
-                        selectionModel.selectedItems.onChange { contextMenu = contextMenu(it.list) }
-
-                        // Initialization
-                        launch { this@FlowView.refresh() }
-                    }
-                }
-            }
-            tabpane {
-                // Parent Properties
-                hgrow = Priority.ALWAYS
-
-                // Properties
-                side = Side.BOTTOM
-                tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
-
-                // Children
-                tab("Graph") {
-                    scrollpane {
-                        pane {
-                            // Children
-                            dynamicContent(graphProperty) { it?.flow?.setSkinFactories(SkinFactory(this)) }
-
-                            // Events
-                            MouseControlUtil.addSelectionRectangleGesture(this, rectangle {
-                                stroke = Color.rgb(255, 255, 255, 1.0)
-                                fill = Color.rgb(0, 0, 0, 0.5)
-                            })
-                        }
-
-                        contextMenu = contextmenu {
-                            val searchProperty = "".toProperty()
-
-                            customitem(hideOnClick = false) {
-                                textfield { textProperty().onChange { searchProperty.set(it) } }.also {
-                                    setOnKeyPressed { _ ->
-                                        it.requestFocus()
-                                        it.positionCaret(it.length)
-                                    }
-                                }
-                            }
-
-                            val treeItems = mutableListOf<MenuItem>()
-                            val nodeItems = mutableMapOf<String, MenuItem>()
-                            spec.nodes.forEach { node ->
-                                val name = node.name.split('/')
-                                val path = StringBuilder()
-                                var item: MenuItem? = null
-                                name.forEachIndexed { i, element ->
-                                    path.append("${element}/")
-                                    val _styleClass = "menu-${path.toString().asNodeStyleClass()}"
-                                    item = when (val _item = item) {
-                                        is Menu -> _item.items.find { it.text == element } ?: if (i == name.lastIndex) MenuItem(element).apply {
-                                            _item.items += this
-                                            nodeItems[node.name] = this
-
-                                            styleClass += _styleClass
-
-                                            action {
-                                                val local = sceneToLocal(x - currentWindow!!.x, y - currentWindow!!.y)
-                                                graphProperty.get()?.newNode(node, Meta.Node(if (local.x.isNaN()) 0.0 else local.x, if (local.y.isNaN()) 0.0 else local.y))
-                                            }
-                                        } else Menu(element).apply {
-                                            _item.items += this
-
-                                            styleClass += _styleClass
-                                        }
-                                        null -> treeItems.find { it.text == element } ?: if (i == name.lastIndex) MenuItem(element).apply {
-                                            treeItems += this
-                                            nodeItems[node.name] = this
-
-                                            styleClass += _styleClass
-
-                                            action {
-                                                val local = sceneToLocal(x - currentWindow!!.x, y - currentWindow!!.y)
-                                                graphProperty.get()?.newNode(node, Meta.Node(if (local.x.isNaN()) 0.0 else local.x, if (local.y.isNaN()) 0.0 else local.y))
-                                            }
-                                        } else Menu(element).apply {
-                                            treeItems += this
-
-                                            styleClass += _styleClass
-                                        }
-                                        else -> error("$_item")
-                                    }
-                                }
-                            }
-
-                            val items = items.toMutableList()
-                            this.items.addAll(treeItems)
-                            searchProperty.onChange { _search ->
-                                this.items.setAll(items)
-                                this.items.addAll(if (_search!!.isEmpty()) treeItems else nodeItems.filterKeys { it.contains(_search, true) }.values)
-                            }
-                        }
-                    }
-                }
-                tab("JSON") {
-                    val jsonProperty = "".toProperty().apply { graphProperty.onChange { value = it?.let { objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it) } ?: "" } }
-
-                    // Children
-                    textarea(jsonProperty) {
-                        font = Font.font("monospaced", -1.0)
-                        isEditable = false
-                    }
-
-                    // Events
-                    setOnSelectionChanged { jsonProperty.set(graphProperty.get()?.let { objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it) } ?: "") }
-                }
-            }
-            drawer(Side.RIGHT) {
-                item("Details") {
-
-                }
-            }
-        }
-
-        // Events
-        setOnKeyPressed {
-            if (it.isControlDown) when (it.code) {
-                KeyCode.C -> {
-                    graphProperty.get()?.let { graph -> graph.flow.nodes.filter(VNode::isSelected) }
-                    it.consume()
-                }
-                KeyCode.S -> {
-                    graphProperty.get()?.let { graph -> launch { graphService.updateGraph(UpdateGraphRequest.newBuilder().setGraph(ByteString.copyFrom(objectMapper.writeValueAsBytes(graph))).build()) } }
-                    it.consume()
-                }
-                KeyCode.V -> Unit
-                else -> Unit
-            } else when (it.code) {
-                KeyCode.DELETE -> {
-                    graphProperty.get()?.let { graph -> graph.flow.nodes.filter(VNode::isSelected).forEach(graph.flow::remove) }
-                    it.consume()
-                }
-                KeyCode.F5 -> {
-                    launch { this@FlowView.refresh() }
-                    it.consume()
-                }
-                else -> Unit
-            }
-        }
-    }
+    private val jsonTextArea by fxid<TextArea>()
 
     init {
-        graphProperty.onChange { title = "http://localhost:8080/${(it?.meta?.name ?: it?.id)?.let { " - $it" } ?: ""}" }
+        with(graphsListView) {
+            bindSelected(graphProperty)
+
+            setCellFactory {
+                TextFieldListCell<Graph>().apply {
+                    converter = object : StringConverter<Graph>() {
+                        override fun toString(`object`: Graph) = `object`.meta.name
+
+                        override fun fromString(string: String): Graph {
+                            item.meta.name = string
+                            return item
+                        }
+                    }
+
+                    setOnMouseClicked {
+                        if (isEmpty) selectionModel.clearSelection()
+
+                        it.consume()
+                    }
+                }
+            }
+
+            fun contextMenu(selectedComponents: ObservableList<out Graph>) = ContextMenu().apply {
+                if (selectedComponents.isEmpty()) item("New Graph") { action { this@with.items += graphProvider.get() } }
+                else {
+                    item("Delete") {
+                        action {
+                            launch {
+                                delete(selectedComponents)
+                                this@FlowView.refresh()
+                            }
+                        }
+                    }
+                }
+            }
+
+            contextMenu = contextMenu(selectionModel.selectedItems)
+            selectionModel.selectedItems.onChange { contextMenu = contextMenu(it.list) }
+        }
+
+        with(graphScrollPane) {
+            contextMenu = contextmenu {
+                val searchProperty = "".toProperty()
+
+                customitem(hideOnClick = false) {
+                    textfield {
+                        textProperty().onChange { searchProperty.set(it) }
+
+                        setOnKeyPressed {
+                            requestFocus()
+                            positionCaret(length)
+                        }
+                    }
+                }
+
+                val treeItems = mutableListOf<MenuItem>()
+                val nodeItems = mutableMapOf<String, MenuItem>()
+                spec.nodes.forEach { node ->
+                    val name = node.name.split('/')
+                    val path = StringBuilder()
+                    var item: MenuItem? = null
+                    name.forEachIndexed { i, element ->
+                        path.append("${element}/")
+                        val _styleClass = "menu-${path.toString().asNodeStyleClass()}"
+                        item = when (val _item = item) {
+                            is Menu -> _item.items.find { it.text == element } ?: if (i == name.lastIndex) MenuItem(element).apply {
+                                _item.items += this
+                                nodeItems[node.name] = this
+
+                                styleClass += _styleClass
+
+                                action {
+                                    val local = sceneToLocal(x - currentWindow!!.x, y - currentWindow!!.y)
+                                    graphProperty.get()?.newNode(node, Meta.Node(if (local.x.isNaN()) 0.0 else local.x, if (local.y.isNaN()) 0.0 else local.y))
+                                }
+                            } else Menu(element).apply {
+                                _item.items += this
+
+                                styleClass += _styleClass
+                            }
+                            null -> treeItems.find { it.text == element } ?: if (i == name.lastIndex) MenuItem(element).apply {
+                                treeItems += this
+                                nodeItems[node.name] = this
+
+                                styleClass += _styleClass
+
+                                action {
+                                    val local = sceneToLocal(x - currentWindow!!.x, y - currentWindow!!.y)
+                                    graphProperty.get()?.newNode(node, Meta.Node(if (local.x.isNaN()) 0.0 else local.x, if (local.y.isNaN()) 0.0 else local.y))
+                                }
+                            } else Menu(element).apply {
+                                treeItems += this
+
+                                styleClass += _styleClass
+                            }
+                            else -> error("$_item")
+                        }
+                    }
+                }
+
+                val items = items.toMutableList()
+                this.items.addAll(treeItems)
+                searchProperty.onChange { _search ->
+                    this.items.setAll(items)
+                    this.items.addAll(if (_search!!.isEmpty()) treeItems else nodeItems.filterKeys { it.contains(_search, true) }.values)
+                }
+            }
+        }
+        with(graphPane) {
+            dynamicContent(graphProperty) { it?.flow?.setSkinFactories(SkinFactory(this)) }
+            MouseControlUtil.addSelectionRectangleGesture(this, rectangle {
+                stroke = Color.rgb(255, 255, 255, 1.0)
+                fill = Color.rgb(0, 0, 0, 0.5)
+            })
+        }
+
+        with(jsonTextArea) { graphProperty.onChange { text = it?.let { objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it) } ?: "" } }
+
+        launch { refresh() }
     }
 
     constructor() : this(GraphServiceGrpc.newBlockingStub(ManagedChannelBuilder.forAddress("localhost", 8080).usePlaintext().build()))
 
+    fun keyPressed(event: KeyEvent) {
+        if (event.isControlDown) when (event.code) {
+            KeyCode.C -> {
+                graphProperty.get()?.let { graph -> graph.flow.nodes.filter(VNode::isSelected) }
+                event.consume()
+            }
+            KeyCode.S -> {
+                graphProperty.get()?.let { graph -> launch { graphService.updateGraph(UpdateGraphRequest.newBuilder().setGraph(ByteString.copyFrom(objectMapper.writeValueAsBytes(graph))).build()) } }
+                event.consume()
+            }
+            KeyCode.V -> Unit
+            else -> Unit
+        } else when (event.code) {
+            KeyCode.DELETE -> {
+                graphProperty.get()?.let { graph -> graph.flow.nodes.filter(VNode::isSelected).forEach(graph.flow::remove) }
+                event.consume()
+            }
+            KeyCode.F5 -> {
+                launch { this@FlowView.refresh() }
+                event.consume()
+            }
+            else -> Unit
+        }
+    }
+
+    fun fileSettingsMenuItemAction() {
+        find<SettingsView>().openModal()
+    }
+
+    fun fileImportMenuItemAction() {
+        chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Flow", "*.flw"), FileChooser.ExtensionFilter("All Files", "*.*"))).singleOrNull()?.let {
+            val graph = it.inputStream().use { objectMapper.readValue<Graph>(GZIPInputStream(it)).also { it.spec = spec } }
+            graphsListView.items += graph
+            graphsListView.selectionModel.select(graph)
+        }
+    }
+
+    fun fileExportAsMenuItemAction() {
+        chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Flow", "*.flw"), FileChooser.ExtensionFilter("All Files", "*.*")), mode = FileChooserMode.Save).singleOrNull()?.let { it.outputStream().use { objectMapper.writeValue(GZIPOutputStream(it), graph) } }
+    }
+
+    fun fileExitMenuItemAction() {
+        close()
+    }
+
+    fun editLayoutIsomMenuItemAction() {
+        LayoutGeneratorSmart().apply {
+            layoutSelector = 0
+            workflow = graph.flow.model
+        }.generateLayout()
+    }
+
+    fun editLayoutFrMenuItemAction() {
+        LayoutGeneratorSmart().apply {
+            layoutSelector = 1
+            workflow = graph.flow.model
+        }.generateLayout()
+    }
+
+    fun editLayoutKkMenuItemAction() {
+        LayoutGeneratorSmart().apply {
+            layoutSelector = 2
+            workflow = graph.flow.model
+        }.generateLayout()
+    }
+
+    fun editLayoutDacMenuItemAction() {
+        LayoutGeneratorSmart().apply {
+            layoutSelector = 3
+            workflow = graph.flow.model
+        }.generateLayout()
+    }
+
+    fun helpAboutMenuItemAction() {
+        find<AboutView>().openModal(resizable = false)
+    }
+
+    fun jsonTabSelectionChanged() {
+        jsonTextArea.text = graph?.let { objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it) } ?: ""
+    }
+
     private suspend fun refresh() {
         val graphs = objectMapper.readValue<List<Graph>>(graphService.listGraph(ListGraphRequest.getDefaultInstance()).graphs.toByteArray()).onEach { it.spec = spec }
         withContext(Dispatchers.Main) {
-            val id = graphProperty.get()?.id
-            graphsProperty.setAll(graphs)
-            graphProperty.set(graphs.singleOrNull { it.id == id })
+            val graphId = graph?.id
+            graphsListView.items.setAll(graphs)
+            graphsListView.selectionModel.select(graphs.singleOrNull { it.id == graphId })
         }
     }
 

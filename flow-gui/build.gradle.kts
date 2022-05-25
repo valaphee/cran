@@ -27,7 +27,9 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-guice:2.13.3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
     implementation("com.google.inject:guice:5.1.0")
+    implementation("com.jfoenix:jfoenix:9.0.10")
     implementation("de.codecentric.centerdevice:javafxsvg:1.3.0")
+    implementation("io.github.palexdev:materialfx:11.13.5")
     implementation("no.tornado:tornadofx:1.7.20")
     /*implementation("org.apache.commons:commons-text:1.9")*/
     implementation("org.controlsfx:controlsfx:11.1.1")
@@ -41,4 +43,4 @@ tasks {
     shadowJar { archiveName = "flow-gui.jar" }
 }
 
-javafx { modules("javafx.controls", "javafx.graphics") }
+javafx { modules("javafx.controls", "javafx.fxml", "javafx.graphics") }

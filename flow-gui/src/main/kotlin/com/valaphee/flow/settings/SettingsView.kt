@@ -16,37 +16,12 @@
 
 package com.valaphee.flow.settings
 
+import javafx.scene.Parent
 import tornadofx.View
-import tornadofx.action
-import tornadofx.button
-import tornadofx.buttonbar
-import tornadofx.enableWhen
-import tornadofx.vbox
 
 /**
  * @author Kevin Ludwig
  */
 class SettingsView : View("Settings") {
-    private val settings by di<Settings>()
-    private val settingsModel = Settings.Model(settings)
-
-    override val root = vbox {
-        // Properties
-        setPrefSize(800.0, 600.0)
-
-        // Children
-        buttonbar {
-            button("Ok") {
-                action {
-                    settingsModel.commit()
-                    close()
-                }
-            }
-            button("Cancel") { action { close() } }
-            button("Apply") {
-                enableWhen(settingsModel.dirty)
-                action { settingsModel.commit() }
-            }
-        }
-    }
+    override val root by fxml<Parent>("/settings.fxml")
 }

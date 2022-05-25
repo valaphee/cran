@@ -16,30 +16,12 @@
 
 package com.valaphee.flow
 
-import javafx.geometry.Pos
-import javafx.scene.image.Image
-import javafx.scene.text.TextAlignment
+import javafx.scene.Parent
 import tornadofx.View
-import tornadofx.hbox
-import tornadofx.imageview
-import tornadofx.label
 
 /**
  * @author Kevin Ludwig
  */
 class AboutView : View("About") {
-    override val root = hbox {
-        // Properties
-        setPrefSize(300.0, 100.0)
-        alignment = Pos.CENTER
-
-        // Children
-        imageview(Image(AboutView::class.java.getResourceAsStream("/app@48x.png")))
-        label(
-            """
-                Flow${AboutView::class.java.`package`.implementationVersion?.let { " $it" } ?: ""}
-                Copyright (c) 2022, Valaphee.
-            """.trimIndent()
-        ) { textAlignment = TextAlignment.CENTER }
-    }
+    override val root by fxml<Parent>("/about.fxml")
 }
