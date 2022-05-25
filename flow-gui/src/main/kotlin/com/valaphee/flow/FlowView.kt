@@ -25,12 +25,17 @@ import com.valaphee.flow.graph.Graph
 import com.valaphee.flow.graph.SkinFactory
 import com.valaphee.flow.graph.asNodeStyleClass
 import com.valaphee.flow.meta.Meta
+import com.valaphee.flow.settings.SettingsView
 import com.valaphee.flow.spec.Spec
 import com.valaphee.svc.graph.v1.DeleteGraphRequest
+import com.valaphee.svc.graph.v1.GetSpecRequest
+import com.valaphee.svc.graph.v1.GraphServiceGrpc
 import com.valaphee.svc.graph.v1.GraphServiceGrpc.GraphServiceBlockingStub
 import com.valaphee.svc.graph.v1.ListGraphRequest
 import com.valaphee.svc.graph.v1.UpdateGraphRequest
 import eu.mihosoft.vrl.workflow.VNode
+import eu.mihosoft.vrl.workflow.incubating.LayoutGeneratorSmart
+import io.grpc.ManagedChannelBuilder
 import javafx.beans.property.SimpleListProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.ObservableList
@@ -40,7 +45,6 @@ import javafx.scene.control.Menu
 import javafx.scene.control.MenuItem
 import javafx.scene.control.SplitPane
 import javafx.scene.control.TabPane
-import javafx.scene.control.TextField
 import javafx.scene.control.cell.TextFieldListCell
 import javafx.scene.input.KeyCode
 import javafx.scene.layout.Priority
@@ -71,7 +75,6 @@ import tornadofx.rectangle
 import tornadofx.scrollpane
 import tornadofx.separator
 import tornadofx.splitpane
-import tornadofx.style
 import tornadofx.tab
 import tornadofx.tabpane
 import tornadofx.textarea
@@ -86,12 +89,13 @@ import java.util.zip.GZIPOutputStream
 /**
  * @author Kevin Ludwig
  */
-class FlowView : View("Flow"), CoroutineScope {
+class FlowView(
+    private val graphService: GraphServiceBlockingStub
+) : View("Flow"), CoroutineScope {
     override val coroutineContext = Dispatchers.IO
 
     private val objectMapper by di<ObjectMapper>()
-    private val spec by di<Spec>()
-    private val graphService by di<GraphServiceBlockingStub>()
+    private val spec = objectMapper.readValue<Spec>(graphService.getSpec(GetSpecRequest.getDefaultInstance()).spec.toByteArray())
 
     private val jsonObjectMapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
     private val jsonProperty = "".toProperty()
@@ -111,18 +115,56 @@ class FlowView : View("Flow"), CoroutineScope {
         // Children
         menubar {
             menu("File") {
+                item("Settings") { action { find<SettingsView>().openModal() } }
+                separator()
                 item("Import") {
                     action {
                         chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Flow", "*.flw"), FileChooser.ExtensionFilter("All Files", "*.*"))).singleOrNull()?.let {
-                            val graph = it.inputStream().use { objectMapper.readValue<Graph>(GZIPInputStream(it)) }
+                            val graph = it.inputStream().use { objectMapper.readValue<Graph>(GZIPInputStream(it)).also { it.spec = spec } }
                             graphsProperty += graph
-                            graphProperty.set(graph)
+                            graphProperty.value = graph
                         }
                     }
                 }
                 item("Export As...") { action { chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Flow", "*.flw"), FileChooser.ExtensionFilter("All Files", "*.*")), mode = FileChooserMode.Save).singleOrNull()?.let { it.outputStream().use { objectMapper.writeValue(GZIPOutputStream(it), graphProperty.get()) } } } }
                 separator()
                 item("Exit") { action { close() } }
+            }
+            menu("Graph") {
+                menu("Layout") {
+                    item("Interpretable Self-Organizing Maps") {
+                        action {
+                            LayoutGeneratorSmart().apply {
+                                layoutSelector = 0
+                                workflow = graphProperty.value.flow.model
+                            }.generateLayout()
+                        }
+                    }
+                    item("Fruchterman-Reingold") {
+                        action {
+                            LayoutGeneratorSmart().apply {
+                                layoutSelector = 1
+                                workflow = graphProperty.value.flow.model
+                            }.generateLayout()
+                        }
+                    }
+                    item("Kamada-Kawai") {
+                        action {
+                            LayoutGeneratorSmart().apply {
+                                layoutSelector = 2
+                                workflow = graphProperty.value.flow.model
+                            }.generateLayout()
+                        }
+                    }
+                    item("Directed Acyclic Graph") {
+                        action {
+                            LayoutGeneratorSmart().apply {
+                                layoutSelector = 3
+                                workflow = graphProperty.value.flow.model
+                            }.generateLayout()
+                        }
+                    }
+                }
             }
             menu("Help") { item("About") { action { find<AboutView>().openModal(resizable = false) } } }
         }
@@ -209,9 +251,14 @@ class FlowView : View("Flow"), CoroutineScope {
 
                         contextMenu = contextmenu {
                             val searchProperty = "".toProperty()
-                            lateinit var search: TextField
-                            customitem(hideOnClick = false) { search = textfield { textProperty().onChange { searchProperty.set(it) } } }
-                            setOnKeyPressed { search.requestFocus() }
+                            customitem(hideOnClick = false) {
+                                textfield { textProperty().onChange { searchProperty.set(it) } }.also {
+                                    setOnKeyPressed { _ ->
+                                        it.requestFocus()
+                                        it.positionCaret(it.length)
+                                    }
+                                }
+                            }
 
                             val treeItems = mutableListOf<MenuItem>()
                             val nodeItems = mutableMapOf<String, MenuItem>()
@@ -231,7 +278,8 @@ class FlowView : View("Flow"), CoroutineScope {
 
                                             action {
                                                 val local = sceneToLocal(x - currentWindow!!.x, y - currentWindow!!.y)
-                                                graphProperty.get()?.newNode(node, Meta.Node(local.x, local.y))
+
+                                                graphProperty.get()?.newNode(node, Meta.Node(if (local.x.isNaN()) 0.0 else local.x, if (local.y.isNaN()) 0.0 else local.y))
                                             }
                                         } else Menu(element).apply {
                                             treeItems += this
@@ -246,7 +294,7 @@ class FlowView : View("Flow"), CoroutineScope {
 
                                             action {
                                                 val local = sceneToLocal(x - currentWindow!!.x, y - currentWindow!!.y)
-                                                graphProperty.get()?.newNode(node, Meta.Node(local.x, local.y))
+                                                graphProperty.get()?.newNode(node, Meta.Node(if (local.x.isNaN()) 0.0 else local.x, if (local.y.isNaN()) 0.0 else local.y))
                                             }
                                         } else Menu(element).apply {
                                             _item.items += this
@@ -271,7 +319,7 @@ class FlowView : View("Flow"), CoroutineScope {
                 tab("JSON") {
                     // Children
                     textarea(jsonProperty) {
-                        style { font = Font.font("monospaced", 10.0) }
+                        font = Font.font("monospaced", -1.0)
                         isEditable = false
                     }
 
@@ -308,8 +356,10 @@ class FlowView : View("Flow"), CoroutineScope {
         }
     }
 
+    constructor() : this(GraphServiceGrpc.newBlockingStub(ManagedChannelBuilder.forAddress("localhost", 8080).usePlaintext().build()))
+
     private suspend fun refresh() {
-        val graphs = objectMapper.readValue<List<Graph>>(graphService.listGraph(ListGraphRequest.getDefaultInstance()).graphs.toByteArray())
+        val graphs = objectMapper.readValue<List<Graph>>(graphService.listGraph(ListGraphRequest.getDefaultInstance()).graphs.toByteArray()).onEach { it.spec = spec }
         withContext(Dispatchers.Main) {
             val id = graphProperty.get()?.id
             graphsProperty.setAll(graphs)

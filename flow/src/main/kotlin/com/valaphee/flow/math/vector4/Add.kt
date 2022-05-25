@@ -18,7 +18,6 @@ package com.valaphee.flow.math.vector4
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
-import com.valaphee.flow.DataPathException
 import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
@@ -45,21 +44,21 @@ class Add(
                     is Int4    -> inA             + inB
                     is Float4  -> inA.toFloat4()  + inB
                     is Double4 -> inA.toDouble4() + inB
-                    else       -> DataPathException.invalidTypeInExpression("$inA + $inB")
+                    else       -> inA.toDouble4() + this.inB.getOrThrow("in_b")
                 }
                 is Float4 -> when (inB) {
                     is Int4    -> inA             + inB.toFloat4()
                     is Float4  -> inA             + inB
                     is Double4 -> inA.toDouble4() + inB
-                    else      -> DataPathException.invalidTypeInExpression("$inA + $inB")
+                    else       -> inA.toDouble4() + this.inB.getOrThrow("in_b")
                 }
                 is Double4 -> when (inB) {
                     is Int4    -> inA + inB.toDouble4()
                     is Float4  -> inA + inB.toDouble4()
                     is Double4 -> inA + inB
-                    else       -> DataPathException.invalidTypeInExpression("$inA + $inB")
+                    else       -> inA + this.inB.getOrThrow("in_b")
                 }
-                else -> DataPathException.invalidTypeInExpression("$inA + $inB")
+                else -> this.inA.getOrThrow<Double4>("in_a") + this.inB.getOrThrow("in_b")
             }
         }
     }

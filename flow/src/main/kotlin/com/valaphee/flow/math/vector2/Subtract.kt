@@ -18,7 +18,6 @@ package com.valaphee.flow.math.vector2
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
-import com.valaphee.flow.DataPathException
 import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
@@ -45,21 +44,21 @@ class Subtract(
                     is Int2    -> inA             - inB
                     is Float2  -> inA.toFloat2()  - inB
                     is Double2 -> inA.toDouble2() - inB
-                    else       -> DataPathException.invalidTypeInExpression("$inA - $inB")
+                    else       -> inA.toDouble2() - this.inB.getOrThrow("in_b")
                 }
                 is Float2 -> when (inB) {
                     is Int2    -> inA             - inB.toFloat2()
                     is Float2  -> inA             - inB
                     is Double2 -> inA.toDouble2() - inB
-                    else      -> DataPathException.invalidTypeInExpression("$inA - $inB")
+                    else       -> inA.toDouble2() - this.inB.getOrThrow("in_b")
                 }
                 is Double2 -> when (inB) {
                     is Int2    -> inA - inB.toDouble2()
                     is Float2  -> inA - inB.toDouble2()
                     is Double2 -> inA - inB
-                    else       -> DataPathException.invalidTypeInExpression("$inA - $inB")
+                    else       -> inA - this.inB.getOrThrow("in_b")
                 }
-                else -> DataPathException.invalidTypeInExpression("$inA - $inB")
+                else -> this.inA.getOrThrow<Double2>("in_a") - this.inB.getOrThrow("in_b")
             }
         }
     }

@@ -18,7 +18,6 @@ package com.valaphee.flow.math.vector3
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPath
-import com.valaphee.flow.DataPathException
 import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.Node
@@ -40,10 +39,10 @@ class Absolute(
         out.set {
             val `in` = `in`.get()
             when (`in`) {
-                is Int3    -> `in`.abs()
-                is Float3  -> `in`.abs()
-                is Double3 -> `in`.abs()
-                else       -> DataPathException.invalidTypeInExpression("|$`in`|")
+                is Int3    -> `in`                               .abs()
+                is Float3  -> `in`                               .abs()
+                is Double3 -> `in`                               .abs()
+                else       -> this.`in`.getOrThrow<Double3>("in").abs()
             }
         }
     }

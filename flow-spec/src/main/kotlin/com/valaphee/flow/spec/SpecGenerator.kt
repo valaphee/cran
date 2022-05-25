@@ -18,6 +18,7 @@ package com.valaphee.flow.spec
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.google.auto.service.AutoService
 import com.valaphee.flow.spec.util.toHexString
@@ -70,7 +71,7 @@ class SpecGenerator : AbstractProcessor() {
                                         processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @In type $type.")
                                         return true
                                     }
-                                }, `in`.data.takeIf { it.isNotEmpty() }, json.value
+                                }, `in`.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }, json.value
                             ) else if (out != null) if (const != null) {
                                 processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @Out or @Const is allowed, not both.")
                                 return true
@@ -82,8 +83,8 @@ class SpecGenerator : AbstractProcessor() {
                                         processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @Out type $type.")
                                         return true
                                     }
-                                }, out.data.takeIf { it.isNotEmpty() }, json.value
-                            ) else if (const != null) Spec.Node.Port(const.name, Spec.Node.Port.Type.Const, "{}", json.value) else null
+                                }, out.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }, json.value
+                            ) else if (const != null) Spec.Node.Port(const.name, Spec.Node.Port.Type.Const, objectMapper.readTree("""{}"""), json.value) else null
                         } else null
                     }, `class`.qualifiedName.toString())
                 } else null
@@ -93,5 +94,9 @@ class SpecGenerator : AbstractProcessor() {
             processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", "spec.${MessageDigest.getInstance("MD5").digest(bytes).toHexString()}.dat").openOutputStream().use { it.write(bytes) }
         }
         return true
+    }
+
+    companion object {
+        private val objectMapper = jacksonObjectMapper()
     }
 }

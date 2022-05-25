@@ -34,7 +34,7 @@ class AboutView : View("About") {
         alignment = Pos.CENTER
 
         // Children
-        imageview(Image(AboutView::class.java.getResourceAsStream("/app.png")))
+        imageview(Image(AboutView::class.java.getResourceAsStream("/app@48x.png")))
         label(
             """
                 Flow${AboutView::class.java.`package`.implementationVersion?.let { " $it" } ?: ""}

@@ -50,7 +50,7 @@ class Divide(
                     is Float      -> inA                                / inB
                     is Double     -> inA                                / inB
                     is BigDecimal -> BigDecimal.valueOf(inA.toDouble()) / inB
-                    else          -> DataPathException.invalidTypeInExpression("$inA ÷ $inB")
+                    else          -> throw DataPathException.invalidTypeInExpression("$inA ÷ $inB")
                 }
                 is Short -> when (inB) {
                     is Byte       -> inA                                / inB
@@ -61,7 +61,7 @@ class Divide(
                     is Float      -> inA                                / inB
                     is Double     -> inA                                / inB
                     is BigDecimal -> BigDecimal.valueOf(inA.toDouble()) / inB
-                    else          -> DataPathException.invalidTypeInExpression("$inA ÷ $inB")
+                    else          -> throw DataPathException.invalidTypeInExpression("$inA ÷ $inB")
                 }
                 is Int -> when (inB) {
                     is Byte       -> inA                                / inB
@@ -72,7 +72,7 @@ class Divide(
                     is Float      -> inA                                / inB
                     is Double     -> inA                                / inB
                     is BigDecimal -> BigDecimal.valueOf(inA.toDouble()) / inB
-                    else          -> DataPathException.invalidTypeInExpression("$inA ÷ $inB")
+                    else          -> throw DataPathException.invalidTypeInExpression("$inA ÷ $inB")
                 }
                 is Long -> when (inB) {
                     is Byte       -> inA                                / inB
@@ -83,13 +83,13 @@ class Divide(
                     is Float      -> inA                                / inB
                     is Double     -> inA                                / inB
                     is BigDecimal -> BigDecimal.valueOf(inA.toDouble()) / inB
-                    else          -> DataPathException.invalidTypeInExpression("$inA ÷ $inB")
+                    else          -> throw DataPathException.invalidTypeInExpression("$inA ÷ $inB")
                 }
                 is BigInteger -> when (inB) {
                     is BigInteger -> inA                / inB
                     is BigDecimal -> inA.toBigDecimal() / inB
                     is Number     -> inA                / BigInteger.valueOf(inB.toLong())
-                    else          -> DataPathException.invalidTypeInExpression("$inA ÷ $inB")
+                    else          -> throw DataPathException.invalidTypeInExpression("$inA ÷ $inB")
                 }
                 is Float -> when (inB) {
                     is Byte       -> inA                                / inB
@@ -100,7 +100,7 @@ class Divide(
                     is Float      -> inA                                / inB
                     is Double     -> inA                                / inB
                     is BigDecimal -> BigDecimal.valueOf(inA.toDouble()) / inB
-                    else          -> DataPathException.invalidTypeInExpression("$inA ÷ $inB")
+                    else          -> throw DataPathException.invalidTypeInExpression("$inA ÷ $inB")
                 }
                 is Double -> when (inB) {
                     is Byte       -> inA                                / inB
@@ -111,15 +111,15 @@ class Divide(
                     is Float      -> inA                                / inB
                     is Double     -> inA                                / inB
                     is BigDecimal -> BigDecimal.valueOf(inA.toDouble()) / inB
-                    else          -> DataPathException.invalidTypeInExpression("$inA ÷ $inB")
+                    else          -> throw DataPathException.invalidTypeInExpression("$inA ÷ $inB")
                 }
                 is BigDecimal -> when (inB) {
                     is BigInteger -> inA / inB.toBigDecimal()
                     is BigDecimal -> inA / inB
                     is Number     -> inA / BigDecimal.valueOf(inB.toDouble())
-                    else          -> DataPathException.invalidTypeInExpression("$inA ÷ $inB")
+                    else          -> throw DataPathException.invalidTypeInExpression("$inA ÷ $inB")
                 }
-                else -> DataPathException.invalidTypeInExpression("$inA ÷ $inB")
+                else -> throw DataPathException.invalidTypeInExpression("$inA ÷ $inB")
             }
         }
     }

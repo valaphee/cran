@@ -40,15 +40,15 @@ class Absolute(
         out.set {
             val `in` = `in`.get()
             when (`in`) {
-                is Byte       -> `in`.toInt().absoluteValue
-                is Short      -> `in`.toInt().absoluteValue
-                is Int        -> `in`.absoluteValue
-                is Long       -> `in`.absoluteValue
-                is BigInteger -> `in`.abs()
-                is Float      -> `in`.absoluteValue
-                is Double     -> `in`.absoluteValue
-                is BigDecimal -> `in`.abs()
-                else          -> DataPathException.invalidTypeInExpression("|$`in`|")
+                is Byte       -> `in`.toInt().absoluteValue.toByte()
+                is Short      -> `in`.toInt().absoluteValue.toShort()
+                is Int        -> `in`        .absoluteValue
+                is Long       -> `in`        .absoluteValue
+                is BigInteger -> `in`        .abs()
+                is Float      -> `in`        .absoluteValue
+                is Double     -> `in`        .absoluteValue
+                is BigDecimal -> `in`        .abs()
+                else          -> throw DataPathException.invalidTypeInExpression("|$`in`|")
             }
         }
     }

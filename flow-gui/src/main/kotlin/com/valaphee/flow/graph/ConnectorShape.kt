@@ -95,7 +95,7 @@ class ConnectorShape(
                     }
                     if (connector.type == "data" || connector.type == "const") {
                         when (spec.data) {
-                            """{"type":"boolean"}""" -> checkbox(null, (value as? Boolean ?: false).toProperty().apply { onChange { (connector.valueObject.value as ConnectorValue).value = it } })
+                            bitData -> checkbox(null, (value as? Boolean ?: false).toProperty().apply { onChange { (connector.valueObject.value as ConnectorValue).value = it } })
                             else -> {
                                 val objectMapper = jacksonObjectMapper()
                                 textfield(value?.let { objectMapper.writeValueAsString(it) } ?: "") {
@@ -105,7 +105,7 @@ class ConnectorShape(
                                     // Events
                                     focusedProperty().onChange {
                                         if (!it) (connector.valueObject.value as ConnectorValue).value = try {
-                                            if (text.isBlank()) null else objectMapper.readValue<Any?>(text)
+                                            text.takeIf { it.isNotBlank() }?.let { objectMapper.readValue(it) }
                                         } catch (_: Throwable) {
                                             text
                                         }
@@ -160,4 +160,8 @@ class ConnectorShape(
     override fun getRadius() = 0.0
 
     override fun getNode() = this
+
+    companion object {
+        private val bitData = jacksonObjectMapper().readTree("""{"type":"boolean"}""")
+    }
 }

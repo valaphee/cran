@@ -27,6 +27,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
 
     api("com.fasterxml.jackson.core:jackson-databind:2.13.3")
+    api("com.github.fge:json-schema-validator:2.2.6")
 }
 
 kapt { generateStubs = true }

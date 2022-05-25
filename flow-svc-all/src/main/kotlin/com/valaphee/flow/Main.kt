@@ -61,7 +61,6 @@ fun main(arguments: Array<String>) {
 
     ServerBuilder
         .forPort(port)
-    /*Grpc.newServerBuilderForPort(8443, TlsServerCredentials.create(File(""), File("")))*/
         .addService(injector.getInstance(GraphServiceImplBase::class.java))
         .build()
         .start()

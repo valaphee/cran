@@ -20,11 +20,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.google.inject.Inject
 import com.valaphee.flow.meta.Meta
+import com.valaphee.flow.settings.Settings
 import com.valaphee.flow.spec.Spec
 import eu.mihosoft.vrl.workflow.Connector
 import eu.mihosoft.vrl.workflow.FlowFactory
 import eu.mihosoft.vrl.workflow.VFlow
+import eu.mihosoft.vrl.workflow.VNode
+import tornadofx.onChange
 import java.util.UUID
+import kotlin.math.round
 
 /**
  * @author Kevin Ludwig
@@ -54,7 +58,8 @@ class Graph(
             } + embed
         }
 
-    @Inject private lateinit var spec: Spec
+    @Inject private lateinit var settings: Settings
+    @get:JsonIgnore lateinit var spec: Spec
     @get:JsonIgnore val flow: VFlow by lazy {
         FlowFactory.newFlow().apply {
             isVisible = true
@@ -64,81 +69,58 @@ class Graph(
             val connectors = other.mapIndexed { i, node ->
                 val type = node.remove("type") as String
                 val nodeSpec = spec.nodes.single { it.json == type }
-                val _node = newNode().apply {
-                    title = nodeSpec.name
-                    meta.nodes.getOrNull(i)?.let {
-                        x = it.x
-                        y = it.y
+                newNode(nodeSpec, meta.nodes.getOrNull(i), settings).connectors.associateBy {
+                    val value = (it.valueObject.value as ConnectorValue)
+                    val connectionId = node[(it.valueObject.value as ConnectorValue).spec.json] as Int
+                    when (value.spec.type) {
+                        Spec.Node.Port.Type.InData -> value.value = _embed[connectionId]
+                        Spec.Node.Port.Type.Const -> value.value = node[value.spec.json]
+                        else -> Unit
                     }
-                    valueObject.value = nodeSpec
+                    connectionId
                 }
-                nodeSpec.ports.mapNotNull { nodePortSpec ->
-                    when (nodePortSpec.type) {
-                        Spec.Node.Port.Type.InControl -> node[nodePortSpec.json] as Int to _node.addInput("control").apply {
-                            /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
-                            localId = nodePortSpec.json
-                            valueObject.value = ConnectorValue(nodePortSpec)
-                        }
-                        Spec.Node.Port.Type.OutControl -> node[nodePortSpec.json] as Int to _node.addOutput("control").apply {
-                            /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
-                            localId = nodePortSpec.json
-                            valueObject.value = ConnectorValue(nodePortSpec)
-                        }
-                        Spec.Node.Port.Type.InData -> {
-                            val connectionId = node[nodePortSpec.json] as Int
-                            connectionId to _node.addInput("data").apply {
-                                localId = nodePortSpec.json
-                                valueObject.value = ConnectorValue(nodePortSpec, _embed[connectionId])
-                            }
-                        }
-                        Spec.Node.Port.Type.OutData -> node[nodePortSpec.json] as Int to _node.addOutput("data").apply {
-                            localId = nodePortSpec.json
-                            valueObject.value = ConnectorValue(nodePortSpec)
-                        }
-                        Spec.Node.Port.Type.Const -> {
-                            _node.addInput("const").apply {
-                                localId = nodePortSpec.json
-                                valueObject.value = ConnectorValue(nodePortSpec, node[nodePortSpec.json])
-                            }
-                            null
-                        }
-                    }
-                }.toMap()
             }
             graph.zip(connectors).forEach { it.first.entries.forEach { port -> it.second[port.value]?.let { connectorA -> connectors.forEach { it[port.value]?.let { connectorB -> connect(connectorA, connectorB) } } } } }
         }
     }
 
-    fun newNode(spec: Spec.Node, meta: Meta.Node) {
-        val node = flow.newNode().apply {
+    fun newNode(spec: Spec.Node, meta: Meta.Node?) = flow.newNode(spec, meta, settings)
+
+    companion object {
+        private fun VFlow.newNode(spec: Spec.Node, meta: Meta.Node?, settings: Settings): VNode = newNode().apply {
             title = spec.name
-            x = meta.x
-            y = meta.y
+            xProperty().onChange { if (settings.gridX > 0) x = round(it / settings.gridX) * settings.gridX }
+            yProperty().onChange { if (settings.gridY > 0) y = round(it / settings.gridY) * settings.gridY }
+            meta?.let {
+                x = it.x
+                y = it.y
+            }
             valueObject.value = spec
-        }
-        spec.ports.forEach { nodePortSpec ->
-            when (nodePortSpec.type) {
-                Spec.Node.Port.Type.InControl -> node.addInput("control").apply {
-                    /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
-                    localId = nodePortSpec.json
-                    valueObject.value = ConnectorValue(nodePortSpec)
-                }
-                Spec.Node.Port.Type.OutControl -> node.addOutput("control").apply {
-                    /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
-                    localId = nodePortSpec.json
-                    valueObject.value = ConnectorValue(nodePortSpec)
-                }
-                Spec.Node.Port.Type.InData -> node.addInput("data").apply {
-                    localId = nodePortSpec.json
-                    valueObject.value = ConnectorValue(nodePortSpec)
-                }
-                Spec.Node.Port.Type.OutData -> node.addOutput("data").apply {
-                    localId = nodePortSpec.json
-                    valueObject.value = ConnectorValue(nodePortSpec)
-                }
-                Spec.Node.Port.Type.Const -> node.addInput("const").apply {
-                    localId = nodePortSpec.json
-                    valueObject.value = ConnectorValue(nodePortSpec)
+
+            spec.ports.forEach { nodePortSpec ->
+                when (nodePortSpec.type) {
+                    Spec.Node.Port.Type.InControl -> addInput("control").apply {
+                        /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
+                        localId = nodePortSpec.json
+                        valueObject.value = ConnectorValue(nodePortSpec)
+                    }
+                    Spec.Node.Port.Type.OutControl -> addOutput("control").apply {
+                        /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
+                        localId = nodePortSpec.json
+                        valueObject.value = ConnectorValue(nodePortSpec)
+                    }
+                    Spec.Node.Port.Type.InData -> addInput("data").apply {
+                        localId = nodePortSpec.json
+                        valueObject.value = ConnectorValue(nodePortSpec)
+                    }
+                    Spec.Node.Port.Type.OutData -> addOutput("data").apply {
+                        localId = nodePortSpec.json
+                        valueObject.value = ConnectorValue(nodePortSpec)
+                    }
+                    Spec.Node.Port.Type.Const -> addInput("const").apply {
+                        localId = nodePortSpec.json
+                        valueObject.value = ConnectorValue(nodePortSpec)
+                    }
                 }
             }
         }

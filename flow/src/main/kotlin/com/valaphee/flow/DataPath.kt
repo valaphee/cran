@@ -58,7 +58,11 @@ class DataPath(
 
     suspend inline fun <reified T> getOrThrow(key: String): T {
         val value = get()
-        return if (value is T) value else /*throw DataPathException.invalidType(key, value?.let { it::class }, T::class)*/objectMapper.convertValue(value, T::class.java)
+        return if (value is T) value else try {
+            objectMapper.convertValue(value, T::class.java)
+        } catch (_: Throwable) {
+            throw DataPathException.invalidType(key, value?.let { it::class }, T::class)
+        }
     }
 
     companion object {

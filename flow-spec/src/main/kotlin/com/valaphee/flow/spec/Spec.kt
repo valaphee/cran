@@ -17,6 +17,7 @@
 package com.valaphee.flow.spec
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.JsonNode
 
 /**
  * @author Kevin Ludwig
@@ -30,10 +31,10 @@ class Spec(
         @get:JsonProperty("json" ) val json : String
     ) {
         class Port(
-            @get:JsonProperty("name") val name: String ,
-            @get:JsonProperty("type") val type: Type   ,
-            @get:JsonProperty("data") val data: String?,
-            @get:JsonProperty("json") val json: String ,
+            @get:JsonProperty("name") val name: String  ,
+            @get:JsonProperty("type") val type: Type    ,
+            @get:JsonProperty("data") val data: JsonNode?,
+            @get:JsonProperty("json") val json: String  ,
         ) {
             enum class Type {
                 @JsonProperty("in_control" ) InControl,

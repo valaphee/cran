@@ -16,11 +16,12 @@
 
 package com.valaphee.flow
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair
 import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper
 import com.fasterxml.jackson.module.guice.GuiceAnnotationIntrospector
 import com.fasterxml.jackson.module.guice.GuiceInjectableValues
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.google.inject.AbstractModule
@@ -28,15 +29,12 @@ import com.google.inject.Guice
 import com.google.inject.Injector
 import com.google.inject.Provides
 import com.google.inject.Singleton
-import com.valaphee.flow.spec.Spec
-import com.valaphee.svc.graph.v1.GetSpecRequest
-import com.valaphee.svc.graph.v1.GraphServiceGrpc
+import com.valaphee.flow.settings.Settings
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory
-import io.grpc.Channel
-import io.grpc.ManagedChannelBuilder
 import tornadofx.DIContainer
 import tornadofx.FX
 import tornadofx.launch
+import java.io.File
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
@@ -54,15 +52,11 @@ fun main(arguments: Array<String>) {
 
         @Provides
         @Singleton
-        fun channel(): Channel = ManagedChannelBuilder.forAddress("localhost", 8080).usePlaintext().build()
-
-        @Provides
-        @Singleton
-        fun graphService(channel: Channel) = GraphServiceGrpc.newBlockingStub(channel)
-
-        @Provides
-        @Singleton
-        fun spec(objectMapper: ObjectMapper, graphService: GraphServiceGrpc.GraphServiceBlockingStub) = objectMapper.readValue<Spec>(graphService.getSpec(GetSpecRequest.getDefaultInstance()).spec.toByteArray())
+        fun settings(): Settings {
+            val objectMapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
+            val file = File(File(System.getProperty("user.home"), ".valaphee/flow").also(File::mkdirs), "settings.json")
+            return if (!file.exists()) Settings().apply { objectMapper.writeValue(file, this) } else objectMapper.readValue(file)
+        }
     })
 
     FX.dicontainer = object : DIContainer {
