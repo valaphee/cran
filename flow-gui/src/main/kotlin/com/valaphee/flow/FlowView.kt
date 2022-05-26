@@ -97,7 +97,6 @@ class FlowView(
     override val root by fxml<Parent>("/flow.fxml")
     private val rootHbox by fxid<HBox>()
     private lateinit var graphsListView: ListView<Graph>
-    private val graphHbox by fxid<HBox>()
     private val graphScrollPane by fxid<ScrollPane>()
     private val graphPane by fxid<Pane>()
     private val jsonTextArea by fxid<TextArea>()
@@ -241,6 +240,7 @@ class FlowView(
 
     fun keyPressed(event: KeyEvent) {
         if (event.isControlDown) when (event.code) {
+            KeyCode.A -> graph?.let { it.flow.nodes.forEach { it.requestSelection(true) } }
             /*KeyCode.C -> {
                 graph?.let { graph -> graph.flow.nodes.filter(VNode::isSelected) }
                 event.consume()
@@ -253,7 +253,7 @@ class FlowView(
             else -> Unit
         } else when (event.code) {
             KeyCode.DELETE -> {
-                graph?.let { graph -> graph.flow.nodes.filter(VNode::isSelected).forEach(graph.flow::remove) }
+                graph?.let { it.flow.nodes.filter(VNode::isSelected).forEach(it.flow::remove) }
                 event.consume()
             }
             KeyCode.F5 -> {

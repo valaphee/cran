@@ -22,7 +22,11 @@ import eu.mihosoft.vrl.workflow.VNode
 import eu.mihosoft.vrl.workflow.fx.FXFlowNodeSkin
 import eu.mihosoft.vrl.workflow.fx.FlowNodeWindow
 import javafx.scene.Parent
+import tornadofx.action
+import tornadofx.contextmenu
+import tornadofx.item
 import tornadofx.onChange
+import tornadofx.separator
 
 /**
  * @author Kevin Ludwig
@@ -40,6 +44,12 @@ class NodeSkin(
         setShowCloseIconCallback { null }
         isResizableWindow = false
         resizeableWindowProperty().onChange { if (it) isResizableWindow = false }
+
+        contextMenu = contextmenu {
+            item("Delete") { action { controller.remove(model) } }
+            separator()
+            item("Properties") { action { } }
+        }
     }
 
     override fun addConnector(connector: Connector) {

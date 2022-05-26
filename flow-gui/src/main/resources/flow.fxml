@@ -66,15 +66,11 @@
                     <tabs>
                         <Tab text="Graph">
                             <content>
-                                <HBox fx:id="graphHbox">
-                                    <children>
-                                        <ScrollPane fx:id="graphScrollPane" HBox.hgrow="ALWAYS">
-                                            <content>
-                                                <Pane fx:id="graphPane"/>
-                                            </content>
-                                        </ScrollPane>
-                                    </children>
-                                </HBox>
+                                <ScrollPane fx:id="graphScrollPane">
+                                    <content>
+                                        <Pane fx:id="graphPane" style="-fx-background-color: #666, #111; -fx-background-radius: 0; -fx-background-insets: 0, 1;"/>
+                                    </content>
+                                </ScrollPane>
                             </content>
                         </Tab>
                         <Tab onSelectionChanged="#jsonTabSelectionChanged" text="JSON">
