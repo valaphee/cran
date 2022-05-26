@@ -28,8 +28,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import tornadofx.circle
+import tornadofx.doubleBinding
+import tornadofx.dynamicContent
 import tornadofx.label
-import tornadofx.onChange
 import tornadofx.paddingLeft
 import tornadofx.paddingRight
 import tornadofx.polygon
@@ -57,66 +58,82 @@ class ConnectorShape(
     override fun setConnector(connector: Connector) {
         this.connector = connector
 
-        if (connector.type != "const") {
-            fun content(value: ConnectorValue?) {
-                children.clear()
+        if (connector.type != "const") dynamicContent(connector.valueObjectProperty()) {
+            children.clear()
 
-                value?.let { (spec, value) ->
-                    spacing = 4.0
+            if (it is ConnectorValueObject) {
+                spacing = 4.0
 
-                    val topDown = connector.visualizationRequest.get<Boolean>(VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN).orElseGet { false }
-                    if (connector.isInput) {
-                        // Properties
-                        paddingLeft = -4.0
-                        alignment = Pos.CENTER_LEFT
+                val topDown = connector.visualizationRequest.get<Boolean>(VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN).orElseGet { false }
+                if (connector.isInput) {
+                    paddingLeft = -4.0
+                    alignment = Pos.CENTER_LEFT
 
-                        // Children
-                        when (connector.type) {
-                            "control" -> polygon(
-                                0.0, -4.0,
-                                8.0, 0.0,
-                                0.0, 4.0,
-                                0.0, -4.0,
-                            ) {
-                                fill = Color.WHITE
-                                if (topDown) rotate = 90.0
-                            }
-                            "data" -> circle(4.0, 0.0, 4.0) { fill = Color.WHITE }
-                            else -> error(connector.type)
+                    when (connector.type) {
+                        "control" -> polygon(
+                            0.0, -4.0,
+                            8.0, 0.0,
+                            0.0, 4.0,
+                            0.0, -4.0,
+                        ) {
+                            fill = Color.WHITE
+                            if (topDown) rotate = 90.0
                         }
-                        label(spec.name) {
-                            minWidth = Text(text).layoutBounds.width
+                        "data" -> circle(4.0, 0.0, 4.0) { fill = Color.WHITE }
+                        else -> error(connector.type)
+                    }
+                    when ((connector.node.valueObject as NodeValueObject).spec.name) {
+                        "Nesting/Control Output", "Nesting/Data Output" -> label((connector.node.getConnector("name").valueObject as ConnectorValueObject).valueProperty().asString()) {
+                            minWidthProperty().bind(Text().let {
+                                it.textProperty().bind(textProperty())
+                                it.layoutBoundsProperty().doubleBinding { it?.width ?: 0.0 }
+                            })
                             textFill = Color.WHITE
                         }
-                    } else {
-                        // Properties
-                        paddingRight = -4.0
-                        alignment = Pos.CENTER_RIGHT
-
-                        // Children
-                        label(spec.name) {
-                            minWidth = Text(text).layoutBounds.width
+                        else -> label(it.spec.name) {
+                            minWidthProperty().bind(Text().let {
+                                it.textProperty().bind(textProperty())
+                                it.layoutBoundsProperty().doubleBinding { it?.width ?: 0.0 }
+                            })
                             textFill = Color.WHITE
                         }
-                        when (connector.type) {
-                            "control" -> polygon(
-                                0.0, -4.0,
-                                8.0, 0.0,
-                                0.0, 4.0,
-                                0.0, -4.0
-                            ) {
-                                fill = Color.WHITE
-                                if (topDown) rotate = 90.0
-                            }
-                            "data" -> circle(4.0, 0.0, 4.0) { fill = Color.WHITE }
-                            else -> error(connector.type)
+                    }
+
+                } else {
+                    paddingRight = -4.0
+                    alignment = Pos.CENTER_RIGHT
+
+                    when ((connector.node.valueObject as NodeValueObject).spec.name) {
+                        "Nesting/Control Input", "Nesting/Data Input" -> label((connector.node.getConnector("name").valueObject as ConnectorValueObject).valueProperty().asString()) {
+                            minWidthProperty().bind(Text().let {
+                                it.textProperty().bind(textProperty())
+                                it.layoutBoundsProperty().doubleBinding { it?.width ?: 0.0 }
+                            })
+                            textFill = Color.WHITE
                         }
+                        else -> label(it.spec.name) {
+                            minWidthProperty().bind(Text().let {
+                                it.textProperty().bind(textProperty())
+                                it.layoutBoundsProperty().doubleBinding { it?.width ?: 0.0 }
+                            })
+                            textFill = Color.WHITE
+                        }
+                    }
+                    when (connector.type) {
+                        "control" -> polygon(
+                            0.0, -4.0,
+                            8.0, 0.0,
+                            0.0, 4.0,
+                            0.0, -4.0
+                        ) {
+                            fill = Color.WHITE
+                            if (topDown) rotate = 90.0
+                        }
+                        "data" -> circle(4.0, 0.0, 4.0) { fill = Color.WHITE }
+                        else -> error(connector.type)
                     }
                 }
             }
-
-            content(connector.valueObject.value as ConnectorValue?)
-            connector.valueObject.valueProperty().onChange { content(it as ConnectorValue?) }
         }
     }
 

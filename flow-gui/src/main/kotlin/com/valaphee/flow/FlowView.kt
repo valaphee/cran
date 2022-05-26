@@ -21,7 +21,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.inject.Injector
 import com.google.protobuf.ByteString
-import com.valaphee.flow.graph.ConnectorValue
 import com.valaphee.flow.graph.Graph
 import com.valaphee.flow.graph.SkinFactory
 import com.valaphee.flow.graph.asNodeStyleClass
@@ -37,10 +36,8 @@ import com.valaphee.svc.graph.v1.UpdateGraphRequest
 import eu.mihosoft.vrl.workflow.VNode
 import eu.mihosoft.vrl.workflow.incubating.LayoutGeneratorSmart
 import io.grpc.ManagedChannelBuilder
-import javafx.beans.property.SimpleListProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.ObservableList
-import javafx.geometry.Side
 import javafx.scene.Parent
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.ListView
@@ -64,28 +61,20 @@ import kotlinx.coroutines.withContext
 import tornadofx.FileChooserMode
 import tornadofx.View
 import tornadofx.action
-import tornadofx.asyncItems
 import tornadofx.bindSelected
-import tornadofx.checkbox
 import tornadofx.chooseFile
 import tornadofx.contextmenu
 import tornadofx.customitem
 import tornadofx.drawer
 import tornadofx.dynamicContent
-import tornadofx.field
-import tornadofx.fieldset
-import tornadofx.form
 import tornadofx.getValue
 import tornadofx.item
 import tornadofx.listview
 import tornadofx.onChange
-import tornadofx.pane
 import tornadofx.rectangle
 import tornadofx.setValue
 import tornadofx.textfield
-import tornadofx.toObservable
 import tornadofx.toProperty
-import tornadofx.wrapIn
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
@@ -104,19 +93,6 @@ class FlowView(
 
     private val graphProperty = SimpleObjectProperty<Graph>()
     private var graph by graphProperty
-    private val nodesProperty = SimpleListProperty(mutableListOf<VNode>().toObservable()).apply {
-        graphProperty.onChange {
-            it?.let {
-                it.flow.nodes.forEach { node -> node.selectedProperty().onChange { if (it) this += node else this -= node } }
-                it.flow.nodes.onChange {
-                    while (it.next()) {
-                        this -= it.removed.toSet()
-                        it.addedSubList.map { node -> node.selectedProperty().onChange { if (it) this += node else this -= node } }
-                    }
-                }
-            }
-        }
-    }
 
     override val root by fxml<Parent>("/flow.fxml")
     private val rootHbox by fxid<HBox>()
@@ -127,7 +103,7 @@ class FlowView(
     private val jsonTextArea by fxid<TextArea>()
 
     init {
-        rootHbox.children.add(0, drawer(Side.LEFT) {
+        rootHbox.children.add(0, drawer {
             item("Graphs", null, true) {
                 minWidth = 200.0
                 maxWidth = 200.0
@@ -176,48 +152,6 @@ class FlowView(
         }
 
         // Graph
-        graphHbox.children += (drawer(Side.RIGHT, false, false) {
-            item("Node", null, true) {
-                minWidth = 200.0
-                maxWidth = 200.0
-
-                form {
-                    styleClass += "background"
-
-                    dynamicContent(nodesProperty) {
-                        it?.singleOrNull()?.let {
-                            fieldset {
-                                it.connectors.forEach { connector ->
-                                    (connector.valueObject.value as ConnectorValue?)?.let { (spec, value) ->
-                                        if (connector.isInput && connector.type == "const") {
-                                            field(spec.name) {
-                                                when (spec.data) {
-                                                    bitData -> checkbox(null, (value as? Boolean ?: false).toProperty().apply { onChange { (connector.valueObject.value as ConnectorValue).value = it } })
-                                                    else -> {
-                                                        val objectMapper = jacksonObjectMapper()
-                                                        textfield(value?.let { objectMapper.writeValueAsString(it) } ?: "") {
-                                                            minWidth = connector.node.width / 2.0
-
-                                                            focusedProperty().onChange {
-                                                                if (!it) (connector.valueObject.value as ConnectorValue).value = try {
-                                                                    text.takeIf { it.isNotBlank() }?.let { objectMapper.readValue(it) }
-                                                                } catch (_: Throwable) {
-                                                                    text
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        })
         with(graphScrollPane) {
             contextMenu = contextmenu {
                 val searchProperty = "".toProperty()
@@ -285,14 +219,15 @@ class FlowView(
             }
         }
         with(graphPane) {
+            minWidthProperty().bind(graphScrollPane.widthProperty())
+            minHeightProperty().bind(graphScrollPane.heightProperty())
+
             dynamicContent(graphProperty) { it?.flow?.setSkinFactories(SkinFactory(this)) }
+
             MouseControlUtil.addSelectionRectangleGesture(this, rectangle {
                 stroke = Color.rgb(255, 255, 255, 1.0)
                 fill = Color.rgb(0, 0, 0, 0.5)
             })
-            minWidthProperty().bind(graphScrollPane.widthProperty())
-            minHeightProperty().bind(graphScrollPane.heightProperty())
-
         }
 
         // Json

@@ -17,11 +17,11 @@
 package com.valaphee.flow.graph
 
 import com.valaphee.flow.spec.Spec
+import eu.mihosoft.vrl.workflow.DefaultValueObject
 
 /**
  * @author Kevin Ludwig
  */
-data class ConnectorValue(
+class ConnectorValueObject(
     val spec: Spec.Node.Port,
-    var value: Any? = null
-)
+) : DefaultValueObject()
