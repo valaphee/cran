@@ -27,12 +27,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-guice:2.13.3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
     implementation("com.google.inject:guice:5.1.0")
-    implementation("com.jfoenix:jfoenix:9.0.10")
-    implementation("de.codecentric.centerdevice:javafxsvg:1.3.0")
-    implementation("io.github.palexdev:materialfx:11.13.5")
     implementation("no.tornado:tornadofx:1.7.20")
-    /*implementation("org.apache.commons:commons-text:1.9")*/
-    implementation("org.controlsfx:controlsfx:11.1.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:1.6.1")
     implementation("eu.mihosoft.vrl.workflow:vworkflows-fx:0.2.5.0")
 }

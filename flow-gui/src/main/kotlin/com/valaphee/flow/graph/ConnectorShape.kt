@@ -76,7 +76,7 @@ class ConnectorShape(
 
                     // Children
                     when (connector.type) {
-                        "graph/control" -> polygon(
+                        "control" -> polygon(
                             0.0, -4.0,
                             8.0,  0.0,
                             0.0,  4.0,
@@ -85,7 +85,7 @@ class ConnectorShape(
                             fill = Color.WHITE
                             if (topDown) rotate = 90.0
                         }
-                        "data"/*, "const"*/ -> circle(4.0, 0.0, 4.0) { fill = Color.WHITE }
+                        "data" -> circle(4.0, 0.0, 4.0) { fill = Color.WHITE }
                         "const" -> Unit
                         else -> error(connector.type)
                     }
@@ -133,7 +133,7 @@ class ConnectorShape(
                         textFill = Color.WHITE
                     }
                     when (connector.type) {
-                        "graph/control" -> polygon(
+                        "control" -> polygon(
                             0.0, -4.0,
                             8.0,  0.0,
                             0.0,  4.0,

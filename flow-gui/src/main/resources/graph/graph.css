@@ -15,26 +15,32 @@
  */
 
 .window {
-    -fx-background-color: linear-gradient(to bottom, rgb(13, 13, 13, 0.95), rgb(27, 27, 27, 0.95));
-    -fx-border-color: rgb(12, 12, 12);
-    -fx-border-width: 2px;
+    -fx-border-style: hidden;
+
+    -fx-background-color: #494949, #111;
+    -fx-background-insets: -1 0 0 0, 0 1 1 1;
 }
 
 .window-titlebar {
-    -fx-background-color: radial-gradient(focus-angle 0, focus-distance 100%, center 0% 0%, radius 100%, rgb(50, 50, 50, 1.0), rgb(50, 50, 50, 0.1));
-}
+    -fx-border-style: hidden;
 
-.window-icon {
-    -fx-border-width: 0px;
+    -fx-fill: white;
+
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 1em;
+
+    -fx-background-color: #494949, #1f1f1f;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 0;
 }
 
 .vnode-connection {
-    -fx-stroke: rgb(255, 255, 255);
+    -fx-stroke: white;
     -fx-stroke-width: 3px;
 }
 
 .vnode-new-connection {
-    -fx-stroke: rgb(255, 255, 255);
+    -fx-stroke: white;
     -fx-stroke-width: 3px;
 }
 

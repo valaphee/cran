@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-
 <!--
   ~ Copyright (c) 2022, Valaphee.
   ~
@@ -20,61 +16,79 @@
   ~ limitations under the License.
   -->
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#keyPressed" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <MenuBar>
-        <menus>
-          <Menu mnemonicParsing="false" text="File">
-            <items>
-              <MenuItem mnemonicParsing="false" onAction="#fileSettingsMenuItemAction" text="Settings" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" onAction="#fileImportMenuItemAction" text="Import" />
-                  <MenuItem mnemonicParsing="false" onAction="#fileExportAsMenuItemAction" text="Export As..." />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" onAction="#fileExitMenuItemAction" text="Exit" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
-            <items>
-                  <Menu mnemonicParsing="false" text="Layout">
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#keyPressed" prefHeight="800.0" prefWidth="1000.0" stylesheets="@dark_theme.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <MenuBar>
+            <menus>
+                <Menu mnemonicParsing="false" text="File">
                     <items>
-                      <MenuItem mnemonicParsing="false" onAction="#editLayoutIsomMenuItemAction" text="Interpretable Self-Organizing Maps" />
-                    <MenuItem mnemonicParsing="false" onAction="#editLayoutFrMenuItemAction" text="Fruchterman-Reingold" />
-                        <MenuItem mnemonicParsing="false" onAction="#editLayoutKkMenuItemAction" text="Kamada-Kawai" />
-                        <MenuItem mnemonicParsing="false" onAction="#editLayoutDacMenuItemAction" text="Directed Acyclic Graph" />
+                        <MenuItem mnemonicParsing="false" onAction="#fileSettingsMenuItemAction" text="Settings"/>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem mnemonicParsing="false" onAction="#fileImportMenuItemAction" text="Import"/>
+                        <MenuItem mnemonicParsing="false" onAction="#fileExportAsMenuItemAction" text="Export As..."/>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem mnemonicParsing="false" onAction="#fileExitMenuItemAction" text="Exit"/>
                     </items>
-                  </Menu>
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Help">
-            <items>
-              <MenuItem mnemonicParsing="false" onAction="#helpAboutMenuItemAction" text="About" />
-            </items>
-          </Menu>
-        </menus>
-      </MenuBar>
-      <HBox VBox.vgrow="ALWAYS">
-         <children>
-            <ListView fx:id="graphsListView" prefHeight="200.0" prefWidth="200.0" />
-            <TabPane prefHeight="200.0" prefWidth="200.0" side="BOTTOM" tabClosingPolicy="UNAVAILABLE" HBox.hgrow="ALWAYS">
-              <tabs>
-                <Tab text="Graph">
-                    <ScrollPane fx:id="graphScrollPane">
-                        <content>
-                           <Pane fx:id="graphPane" />
-                        </content>
-                    </ScrollPane>
-                </Tab>
-                <Tab onSelectionChanged="#jsonTabSelectionChanged" text="JSON">
-                    <TextArea fx:id="jsonTextArea" editable="false">
-                        <font>
-                           <Font name="Monospaced Regular" size="12.0" />
-                        </font>
-                     </TextArea>
-                </Tab>
-              </tabs>
-            </TabPane>
-         </children>
-      </HBox>
-   </children>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Edit">
+                    <items>
+                        <Menu mnemonicParsing="false" text="Layout">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#editLayoutIsomMenuItemAction" text="Interpretable Self-Organizing Maps"/>
+                                <MenuItem mnemonicParsing="false" onAction="#editLayoutFrMenuItemAction" text="Fruchterman-Reingold"/>
+                                <MenuItem mnemonicParsing="false" onAction="#editLayoutKkMenuItemAction" text="Kamada-Kawai"/>
+                                <MenuItem mnemonicParsing="false" onAction="#editLayoutDacMenuItemAction" text="Directed Acyclic Graph"/>
+                            </items>
+                        </Menu>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#helpAboutMenuItemAction" text="About"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+        <HBox VBox.vgrow="ALWAYS">
+            <children>
+                <ListView fx:id="graphsListView" prefHeight="200.0" prefWidth="200.0"/>
+                <TabPane prefHeight="200.0" prefWidth="200.0" side="BOTTOM" tabClosingPolicy="UNAVAILABLE" HBox.hgrow="ALWAYS">
+                    <tabs>
+                        <Tab text="Graph">
+                            <content>
+
+                                <ScrollPane fx:id="graphScrollPane">
+                                    <content>
+                                        <Pane fx:id="graphPane"/>
+                                    </content>
+                                </ScrollPane>
+                            </content>
+                        </Tab>
+                        <Tab onSelectionChanged="#jsonTabSelectionChanged" text="JSON">
+                            <content>
+                                <TextArea fx:id="jsonTextArea" editable="false">
+                                    <font>
+                                        <Font name="Monospaced Regular" size="12.0"/>
+                                    </font>
+                                </TextArea>
+                            </content>
+                        </Tab>
+                    </tabs>
+                </TabPane>
+            </children>
+        </HBox>
+    </children>
 </VBox>

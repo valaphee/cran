@@ -27,7 +27,7 @@ import tornadofx.importStylesheet
  */
 class FlowApp : App(Image(FlowApp::class.java.getResourceAsStream("/app@48x.png")), FlowView::class) {
     override fun init() {
-        importStylesheet("/flow.css")
+        importStylesheet("/dark_theme.css")
         importStylesheet("/graph/graph.css")
     }
 

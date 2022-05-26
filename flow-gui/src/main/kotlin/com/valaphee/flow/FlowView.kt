@@ -174,7 +174,7 @@ class FlowView(
 
                                 action {
                                     val local = sceneToLocal(x - currentWindow!!.x, y - currentWindow!!.y)
-                                    graphProperty.get()?.newNode(node, Meta.Node(if (local.x.isNaN()) 0.0 else local.x, if (local.y.isNaN()) 0.0 else local.y))
+                                    graph?.newNode(node, Meta.Node(if (local.x.isNaN()) 0.0 else local.x, if (local.y.isNaN()) 0.0 else local.y))
                                 }
                             } else Menu(element).apply {
                                 _item.items += this
@@ -189,7 +189,7 @@ class FlowView(
 
                                 action {
                                     val local = sceneToLocal(x - currentWindow!!.x, y - currentWindow!!.y)
-                                    graphProperty.get()?.newNode(node, Meta.Node(if (local.x.isNaN()) 0.0 else local.x, if (local.y.isNaN()) 0.0 else local.y))
+                                    graph?.newNode(node, Meta.Node(if (local.x.isNaN()) 0.0 else local.x, if (local.y.isNaN()) 0.0 else local.y))
                                 }
                             } else Menu(element).apply {
                                 treeItems += this
@@ -215,6 +215,9 @@ class FlowView(
                 stroke = Color.rgb(255, 255, 255, 1.0)
                 fill = Color.rgb(0, 0, 0, 0.5)
             })
+            minWidthProperty().bind(graphScrollPane.widthProperty())
+            minHeightProperty().bind(graphScrollPane.heightProperty())
+
         }
 
         with(jsonTextArea) { graphProperty.onChange { text = it?.let { objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it) } ?: "" } }
@@ -226,19 +229,19 @@ class FlowView(
 
     fun keyPressed(event: KeyEvent) {
         if (event.isControlDown) when (event.code) {
-            KeyCode.C -> {
-                graphProperty.get()?.let { graph -> graph.flow.nodes.filter(VNode::isSelected) }
+            /*KeyCode.C -> {
+                graph?.let { graph -> graph.flow.nodes.filter(VNode::isSelected) }
                 event.consume()
-            }
+            }*/
             KeyCode.S -> {
-                graphProperty.get()?.let { graph -> launch { graphService.updateGraph(UpdateGraphRequest.newBuilder().setGraph(ByteString.copyFrom(objectMapper.writeValueAsBytes(graph))).build()) } }
+                graph?.let { graph -> launch { graphService.updateGraph(UpdateGraphRequest.newBuilder().setGraph(ByteString.copyFrom(objectMapper.writeValueAsBytes(graph))).build()) } }
                 event.consume()
             }
-            KeyCode.V -> Unit
+            /*KeyCode.V -> Unit*/
             else -> Unit
         } else when (event.code) {
             KeyCode.DELETE -> {
-                graphProperty.get()?.let { graph -> graph.flow.nodes.filter(VNode::isSelected).forEach(graph.flow::remove) }
+                graph?.let { graph -> graph.flow.nodes.filter(VNode::isSelected).forEach(graph.flow::remove) }
                 event.consume()
             }
             KeyCode.F5 -> {
