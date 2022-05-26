@@ -33,4 +33,17 @@ abstract class Graph {
     open fun shutdown() {
         graph.forEach { it.shutdown() }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Graph
+
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode() = id.hashCode()
 }

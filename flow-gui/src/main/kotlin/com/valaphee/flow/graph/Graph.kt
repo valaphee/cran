@@ -89,6 +89,19 @@ class Graph(
 
     fun newNode(spec: Spec.Node, meta: Meta.Node?) = flow.newNode(spec, meta, settings)
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Graph
+
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode() = id.hashCode()
+
     companion object {
         private fun VFlow.newNode(spec: Spec.Node, meta: Meta.Node?, settings: Settings): VNode = newNode().apply {
             title = spec.name

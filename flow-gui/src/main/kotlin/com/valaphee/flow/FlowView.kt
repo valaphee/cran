@@ -17,9 +17,11 @@
 package com.valaphee.flow
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.inject.Injector
 import com.google.protobuf.ByteString
+import com.valaphee.flow.graph.ConnectorValue
 import com.valaphee.flow.graph.Graph
 import com.valaphee.flow.graph.SkinFactory
 import com.valaphee.flow.graph.asNodeStyleClass
@@ -35,8 +37,10 @@ import com.valaphee.svc.graph.v1.UpdateGraphRequest
 import eu.mihosoft.vrl.workflow.VNode
 import eu.mihosoft.vrl.workflow.incubating.LayoutGeneratorSmart
 import io.grpc.ManagedChannelBuilder
+import javafx.beans.property.SimpleListProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.ObservableList
+import javafx.geometry.Side
 import javafx.scene.Parent
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.ListView
@@ -47,6 +51,7 @@ import javafx.scene.control.TextArea
 import javafx.scene.control.cell.TextFieldListCell
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
+import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.stage.FileChooser
@@ -61,17 +66,26 @@ import tornadofx.View
 import tornadofx.action
 import tornadofx.asyncItems
 import tornadofx.bindSelected
+import tornadofx.checkbox
 import tornadofx.chooseFile
 import tornadofx.contextmenu
 import tornadofx.customitem
+import tornadofx.drawer
 import tornadofx.dynamicContent
+import tornadofx.field
+import tornadofx.fieldset
+import tornadofx.form
 import tornadofx.getValue
 import tornadofx.item
+import tornadofx.listview
 import tornadofx.onChange
+import tornadofx.pane
 import tornadofx.rectangle
 import tornadofx.setValue
 import tornadofx.textfield
+import tornadofx.toObservable
 import tornadofx.toProperty
+import tornadofx.wrapIn
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
@@ -90,17 +104,37 @@ class FlowView(
 
     private val graphProperty = SimpleObjectProperty<Graph>()
     private var graph by graphProperty
+    private val nodesProperty = SimpleListProperty(mutableListOf<VNode>().toObservable()).apply {
+        graphProperty.onChange {
+            it?.let {
+                it.flow.nodes.forEach { node -> node.selectedProperty().onChange { if (it) this += node else this -= node } }
+                it.flow.nodes.onChange {
+                    while (it.next()) {
+                        this -= it.removed.toSet()
+                        it.addedSubList.map { node -> node.selectedProperty().onChange { if (it) this += node else this -= node } }
+                    }
+                }
+            }
+        }
+    }
 
     override val root by fxml<Parent>("/flow.fxml")
-
-    private val graphsListView by fxid<ListView<Graph>>()
-
+    private val rootHbox by fxid<HBox>()
+    private lateinit var graphsListView: ListView<Graph>
+    private val graphHbox by fxid<HBox>()
     private val graphScrollPane by fxid<ScrollPane>()
     private val graphPane by fxid<Pane>()
-
     private val jsonTextArea by fxid<TextArea>()
 
     init {
+        rootHbox.children.add(0, drawer(Side.LEFT) {
+            item("Graphs", null, true) {
+                minWidth = 200.0
+                maxWidth = 200.0
+
+                graphsListView = listview()
+            }
+        })
         with(graphsListView) {
             bindSelected(graphProperty)
 
@@ -141,17 +175,58 @@ class FlowView(
             selectionModel.selectedItems.onChange { contextMenu = contextMenu(it.list) }
         }
 
+        // Graph
+        graphHbox.children += (drawer(Side.RIGHT, false, false) {
+            item("Node", null, true) {
+                minWidth = 200.0
+                maxWidth = 200.0
+
+                form {
+                    styleClass += "background"
+
+                    dynamicContent(nodesProperty) {
+                        it?.singleOrNull()?.let {
+                            fieldset {
+                                it.connectors.forEach { connector ->
+                                    (connector.valueObject.value as ConnectorValue?)?.let { (spec, value) ->
+                                        if (connector.isInput && connector.type == "const") {
+                                            field(spec.name) {
+                                                when (spec.data) {
+                                                    bitData -> checkbox(null, (value as? Boolean ?: false).toProperty().apply { onChange { (connector.valueObject.value as ConnectorValue).value = it } })
+                                                    else -> {
+                                                        val objectMapper = jacksonObjectMapper()
+                                                        textfield(value?.let { objectMapper.writeValueAsString(it) } ?: "") {
+                                                            minWidth = connector.node.width / 2.0
+
+                                                            focusedProperty().onChange {
+                                                                if (!it) (connector.valueObject.value as ConnectorValue).value = try {
+                                                                    text.takeIf { it.isNotBlank() }?.let { objectMapper.readValue(it) }
+                                                                } catch (_: Throwable) {
+                                                                    text
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        })
         with(graphScrollPane) {
             contextMenu = contextmenu {
                 val searchProperty = "".toProperty()
 
                 customitem(hideOnClick = false) {
-                    textfield {
-                        textProperty().onChange { searchProperty.set(it) }
-
-                        setOnKeyPressed {
-                            requestFocus()
-                            positionCaret(length)
+                    textfield { textProperty().onChange { searchProperty.value = it } }.also {
+                        setOnKeyPressed { _ ->
+                            it.requestFocus()
+                            it.positionCaret(it.length)
                         }
                     }
                 }
@@ -220,8 +295,10 @@ class FlowView(
 
         }
 
+        // Json
         with(jsonTextArea) { graphProperty.onChange { text = it?.let { objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it) } ?: "" } }
 
+        // Initialization
         launch { refresh() }
     }
 
@@ -319,5 +396,9 @@ class FlowView(
 
     private fun delete(graphs: List<Graph>) {
         graphs.forEach { graphService.deleteGraph(DeleteGraphRequest.newBuilder().setGraphId(it.id.toString()).build()) }
+    }
+
+    companion object {
+        private val bitData = jacksonObjectMapper().readTree("""{"type":"boolean"}""")
     }
 }

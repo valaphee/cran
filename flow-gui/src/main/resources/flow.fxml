@@ -16,7 +16,6 @@
   ~ limitations under the License.
   -->
 
-<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -28,7 +27,6 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#keyPressed" prefHeight="800.0" prefWidth="1000.0" stylesheets="@dark_theme.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <MenuBar>
@@ -62,28 +60,26 @@
                 </Menu>
             </menus>
         </MenuBar>
-        <HBox VBox.vgrow="ALWAYS">
+        <HBox fx:id="rootHbox" VBox.vgrow="ALWAYS">
             <children>
-                <ListView fx:id="graphsListView" prefHeight="200.0" prefWidth="200.0"/>
                 <TabPane prefHeight="200.0" prefWidth="200.0" side="BOTTOM" tabClosingPolicy="UNAVAILABLE" HBox.hgrow="ALWAYS">
                     <tabs>
                         <Tab text="Graph">
                             <content>
-
-                                <ScrollPane fx:id="graphScrollPane">
-                                    <content>
-                                        <Pane fx:id="graphPane"/>
-                                    </content>
-                                </ScrollPane>
+                                <HBox fx:id="graphHbox">
+                                    <children>
+                                        <ScrollPane fx:id="graphScrollPane" HBox.hgrow="ALWAYS">
+                                            <content>
+                                                <Pane fx:id="graphPane"/>
+                                            </content>
+                                        </ScrollPane>
+                                    </children>
+                                </HBox>
                             </content>
                         </Tab>
                         <Tab onSelectionChanged="#jsonTabSelectionChanged" text="JSON">
                             <content>
-                                <TextArea fx:id="jsonTextArea" editable="false">
-                                    <font>
-                                        <Font name="Monospaced Regular" size="12.0"/>
-                                    </font>
-                                </TextArea>
+                                <TextArea fx:id="jsonTextArea" editable="false"/>
                             </content>
                         </Tab>
                     </tabs>
