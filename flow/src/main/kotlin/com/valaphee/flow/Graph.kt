@@ -17,6 +17,12 @@
 package com.valaphee.flow
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.node.NullNode
+import com.valaphee.flow.nesting.ControlInput
+import com.valaphee.flow.nesting.ControlOutput
+import com.valaphee.flow.nesting.DataInput
+import com.valaphee.flow.nesting.DataOutput
+import com.valaphee.flow.spec.Spec
 import java.util.UUID
 
 /**
@@ -24,15 +30,26 @@ import java.util.UUID
  */
 abstract class Graph {
     @get:JsonProperty("id"   ) abstract val id   : UUID
-    @get:JsonProperty("graph") abstract val graph: List<Node>
+    @get:JsonProperty("name" ) abstract val name : String
+    @get:JsonProperty("nodes") abstract val nodes: List<Node>
 
     open fun initialize() {
-        graph.forEach { it.initialize() }
+        nodes.forEach { it.initialize() }
     }
 
     open fun shutdown() {
-        graph.forEach { it.shutdown() }
+        nodes.forEach { it.shutdown() }
     }
+
+    fun toSpec() = Spec.Node(name, "", nodes.mapNotNull {
+        when (it) {
+            is ControlInput -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.InControl, NullNode.instance)
+            is ControlOutput -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.OutControl, NullNode.instance)
+            is DataInput -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.InData, NullNode.instance)
+            is DataOutput -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.OutData, NullNode.instance)
+            else -> null
+        }
+    })
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -40,10 +57,10 @@ abstract class Graph {
 
         other as Graph
 
-        if (id != other.id) return false
+        if (name != other.name) return false
 
         return true
     }
 
-    override fun hashCode() = id.hashCode()
+    override fun hashCode() = name.hashCode()
 }

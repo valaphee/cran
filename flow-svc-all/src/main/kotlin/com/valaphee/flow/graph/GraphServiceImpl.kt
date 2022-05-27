@@ -35,6 +35,7 @@ import com.valaphee.svc.graph.v1.UpdateGraphResponse
 import io.github.classgraph.ClassGraph
 import io.grpc.stub.StreamObserver
 import java.util.UUID
+import java.util.zip.GZIPInputStream
 
 /**
  * @author Kevin Ludwig
@@ -43,16 +44,16 @@ import java.util.UUID
 class GraphServiceImpl @Inject constructor(
     private val objectMapper: ObjectMapper
 ) : GraphServiceImplBase() {
-    private val spec = ClassGraph().scan().use { Spec(it.getResourcesMatchingWildcard("spec.*.dat").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes }) }
-    private val _spec = GetSpecResponse.newBuilder().setSpec(ByteString.copyFrom(objectMapper.writeValueAsBytes(spec))).build()
+    private var spec: Spec
     private val graphs = mutableMapOf<UUID, GraphImpl>()
 
     init {
-        spec.nodes.forEach { Node.types[it.name] = Class.forName(it.java).kotlin }
+        spec = ClassGraph().scan().use { Spec(it.getResourcesMatchingWildcard("spec.*.dat").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes.onEach { Node.types[it.name] = Class.forName(it.java).kotlin } }) }
+        spec = ClassGraph().scan().use { Spec(spec.nodes + it.getResourcesMatchingWildcard("*.flw").urLs.map { GZIPInputStream(it.openStream()).use { objectMapper.readValue<GraphImpl>(it).toSpec() } }) }
     }
 
     override fun getSpec(request: GetSpecRequest, responseObserver: StreamObserver<GetSpecResponse>) {
-        responseObserver.onNext(_spec)
+        responseObserver.onNext(GetSpecResponse.newBuilder().setSpec(ByteString.copyFrom(objectMapper.writeValueAsBytes(spec))).build())
         responseObserver.onCompleted()
     }
 

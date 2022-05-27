@@ -35,12 +35,13 @@ import kotlin.math.round
  */
 class Graph(
     @get:JsonProperty("id"  ) val id   : UUID                           = UUID.randomUUID(),
-                                  meta : Meta                           = Meta(id.toString(), emptyList()),
-                                  graph: List<MutableMap<String, Any?>> = emptyList()
+    @get:JsonProperty("name") var name : String                         = "New Graph",
+                                  meta : Meta                           = Meta(emptyList()),
+                                  nodes: List<MutableMap<String, Any?>> = emptyList()
 ) {
     @get:JsonProperty("meta") val meta = meta
         get() = field.copy(nodes = flow.nodes.map { Meta.Node(it.x, it.y) })
-    @get:JsonProperty("graph") val graph: List<Map<String, Any?>>
+    @get:JsonProperty("nodes") val nodes: List<Map<String, Any?>>
         get() {
             val connections = mutableListOf<MutableList<Connector>>().apply { flow.allConnections.forEach { it.value.connections.forEach { connection -> find { it.contains(connection.sender) }?.add(connection.receiver) ?: find { it.contains(connection.receiver) }?.add(connection.sender) ?: run { this += mutableListOf(connection.sender, connection.receiver) } } } }.withIndex()
             var index = connections.lastOrNull()?.index?.let { it + 1 } ?: 0
@@ -64,7 +65,7 @@ class Graph(
         FlowFactory.newFlow().apply {
             isVisible = true
 
-            val (embed, other) = graph.partition { it["type"] == "Value" && it.getOrDefault("embed", false) as Boolean }
+            val (embed, other) = nodes.partition { it["type"] == "Value" && it.getOrDefault("embed", false) as Boolean }
             val _embed = embed.associate { it["out"] as Int to it["value"] }
             mutableMapOf<Int, MutableList<Connector>>().apply {
                 other.forEachIndexed { i, node ->
@@ -93,12 +94,12 @@ class Graph(
 
         other as Graph
 
-        if (id != other.id) return false
+        if (name != other.name) return false
 
         return true
     }
 
-    override fun hashCode() = id.hashCode()
+    override fun hashCode() = name.hashCode()
 
     companion object {
         private fun VFlow.newNode(spec: Spec.Node, meta: Meta.Node?, settings: Settings): VNode = newNode().apply {

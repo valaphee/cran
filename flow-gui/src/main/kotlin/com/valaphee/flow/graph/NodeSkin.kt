@@ -16,6 +16,7 @@
 
 package com.valaphee.flow.graph
 
+import com.valaphee.flow.graph.properties.PropertiesView
 import eu.mihosoft.vrl.workflow.Connector
 import eu.mihosoft.vrl.workflow.VFlow
 import eu.mihosoft.vrl.workflow.VNode
@@ -48,7 +49,7 @@ class NodeSkin(
         contextMenu = contextmenu {
             item("Delete") { action { controller.remove(model) } }
             separator()
-            item("Properties") { action { } }
+            item("Properties") { action { PropertiesView(model).openModal() } }
         }
     }
 

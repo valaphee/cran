@@ -19,4 +19,5 @@ package com.valaphee.flow
 const val Und = """{}"""
 const val Bit = """{"type":"boolean"}"""
 const val Num = """{"type":"number"}"""
+const val Str = """{"type":"string"}"""
 const val Arr = """{"type":"array"}"""

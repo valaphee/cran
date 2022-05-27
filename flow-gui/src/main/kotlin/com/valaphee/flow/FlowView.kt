@@ -116,10 +116,10 @@ class FlowView(
             setCellFactory {
                 TextFieldListCell<Graph>().apply {
                     converter = object : StringConverter<Graph>() {
-                        override fun toString(`object`: Graph) = `object`.meta.name
+                        override fun toString(`object`: Graph) = `object`.name
 
                         override fun fromString(string: String): Graph {
-                            item.meta.name = string
+                            item.name = string
                             return item
                         }
                     }

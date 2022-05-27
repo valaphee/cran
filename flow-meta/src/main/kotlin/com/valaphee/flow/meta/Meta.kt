@@ -22,12 +22,10 @@ import com.fasterxml.jackson.annotation.JsonProperty
  * @author Kevin Ludwig
  */
 data class Meta(
-    @get:JsonProperty("name" ) var name : String,
     @get:JsonProperty("nodes") val nodes: List<Node>
 ) {
     class Node(
-        @get:JsonProperty("x"    ) val x    : Double,
-        @get:JsonProperty("y"    ) val y    : Double/*,
-        @get:JsonProperty("embed") val embed: Boolean*/
+        @get:JsonProperty("x") val x: Double,
+        @get:JsonProperty("y") val y: Double
     )
 }

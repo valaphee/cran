@@ -17,6 +17,7 @@
 package com.valaphee.flow.spec
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.auto.service.AutoService
 import com.valaphee.flow.spec.util.toHexString
@@ -69,7 +70,7 @@ class SpecGenerator : AbstractProcessor() {
                                         processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @In type $type.")
                                         return true
                                     }
-                                }, `in`.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }
+                                }, `in`.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) } ?: NullNode.instance
                             ) else if (out != null) if (const != null) {
                                 processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @Out or @Const is allowed, not both.")
                                 return true
@@ -81,8 +82,8 @@ class SpecGenerator : AbstractProcessor() {
                                         processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @Out type $type.")
                                         return true
                                     }
-                                }, out.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }
-                            ) else if (const != null) Spec.Node.Port(const.name, json.value, Spec.Node.Port.Type.Const, const.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }) else null
+                                }, out.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) } ?: NullNode.instance
+                            ) else if (const != null) Spec.Node.Port(const.name, json.value, Spec.Node.Port.Type.Const, const.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) } ?: NullNode.instance) else null
                         } else null
                     })
                 } else null
