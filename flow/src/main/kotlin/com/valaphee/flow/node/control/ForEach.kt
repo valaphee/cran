@@ -17,10 +17,10 @@
 package com.valaphee.flow.node.control
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.node.Arr
 import com.valaphee.flow.Scope
-import com.valaphee.flow.node.Und
+import com.valaphee.flow.node.Arr
 import com.valaphee.flow.node.Node
+import com.valaphee.flow.node.Und
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
@@ -45,7 +45,7 @@ class ForEach(
         val outValue = scope.dataPath(outValue)
 
         `in`.declare {
-            inValue.getOrThrow<Iterable<*>>("in_value").forEach {
+            inValue.getOfType<Iterable<*>>().forEach {
                 outValue.set(it)
                 outBody()
             }

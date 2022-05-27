@@ -59,7 +59,7 @@ class MoveMouse(
         val out = scope.controlPath(out)
 
         `in`.declare {
-            val move = inMove.getOrThrow<Int2>("in_move")
+            val move = inMove.getOfType<Int2>()
             val moveX = abs(move.x)
             val moveY = abs(move.y)
             val _moveX = if (moveX >= moves.size) moves.size - 1 else moves[moveX]

@@ -40,15 +40,7 @@ class Absolute(
         val `in` = scope.dataPath(`in`)
         val out = scope.dataPath(out)
 
-        out.set {
-            val _in = `in`.get()
-            when (_in) {
-                is Int2    -> _in                           .abs()
-                is Float2  -> _in                           .abs()
-                is Double2 -> _in                           .abs()
-                else       -> `in`.getOrThrow<Double2>("in").abs()
-            }
-        }
+        out.set { vector2Op(`in`.get(), { it.abs() }, { it.abs() }, { it.abs() }, scope.objectMapper) }
     }
 
     companion object {

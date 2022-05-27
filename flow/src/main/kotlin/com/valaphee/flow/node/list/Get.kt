@@ -17,10 +17,10 @@
 package com.valaphee.flow.node.list
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.flow.Scope
 import com.valaphee.flow.node.Arr
 import com.valaphee.flow.node.Node
 import com.valaphee.flow.node.Num
-import com.valaphee.flow.Scope
 import com.valaphee.flow.node.Und
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
@@ -41,6 +41,6 @@ class Get(
         val inIndex = scope.dataPath(inIndex)
         val out = scope.dataPath(out)
 
-        out.set { `in`.getOrThrow<List<Any?>>("in_list")[inIndex.getOrThrow<Number>("in_index").toInt()] }
+        out.set { `in`.getOfType<List<Any?>>()[inIndex.getOfType<Number>().toInt()] }
     }
 }

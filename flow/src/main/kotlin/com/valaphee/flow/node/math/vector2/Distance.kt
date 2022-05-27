@@ -17,15 +17,12 @@
 package com.valaphee.flow.node.math.vector2
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.flow.Scope
 import com.valaphee.flow.node.Node
 import com.valaphee.flow.node.Num
-import com.valaphee.flow.Scope
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
-import com.valaphee.foundry.math.Double2
-import com.valaphee.foundry.math.Float2
-import com.valaphee.foundry.math.Int2
 
 /**
  * @author Kevin Ludwig
@@ -42,30 +39,6 @@ class Distance(
         val inQ = scope.dataPath(inQ)
         val out = scope.dataPath(out)
 
-        out.set {
-            val _inP = inP.get()
-            val _inQ = inQ.get()
-            when (_inP) {
-                is Int2 -> when (_inQ) {
-                    is Int2    -> _inP.toFloat2() .distance(_inQ.toFloat2()       )
-                    is Float2  -> _inP.toFloat2() .distance(_inQ                  )
-                    is Double2 -> _inP.toDouble2().distance(_inQ                  )
-                    else       -> _inP.toDouble2().distance(inQ.getOrThrow("in_p"))
-                }
-                is Float2 -> when (_inQ) {
-                    is Int2    -> _inP            .distance(_inQ.toFloat2()       )
-                    is Float2  -> _inP            .distance(_inQ                  )
-                    is Double2 -> _inP.toDouble2().distance(_inQ                  )
-                    else       -> _inP.toDouble2().distance(inQ.getOrThrow("in_p"))
-                }
-                is Double2 -> when (_inQ) {
-                    is Int2    -> _inP.distance(_inQ.toDouble2()      )
-                    is Float2  -> _inP.distance(_inQ.toDouble2()      )
-                    is Double2 -> _inP.distance(_inQ                  )
-                    else       -> _inP.distance(inQ.getOrThrow("in_p"))
-                }
-                else -> inP.getOrThrow<Double2>("in_p").distance(inQ.getOrThrow("in_q"))
-            }
-        }
+        out.set { vector2Op(inP.get(), inQ.get(), { a, b -> a.toFloat2().distance(b.toFloat2()) }, { a, b -> a.distance(b) }, { a, b -> a.distance(b) }, scope.objectMapper) }
     }
 }

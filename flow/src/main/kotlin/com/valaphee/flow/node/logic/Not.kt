@@ -40,7 +40,7 @@ class Not(
 
         out.set {
             val _in = `in`.get()
-            if (_in is Boolean) _in.not() else DataPathException.invalidTypeInExpression("¬$_in")
+            if (_in is Boolean) _in.not() else DataPathException.invalidExpression("¬$_in")
         }
     }
 }

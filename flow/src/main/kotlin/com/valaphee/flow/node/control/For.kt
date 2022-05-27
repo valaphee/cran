@@ -17,9 +17,9 @@
 package com.valaphee.flow.node.control
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.flow.Scope
 import com.valaphee.flow.node.Node
 import com.valaphee.flow.node.Num
-import com.valaphee.flow.Scope
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
@@ -48,7 +48,7 @@ class For(
         val outIndex = scope.dataPath(outIndex)
 
         `in`.declare {
-            IntProgression.fromClosedRange(inRangeStart.getOrThrow("in_range_start"), inRangeEnd.getOrThrow("in_range_end"), inStep.getOrThrow("in_step")).forEach {
+            IntProgression.fromClosedRange(inRangeStart.getOfType(), inRangeEnd.getOfType(), inStep.getOfType()).forEach {
                 outIndex.set(it)
                 outBody()
             }

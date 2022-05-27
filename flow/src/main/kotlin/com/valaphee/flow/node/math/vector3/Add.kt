@@ -22,9 +22,6 @@ import com.valaphee.flow.node.Node
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
-import com.valaphee.foundry.math.Double3
-import com.valaphee.foundry.math.Float3
-import com.valaphee.foundry.math.Int3
 
 /**
  * @author Kevin Ludwig
@@ -41,30 +38,6 @@ class Add(
         val inB = scope.dataPath(inB)
         val out = scope.dataPath(out)
 
-        out.set {
-            val _inA = inA.get()
-            val _inB = inB.get()
-            when (_inA) {
-                is Int3 -> when (_inB) {
-                    is Int3    -> _inA             + _inB
-                    is Float3  -> _inA.toFloat3()  + _inB
-                    is Double3 -> _inA.toDouble3() + _inB
-                    else       -> _inA.toDouble3() + inB.getOrThrow("in_b")
-                }
-                is Float3 -> when (_inB) {
-                    is Int3    -> _inA             + _inB.toFloat3()
-                    is Float3  -> _inA             + _inB
-                    is Double3 -> _inA.toDouble3() + _inB
-                    else       -> _inA.toDouble3() + inB.getOrThrow("in_b")
-                }
-                is Double3 -> when (_inB) {
-                    is Int3    -> _inA + _inB.toDouble3()
-                    is Float3  -> _inA + _inB.toDouble3()
-                    is Double3 -> _inA + _inB
-                    else       -> _inA + inB.getOrThrow("in_b")
-                }
-                else -> inA.getOrThrow<Double3>("in_a") + inB.getOrThrow("in_b")
-            }
-        }
+        out.set { vector3Op(inA.get(), inB.get(), { a, b -> a + b }, { a, b -> a + b }, { a, b -> a + b }, scope.objectMapper) }
     }
 }

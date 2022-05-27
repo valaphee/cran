@@ -43,8 +43,8 @@ class SetMouseButton(
         val out = scope.controlPath(out)
 
         `in`.declare {
-            val button = inButton.getOrThrow<Int>("in_button")
-            if (inState.getOrThrow("in_state")) {
+            val button = inButton.getOfType<Int>()
+            if (inState.getOfType()) {
                 buttons.set(button)
                 write(Int2.Zero)
             } else {

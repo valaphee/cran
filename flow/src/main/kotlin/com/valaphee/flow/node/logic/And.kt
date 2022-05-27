@@ -43,7 +43,7 @@ class And(
         out.set {
             val _inA = inA.get()
             val _inB = inB.get()
-            if (_inA is Boolean && _inB is Boolean) _inA and _inB else throw DataPathException.invalidTypeInExpression("$_inA ∧ $_inB")
+            if (_inA is Boolean && _inB is Boolean) _inA and _inB else throw DataPathException.invalidExpression("$_inA ∧ $_inB")
         }
     }
 }

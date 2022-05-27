@@ -17,15 +17,12 @@
 package com.valaphee.flow.node.math.vector3
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.flow.Scope
 import com.valaphee.flow.node.Node
 import com.valaphee.flow.node.Num
-import com.valaphee.flow.Scope
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
-import com.valaphee.foundry.math.Double3
-import com.valaphee.foundry.math.Float3
-import com.valaphee.foundry.math.Int3
 
 /**
  * @author Kevin Ludwig
@@ -42,30 +39,6 @@ class Distance(
         val inQ = scope.dataPath(inQ)
         val out = scope.dataPath(out)
 
-        out.set {
-            val _inP = inP.get()
-            val _inQ = inQ.get()
-            when (_inP) {
-                is Int3 -> when (_inQ) {
-                    is Int3    -> _inP.toFloat3() .distance(_inQ.toFloat3()       )
-                    is Float3  -> _inP.toFloat3() .distance(_inQ                  )
-                    is Double3 -> _inP.toDouble3().distance(_inQ                  )
-                    else       -> _inP.toDouble3().distance(inQ.getOrThrow("in_p"))
-                }
-                is Float3 -> when (_inQ) {
-                    is Int3    -> _inP            .distance(_inQ.toFloat3()       )
-                    is Float3  -> _inP            .distance(_inQ                  )
-                    is Double3 -> _inP.toDouble3().distance(_inQ                  )
-                    else       -> _inP.toDouble3().distance(inQ.getOrThrow("in_p"))
-                }
-                is Double3 -> when (_inQ) {
-                    is Int3    -> _inP.distance(_inQ.toDouble3()      )
-                    is Float3  -> _inP.distance(_inQ.toDouble3()      )
-                    is Double3 -> _inP.distance(_inQ                  )
-                    else       -> _inP.distance(inQ.getOrThrow("in_p"))
-                }
-                else -> inP.getOrThrow<Double3>("in_p").distance(inQ.getOrThrow("in_q"))
-            }
-        }
+        out.set { vector3Op(inP.get(), inQ.get(), { a, b -> a.toFloat3().distance(b.toFloat3()) }, { a, b -> a.distance(b) }, { a, b -> a.distance(b) }, scope.objectMapper) }
     }
 }

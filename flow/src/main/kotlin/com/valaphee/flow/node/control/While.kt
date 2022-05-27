@@ -17,9 +17,9 @@
 package com.valaphee.flow.node.control
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.flow.Scope
 import com.valaphee.flow.node.Bit
 import com.valaphee.flow.node.Node
-import com.valaphee.flow.Scope
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
@@ -42,7 +42,7 @@ class While(
         val out = scope.controlPath(out)
 
         `in`.declare {
-            while (inValue.getOrThrow("in_value")) outBody()
+            while (inValue.getOfType()) outBody()
             out()
         }
     }

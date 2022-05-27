@@ -17,9 +17,9 @@
 package com.valaphee.flow.node.list
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.flow.Scope
 import com.valaphee.flow.node.Arr
 import com.valaphee.flow.node.Node
-import com.valaphee.flow.Scope
 import com.valaphee.flow.node.Und
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
@@ -38,6 +38,6 @@ class Last(
         val `in` = scope.dataPath(`in`)
         val out = scope.dataPath(out)
 
-        out.set { `in`.getOrThrow<Iterable<Any?>>("in_list").lastOrNull() }
+        out.set { `in`.getOfType<Iterable<Any?>>().lastOrNull() }
     }
 }

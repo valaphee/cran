@@ -35,6 +35,7 @@ import com.valaphee.svc.graph.v1.UpdateGraphRequest
 import com.valaphee.svc.graph.v1.UpdateGraphResponse
 import io.github.classgraph.ClassGraph
 import io.grpc.stub.StreamObserver
+import org.apache.logging.log4j.LogManager
 import java.util.UUID
 
 /**
@@ -52,6 +53,9 @@ class GraphServiceImpl @Inject constructor(
             spec = Spec(it.getResourcesMatchingWildcard("spec.*.dat").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes })
             graphs += it.getResourcesMatchingWildcard("**.flw").urLs.map { objectMapper.readValue(it) }
         }
+
+        spec.nodes.forEach { log.info("Built-in node {} found", it.name) }
+        graphs.forEach { log.info("Built-in graph node {} found", it.name) }
     }
 
     override fun getGraph(name: String) = graphs.find { it.name == name }
@@ -86,5 +90,9 @@ class GraphServiceImpl @Inject constructor(
         }
         responseObserver.onNext(DeleteGraphResponse.getDefaultInstance())
         responseObserver.onCompleted()
+    }
+
+    companion object {
+        private val log = LogManager.getLogger(GraphServiceImpl::class.java)
     }
 }

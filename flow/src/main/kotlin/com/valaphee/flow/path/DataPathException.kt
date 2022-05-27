@@ -16,8 +16,6 @@
 
 package com.valaphee.flow.path
 
-import kotlin.reflect.KClass
-
 /**
  * @author Kevin Ludwig
  */
@@ -34,8 +32,6 @@ open class DataPathException : Exception {
         val AlreadySet = DataPathException("Data path has multiple inputs, one input is allowed.")
         val Undefined = DataPathException("Data path is undefined, one input is required.")
 
-        fun invalidTypeInExpression(expression: String) = DataPathException("Invalid type in $expression.")
-
-        fun invalidType(key: String, actualType: KClass<*>?, expectedType: KClass<*>?) = DataPathException("Expected $key to be a ${expectedType?.simpleName}, was ${actualType?.simpleName}.")
+        fun invalidExpression(expression: String) = DataPathException("Invalid expression $expression.")
     }
 }

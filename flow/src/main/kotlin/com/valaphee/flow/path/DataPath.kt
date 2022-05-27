@@ -31,13 +31,9 @@ class DataPath(
 
     suspend fun get() = value ?: valueFunction?.invoke()
 
-    suspend fun <T: Any> getOrThrow(key: String, type: KClass<T>): T {
+    suspend fun <T: Any> getOfType(type: KClass<T>): T {
         val value = get()
-        return if (type.isInstance(value)) value as T else try {
-            objectMapper.convertValue(value, type.java)
-        } catch (_: Throwable) {
-            throw DataPathException.invalidType(key, value?.let { it::class }, type)
-        }
+        @Suppress("UNCHECKED_CAST") return if (type.isInstance(value)) value as T else objectMapper.convertValue(value, type.java)
     }
 
     fun set(value: Any?) {
@@ -52,5 +48,5 @@ class DataPath(
         this.valueFunction = getValue
     }
 
-    suspend inline fun <reified T : Any> getOrThrow(key: String): T = getOrThrow(key, T::class)
+    suspend inline fun <reified T : Any> getOfType(): T = getOfType(T::class)
 }

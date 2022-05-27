@@ -17,8 +17,8 @@
 package com.valaphee.flow.node.math.vector3
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.node.Node
 import com.valaphee.flow.Scope
+import com.valaphee.flow.node.Node
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
@@ -40,15 +40,7 @@ class Absolute(
         val `in` = scope.dataPath(`in`)
         val out = scope.dataPath(out)
 
-        out.set {
-            val _in = `in`.get()
-            when (_in) {
-                is Int3    -> _in                           .abs()
-                is Float3  -> _in                           .abs()
-                is Double3 -> _in                           .abs()
-                else       -> `in`.getOrThrow<Double3>("in").abs()
-            }
-        }
+        out.set { vector3Op(`in`.get(), { it.abs() }, { it.abs() }, { it.abs() }, scope.objectMapper) }
     }
 
     companion object {

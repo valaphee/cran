@@ -50,21 +50,21 @@ class Exponentiate(
                     is Float  -> _inX           .pow(_inN        )
                     is Double -> _inX.toDouble().pow(_inN        )
                     is Number -> _inX           .pow(_inN.toInt())
-                    else      -> throw DataPathException.invalidTypeInExpression("$_inX$_inN")
+                    else      -> throw DataPathException.invalidExpression("$_inX$_inN")
                 }
                 is Double -> when (_inN) {
                     is Float  -> _inX.pow(_inN.toDouble())
                     is Double -> _inX.pow(_inN           )
                     is Number -> _inX.pow(_inN.toInt()   )
-                    else      -> throw DataPathException.invalidTypeInExpression("$_inX$_inN")
+                    else      -> throw DataPathException.invalidExpression("$_inX$_inN")
                 }
                 is Number -> when (_inN) {
                     is Float  -> _inX.toFloat() .pow(_inN)
                     is Double -> _inX.toDouble().pow(_inN)
                     is Number -> IntMath.pow(_inX.toInt(), _inN.toInt())
-                    else      -> throw DataPathException.invalidTypeInExpression("$_inX$_inN")
+                    else      -> throw DataPathException.invalidExpression("$_inX$_inN")
                 }
-                else -> throw DataPathException.invalidTypeInExpression("$_inX$_inN")
+                else -> throw DataPathException.invalidExpression("$_inX$_inN")
             }
         }
     }

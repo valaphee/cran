@@ -17,14 +17,11 @@
 package com.valaphee.flow.node.math.vector2
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.node.Node
 import com.valaphee.flow.Scope
+import com.valaphee.flow.node.Node
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
-import com.valaphee.foundry.math.Double2
-import com.valaphee.foundry.math.Float2
-import com.valaphee.foundry.math.Int2
 
 /**
  * @author Kevin Ludwig
@@ -41,30 +38,6 @@ class Subtract(
         val inB = scope.dataPath(inB)
         val out = scope.dataPath(out)
 
-        out.set {
-            val _inA = inA.get()
-            val _inB = inB.get()
-            when (_inA) {
-                is Int2 -> when (_inB) {
-                    is Int2    -> _inA             - _inB
-                    is Float2  -> _inA.toFloat2()  - _inB
-                    is Double2 -> _inA.toDouble2() - _inB
-                    else       -> _inA.toDouble2() - inB.getOrThrow("in_b")
-                }
-                is Float2 -> when (_inB) {
-                    is Int2    -> _inA             - _inB.toFloat2()
-                    is Float2  -> _inA             - _inB
-                    is Double2 -> _inA.toDouble2() - _inB
-                    else       -> _inA.toDouble2() - inB.getOrThrow("in_b")
-                }
-                is Double2 -> when (_inB) {
-                    is Int2    -> _inA - _inB.toDouble2()
-                    is Float2  -> _inA - _inB.toDouble2()
-                    is Double2 -> _inA - _inB
-                    else       -> _inA - inB.getOrThrow("in_b")
-                }
-                else -> inA.getOrThrow<Double2>("in_a") - inB.getOrThrow("in_b")
-            }
-        }
+        out.set { vector2Op(inA.get(), inB.get(), { a, b -> a - b }, { a, b -> a - b }, { a, b -> a - b }, scope.objectMapper) }
     }
 }

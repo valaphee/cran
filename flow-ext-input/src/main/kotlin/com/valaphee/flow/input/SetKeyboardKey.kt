@@ -47,8 +47,8 @@ class SetKeyboardKey(
         val out = scope.controlPath(out)
 
         `in`.declare {
-            val key = inKey.getOrThrow<Key>("in_key")
-            if (inState.getOrThrow("in_state")) {
+            val key = inKey.getOfType<Key>()
+            if (inState.getOfType()) {
                 if (!keys.contains(key) && keys.size <= 6) {
                     keys += key
                     write()

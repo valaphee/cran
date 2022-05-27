@@ -23,9 +23,6 @@ import com.valaphee.flow.node.Num
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
-import com.valaphee.foundry.math.Double4
-import com.valaphee.foundry.math.Float4
-import com.valaphee.foundry.math.Int4
 
 /**
  * @author Kevin Ludwig
@@ -42,30 +39,6 @@ class Distance(
         val inQ = scope.dataPath(inQ)
         val out = scope.dataPath(out)
 
-        out.set {
-            val _inP = inP.get()
-            val _inQ = inQ.get()
-            when (_inP) {
-                is Int4 -> when (_inQ) {
-                    is Int4    -> _inP.toFloat4() .distance(_inQ.toFloat4()       )
-                    is Float4  -> _inP.toFloat4() .distance(_inQ                  )
-                    is Double4 -> _inP.toDouble4().distance(_inQ                  )
-                    else       -> _inP.toDouble4().distance(inQ.getOrThrow("in_p"))
-                }
-                is Float4 -> when (_inQ) {
-                    is Int4    -> _inP            .distance(_inQ.toFloat4()       )
-                    is Float4  -> _inP            .distance(_inQ                  )
-                    is Double4 -> _inP.toDouble4().distance(_inQ                  )
-                    else       -> _inP.toDouble4().distance(inQ.getOrThrow("in_p"))
-                }
-                is Double4 -> when (_inQ) {
-                    is Int4    -> _inP.distance(_inQ.toDouble4()      )
-                    is Float4  -> _inP.distance(_inQ.toDouble4()      )
-                    is Double4 -> _inP.distance(_inQ                  )
-                    else       -> _inP.distance(inQ.getOrThrow("in_p"))
-                }
-                else -> inP.getOrThrow<Double4>("in_p").distance(inQ.getOrThrow("in_q"))
-            }
-        }
+        out.set { vector4Op(inP.get(), inQ.get(), { a, b -> a.toFloat4().distance(b.toFloat4()) }, { a, b -> a.distance(b) }, { a, b -> a.distance(b) }, scope.objectMapper) }
     }
 }

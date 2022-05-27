@@ -52,7 +52,7 @@ class Absolute(
                 is Float      -> _in        .absoluteValue
                 is Double     -> _in        .absoluteValue
                 is BigDecimal -> _in        .abs()
-                else          -> throw DataPathException.invalidTypeInExpression("|$_in|")
+                else          -> throw DataPathException.invalidExpression("|$_in|")
             }
         }
     }
