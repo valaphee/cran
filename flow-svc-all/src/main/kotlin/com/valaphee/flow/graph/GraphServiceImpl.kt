@@ -21,7 +21,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.google.protobuf.ByteString
-import com.valaphee.flow.Graph.Companion.graphs
+import com.valaphee.flow.GraphManager
 import com.valaphee.flow.Scope
 import com.valaphee.flow.spec.Spec
 import com.valaphee.svc.graph.v1.DeleteGraphRequest
@@ -43,16 +43,18 @@ import java.util.UUID
 @Singleton
 class GraphServiceImpl @Inject constructor(
     private val objectMapper: ObjectMapper
-) : GraphServiceImplBase() {
+) : GraphServiceImplBase(), GraphManager {
     private val spec: Spec
-    /*private val graphs = mutableSetOf<GraphImpl>()*/
+    private val graphs = mutableSetOf<GraphImpl>()
 
     init {
         ClassGraph().scan().use {
             spec = Spec(it.getResourcesMatchingWildcard("spec.*.dat").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes })
-            graphs += it.getResourcesMatchingWildcard("**.flw").urLs.map { objectMapper.readValue<GraphImpl>(it) }
+            graphs += it.getResourcesMatchingWildcard("**.flw").urLs.map { objectMapper.readValue(it) }
         }
     }
+
+    override fun getGraph(name: String) = graphs.find { it.name == name }
 
     override fun getSpec(request: GetSpecRequest, responseObserver: StreamObserver<GetSpecResponse>) {
         responseObserver.onNext(GetSpecResponse.newBuilder().setSpec(ByteString.copyFrom(objectMapper.writeValueAsBytes(Spec(spec.nodes + graphs.map { it.toSpec() })))).build())
@@ -65,22 +67,20 @@ class GraphServiceImpl @Inject constructor(
     }
 
     override fun updateGraph(request: UpdateGraphRequest, responseObserver: StreamObserver<UpdateGraphResponse>) {
-        val newGraph = objectMapper.readValue<GraphImpl>(request.graph.toByteArray())
-        val oldGraph = graphs.find { it.id == newGraph.id }
-        oldGraph?.let {
+        val graph = objectMapper.readValue<GraphImpl>(request.graph.toByteArray())
+        graphs.find { it.id == graph.id }?.let {
             graphs -= it
             it.shutdown()
         }
-        graphs += newGraph
-        newGraph.initialize(Scope())
+        graphs += graph
+        graph.initialize(Scope(objectMapper, this))
         responseObserver.onNext(UpdateGraphResponse.getDefaultInstance())
         responseObserver.onCompleted()
     }
 
     override fun deleteGraph(request: DeleteGraphRequest, responseObserver: StreamObserver<DeleteGraphResponse>) {
         val graphId = UUID.fromString(request.graphId)
-        val graph = graphs.find { it.id == graphId }
-        graph?.let {
+        graphs.find { it.id == graphId }?.let {
             graphs -= it
             it.shutdown()
         }

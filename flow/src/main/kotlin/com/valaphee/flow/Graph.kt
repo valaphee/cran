@@ -19,10 +19,12 @@ package com.valaphee.flow
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.valaphee.flow.nesting.ControlInput
-import com.valaphee.flow.nesting.ControlOutput
-import com.valaphee.flow.nesting.DataInput
-import com.valaphee.flow.nesting.DataOutput
+import com.valaphee.flow.node.Node
+import com.valaphee.flow.node.Und
+import com.valaphee.flow.node.nesting.ControlInput
+import com.valaphee.flow.node.nesting.ControlOutput
+import com.valaphee.flow.node.nesting.DataInput
+import com.valaphee.flow.node.nesting.DataOutput
 import com.valaphee.flow.spec.Spec
 import java.util.UUID
 
@@ -34,8 +36,8 @@ abstract class Graph {
     @get:JsonProperty("name" ) abstract val name : String
     @get:JsonProperty("nodes") abstract val nodes: List<Node>
 
-    open fun initialize(instance: Scope) {
-        nodes.forEach { it.initialize(instance) }
+    open fun initialize(scope: Scope) {
+        nodes.forEach { it.initialize(scope) }
     }
 
     open fun shutdown() {
@@ -67,6 +69,5 @@ abstract class Graph {
 
     companion object {
         private val und = jacksonObjectMapper().readTree(Und)
-        val graphs = mutableSetOf<Graph>()
     }
 }

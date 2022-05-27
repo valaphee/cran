@@ -16,14 +16,23 @@
 
 package com.valaphee.flow
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.valaphee.flow.path.ControlPath
+import com.valaphee.flow.path.DataPath
+
 /**
  * @author Kevin Ludwig
  */
-class Scope {
+class Scope(
+    val objectMapper: ObjectMapper,
+    val graphManager: GraphManager
+) {
     private val controlPaths = mutableSetOf<ControlPath>()
     private val dataPaths = mutableSetOf<DataPath>()
 
+    fun subScope() = Scope(objectMapper, graphManager)
+
     fun controlPath(controlPathId: Int) = controlPaths.find { it.id == controlPathId } ?: ControlPath(controlPathId).also { controlPaths += it }
 
-    fun dataPath(dataPathId: Int) = dataPaths.find { it.id == dataPathId } ?: DataPath(dataPathId).also { dataPaths += it }
+    fun dataPath(dataPathId: Int) = dataPaths.find { it.id == dataPathId } ?: DataPath(dataPathId, objectMapper).also { dataPaths += it }
 }

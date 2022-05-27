@@ -17,9 +17,9 @@
 package com.valaphee.flow.input
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.Bit
-import com.valaphee.flow.Num
 import com.valaphee.flow.Scope
+import com.valaphee.flow.node.Bit
+import com.valaphee.flow.node.Num
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out

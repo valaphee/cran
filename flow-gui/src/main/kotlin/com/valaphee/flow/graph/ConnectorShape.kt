@@ -82,42 +82,29 @@ class ConnectorShape(
                         "data" -> circle(4.0, 0.0, 4.0) { fill = Color.WHITE }
                         else -> error(connector.type)
                     }
-                    when ((connector.node.valueObject as NodeValueObject).spec.name) {
-                        "Nesting/Control Output", "Nesting/Data Output" -> label((connector.node.getConnector("name").valueObject as ConnectorValueObject).valueProperty().asString()) {
-                            minWidthProperty().bind(Text().let {
-                                it.textProperty().bind(textProperty())
-                                it.layoutBoundsProperty().doubleBinding { it?.width ?: 0.0 }
-                            })
-                            textFill = Color.WHITE
-                        }
-                        else -> label(it.spec.name) {
-                            minWidthProperty().bind(Text().let {
-                                it.textProperty().bind(textProperty())
-                                it.layoutBoundsProperty().doubleBinding { it?.width ?: 0.0 }
-                            })
-                            textFill = Color.WHITE
-                        }
+                    label(when (it.spec.name) {
+                        "Nesting/Control Output", "Nesting/Data Output" -> (connector.node.getConnector("name").valueObject as ConnectorValueObject).valueProperty().asString()
+                        else -> it.spec.name.toProperty()
+                    }) {
+                        minWidthProperty().bind(Text().let {
+                            it.textProperty().bind(textProperty())
+                            it.layoutBoundsProperty().doubleBinding { it?.width ?: 0.0 }
+                        })
+                        textFill = Color.WHITE
                     }
-
                 } else {
                     paddingRight = -4.0
                     alignment = Pos.CENTER_RIGHT
 
-                    when ((connector.node.valueObject as NodeValueObject).spec.name) {
-                        "Nesting/Control Input", "Nesting/Data Input" -> label((connector.node.getConnector("name").valueObject as ConnectorValueObject).valueProperty().asString()) {
-                            minWidthProperty().bind(Text().let {
-                                it.textProperty().bind(textProperty())
-                                it.layoutBoundsProperty().doubleBinding { it?.width ?: 0.0 }
-                            })
-                            textFill = Color.WHITE
-                        }
-                        else -> label(it.spec.name) {
-                            minWidthProperty().bind(Text().let {
-                                it.textProperty().bind(textProperty())
-                                it.layoutBoundsProperty().doubleBinding { it?.width ?: 0.0 }
-                            })
-                            textFill = Color.WHITE
-                        }
+                    label(when (it.spec.name) {
+                        "Nesting/Control Input", "Nesting/Data Input" -> (connector.node.getConnector("name").valueObject as ConnectorValueObject).valueProperty().asString()
+                        else -> it.spec.name.toProperty()
+                    }) {
+                        minWidthProperty().bind(Text().let {
+                            it.textProperty().bind(textProperty())
+                            it.layoutBoundsProperty().doubleBinding { it?.width ?: 0.0 }
+                        })
+                        textFill = Color.WHITE
                     }
                     when (connector.type) {
                         "control" -> polygon(

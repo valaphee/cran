@@ -42,11 +42,11 @@ class PropertiesView(
 ) : View("Properties - ${(node.valueObject as NodeValueObject).spec.name}") {
     private val objectMapper by di<ObjectMapper>()
 
-    private val viewModel = ViewModel()
-
     override val root = vbox {
         prefWidth = 400.0
         styleClass += "background"
+
+        val viewModel = ViewModel()
 
         form {
             vgrow = Priority.ALWAYS

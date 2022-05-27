@@ -16,7 +16,7 @@
 
 package com.valaphee.flow.input
 
-import com.valaphee.flow.Node
+import com.valaphee.flow.node.Node
 import com.valaphee.foundry.math.Int2
 import org.hid4java.HidDevice
 import org.hid4java.HidManager
