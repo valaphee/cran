@@ -17,6 +17,7 @@ package jfxtras.labs.util.event;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;

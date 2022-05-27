@@ -18,10 +18,10 @@ package com.valaphee.flow.node.math.scalar
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.google.common.math.IntMath
-import com.valaphee.flow.path.DataPathException
+import com.valaphee.flow.Scope
 import com.valaphee.flow.node.Node
 import com.valaphee.flow.node.Num
-import com.valaphee.flow.Scope
+import com.valaphee.flow.path.DataPathException
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out

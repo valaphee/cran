@@ -17,8 +17,8 @@
 package com.valaphee.flow.node.control
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.node.Node
 import com.valaphee.flow.Scope
+import com.valaphee.flow.node.Node
 import com.valaphee.flow.node.Und
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType

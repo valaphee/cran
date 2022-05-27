@@ -18,8 +18,8 @@ package com.valaphee.flow.node.nesting
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
-import com.valaphee.flow.node.Node
 import com.valaphee.flow.Scope
+import com.valaphee.flow.node.Node
 
 /**
  * @author Kevin Ludwig

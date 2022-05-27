@@ -17,10 +17,10 @@
 package com.valaphee.flow.node.logic
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.node.Bit
-import com.valaphee.flow.path.DataPathException
 import com.valaphee.flow.Scope
+import com.valaphee.flow.node.Bit
 import com.valaphee.flow.node.Node
+import com.valaphee.flow.path.DataPathException
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
