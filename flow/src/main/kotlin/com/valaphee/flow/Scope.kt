@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.spec
+package com.valaphee.flow
 
 /**
  * @author Kevin Ludwig
  */
-@Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.SOURCE)
-annotation class Node(
-    val value: String
-)
+class Scope {
+    private val controlPaths = mutableSetOf<ControlPath>()
+    private val dataPaths = mutableSetOf<DataPath>()
+
+    fun controlPath(controlPathId: Int) = controlPaths.find { it.id == controlPathId } ?: ControlPath(controlPathId).also { controlPaths += it }
+
+    fun dataPath(dataPathId: Int) = dataPaths.find { it.id == dataPathId } ?: DataPath(dataPathId).also { dataPaths += it }
+}

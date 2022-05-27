@@ -18,48 +18,52 @@ package com.valaphee.flow.math.scalar
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.google.common.math.IntMath
-import com.valaphee.flow.DataPath
 import com.valaphee.flow.DataPathException
+import com.valaphee.flow.Scope
+import com.valaphee.flow.Node
 import com.valaphee.flow.Num
-import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.spec.In
-import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 import kotlin.math.pow
 
 /**
  * @author Kevin Ludwig
  */
-@Node("Math/Scalar/Exponentiate")
+@NodeType("Math/Scalar/Exponentiate")
 class Exponentiate(
-    @get:In ("x" , Num) @get:JsonProperty("in_x") val inX: DataPath,
-    @get:In ("n" , Num) @get:JsonProperty("in_n") val inN: DataPath,
-    @get:Out("xⁿ", Num) @get:JsonProperty("out" ) val out: DataPath
-) : StatelessNode() {
-    override fun initialize() {
+    @get:In ("x" , Num) @get:JsonProperty("in_x") val inX: Int,
+    @get:In ("n" , Num) @get:JsonProperty("in_n") val inN: Int,
+    @get:Out("xⁿ", Num) @get:JsonProperty("out" ) val out: Int
+) : Node() {
+    override fun initialize(scope: Scope) {
+        val inX = scope.dataPath(inX)
+        val inN = scope.dataPath(inN)
+        val out = scope.dataPath(out)
+
         out.set {
-            val inX = inX.get()
-            val inN = inN.get()
-            when (inX) {
-                is Float -> when (inN) {
-                    is Float  -> inX.pow(inN)
-                    is Double -> inX.toDouble().pow(inN)
-                    is Number -> inX.pow(inN.toInt())
-                    else      -> throw DataPathException.invalidTypeInExpression("$inX$inN")
+            val _inX = inX.get()
+            val _inN = inN.get()
+            when (_inX) {
+                is Float -> when (_inN) {
+                    is Float  -> _inX           .pow(_inN        )
+                    is Double -> _inX.toDouble().pow(_inN        )
+                    is Number -> _inX           .pow(_inN.toInt())
+                    else      -> throw DataPathException.invalidTypeInExpression("$_inX$_inN")
                 }
-                is Double -> when (inN) {
-                    is Float  -> inX.pow(inN.toDouble())
-                    is Double -> inX.pow(inN)
-                    is Number -> inX.pow(inN.toInt())
-                    else      -> throw DataPathException.invalidTypeInExpression("$inX$inN")
+                is Double -> when (_inN) {
+                    is Float  -> _inX.pow(_inN.toDouble())
+                    is Double -> _inX.pow(_inN           )
+                    is Number -> _inX.pow(_inN.toInt()   )
+                    else      -> throw DataPathException.invalidTypeInExpression("$_inX$_inN")
                 }
-                is Number -> when (inN) {
-                    is Float  -> inX.toFloat().pow(inN)
-                    is Double -> inX.toDouble().pow(inN)
-                    is Number -> IntMath.pow(inX.toInt(), inN.toInt())
-                    else      -> throw DataPathException.invalidTypeInExpression("$inX$inN")
+                is Number -> when (_inN) {
+                    is Float  -> _inX.toFloat() .pow(_inN)
+                    is Double -> _inX.toDouble().pow(_inN)
+                    is Number -> IntMath.pow(_inX.toInt(), _inN.toInt())
+                    else      -> throw DataPathException.invalidTypeInExpression("$_inX$_inN")
                 }
-                else -> throw DataPathException.invalidTypeInExpression("$inX$inN")
+                else -> throw DataPathException.invalidTypeInExpression("$_inX$_inN")
             }
         }
     }

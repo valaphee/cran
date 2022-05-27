@@ -17,20 +17,19 @@
 package com.valaphee.flow.nesting
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.DataPath
-import com.valaphee.flow.StatelessNode
+import com.valaphee.flow.Node
 import com.valaphee.flow.Str
 import com.valaphee.flow.Und
 import com.valaphee.flow.spec.Const
-import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@Node("Nesting/Data Input")
+@NodeType("Nesting/Data Input")
 class DataInput(
-    @get:Const("Name", Str) @get:JsonProperty("name") val name: String  ,
-    @get:Const("Json", Str) @get:JsonProperty("json") val json: String  ,
-    @get:Out  (""    , Und) @get:JsonProperty("out" ) val out : DataPath,
-) : StatelessNode()
+    @get:Const("Name", Str) @get:JsonProperty("name") val name: String,
+    @get:Const("Json", Str) @get:JsonProperty("json") val json: String,
+    @get:Out  (""    , Und) @get:JsonProperty("out" ) val out : Int   ,
+) : Node()

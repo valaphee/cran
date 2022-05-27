@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.spec
+package com.valaphee.flow.nesting
+
+import com.fasterxml.jackson.annotation.JsonAnyGetter
+import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.valaphee.flow.Node
 
 /**
  * @author Kevin Ludwig
  */
-object Type {
-    const val ControlPath = "com.valaphee.flow.ControlPath"
-    const val DataPath    = "com.valaphee.flow.DataPath"
+class SubGraph : Node() {
+    @get:JsonAnyGetter val paths = mutableMapOf<String, Int>()
+
+    @JsonAnySetter
+    fun setPath(key: String, value: Int) {
+        paths[key] = value
+    }
 }

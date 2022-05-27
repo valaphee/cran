@@ -31,8 +31,8 @@ open class DataPathException : Exception {
     constructor(cause: Throwable?) : super(cause)
 
     companion object {
-        val Undefined = DataPathException("Data path is undefined, one input is required.")
         val AlreadySet = DataPathException("Data path has multiple inputs, one input is allowed.")
+        val Undefined = DataPathException("Data path is undefined, one input is required.")
 
         fun invalidTypeInExpression(expression: String) = DataPathException("Invalid type in $expression.")
 

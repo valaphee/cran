@@ -18,19 +18,21 @@ package com.valaphee.flow
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.spec.Const
-import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@Node("Value")
+@NodeType("Value")
 class Value(
     @get:Const("", Und) @get:JsonProperty("value") val value: Any?           ,
-    @get:Out  ("", Und) @get:JsonProperty("out"  ) val out  : DataPath       ,
+    @get:Out  ("", Und) @get:JsonProperty("out"  ) val out  : Int            ,
                         @get:JsonProperty("embed") val embed: Boolean = false
-) : StatelessNode() {
-    override fun initialize() {
+) : Node() {
+    override fun initialize(scope: Scope) {
+        val out = scope.dataPath(out)
+
         out.set(value)
     }
 }

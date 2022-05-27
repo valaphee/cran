@@ -17,18 +17,14 @@
 package com.valaphee.flow.input
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.ControlPath
-import com.valaphee.flow.StatelessNode
-import com.valaphee.flow.spec.Node
+import com.valaphee.flow.Node
+import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@Node("Input/On Keyboard Key")
+@NodeType("Input/On Keyboard Key")
 class OnKeyboardKey(
-    @get:Out("") @get:JsonProperty("out") val out: ControlPath
-) : StatelessNode() {
-    override fun initialize() {
-    }
-}
+    @get:Out("") @get:JsonProperty("out") val out: Int
+) : Node()

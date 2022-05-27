@@ -16,11 +16,10 @@
 
 package com.valaphee.flow
 
-import com.fasterxml.jackson.annotation.JsonProperty
-
 /**
  * @author Kevin Ludwig
  */
+
 abstract class Path {
-    @get:JsonProperty("id") abstract val id: Int
+    abstract val id: Int
 }

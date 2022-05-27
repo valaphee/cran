@@ -17,19 +17,18 @@
 package com.valaphee.flow.nesting
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.ControlPath
-import com.valaphee.flow.StatelessNode
+import com.valaphee.flow.Node
 import com.valaphee.flow.Str
 import com.valaphee.flow.spec.Const
 import com.valaphee.flow.spec.In
-import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.NodeType
 
 /**
  * @author Kevin Ludwig
  */
-@Node("Nesting/Control Output")
+@NodeType("Nesting/Control Output")
 class ControlOutput(
-    @get:Const("Name", Str) @get:JsonProperty("name") val name: String     ,
-    @get:Const("Json", Str) @get:JsonProperty("json") val json: String     ,
-    @get:In   (""         ) @get:JsonProperty("in"  ) val `in`: ControlPath,
-) : StatelessNode()
+    @get:Const("Name", Str) @get:JsonProperty("name") val name: String,
+    @get:Const("Json", Str) @get:JsonProperty("json") val json: String,
+    @get:In   (""         ) @get:JsonProperty("in"  ) val `in`: Int   ,
+) : Node()

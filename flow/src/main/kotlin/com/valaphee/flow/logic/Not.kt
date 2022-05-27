@@ -18,25 +18,28 @@ package com.valaphee.flow.logic
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Bit
-import com.valaphee.flow.DataPath
 import com.valaphee.flow.DataPathException
-import com.valaphee.flow.StatelessNode
+import com.valaphee.flow.Scope
+import com.valaphee.flow.Node
 import com.valaphee.flow.spec.In
-import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@Node("Logic/Not")
+@NodeType("Logic/Not")
 class Not(
-    @get:In ("X" , Bit) @get:JsonProperty("in" ) val `in`: DataPath,
-    @get:Out("¬X", Bit) @get:JsonProperty("out") val out : DataPath
-) : StatelessNode() {
-    override fun initialize() {
+    @get:In ("X" , Bit) @get:JsonProperty("in" ) val `in`: Int,
+    @get:Out("¬X", Bit) @get:JsonProperty("out") val out : Int
+) : Node() {
+    override fun initialize(scope: Scope) {
+        val `in` = scope.dataPath(`in`)
+        val out = scope.dataPath(out)
+
         out.set {
-            val `in` = `in`.get()
-            if (`in` is Boolean) `in`.not() else DataPathException.invalidTypeInExpression("¬$`in`")
+            val _in = `in`.get()
+            if (_in is Boolean) _in.not() else DataPathException.invalidTypeInExpression("¬$_in")
         }
     }
 }

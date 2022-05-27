@@ -18,26 +18,31 @@ package com.valaphee.flow.control
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Arr
-import com.valaphee.flow.ControlPath
-import com.valaphee.flow.DataPath
-import com.valaphee.flow.StatefulNode
+import com.valaphee.flow.Scope
+import com.valaphee.flow.Node
 import com.valaphee.flow.Und
 import com.valaphee.flow.spec.In
-import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@Node("Control/For Each")
+@NodeType("Control/For Each")
 class ForEach(
-    @get:In (""          ) @get:JsonProperty("in"       ) override val `in`    : ControlPath,
-    @get:In (""     , Arr) @get:JsonProperty("in_value" )          val inValue : DataPath   ,
-    @get:Out("Body"      ) @get:JsonProperty("out_body" )          val outBody : ControlPath,
-    @get:Out("Exit"      ) @get:JsonProperty("out"      )          val out     : ControlPath,
-    @get:Out("Value", Und) @get:JsonProperty("out_value")          val outValue: DataPath   ,
-) : StatefulNode() {
-    override fun initialize() {
+    @get:In (""          ) @get:JsonProperty("in"       ) val `in`    : Int,
+    @get:In (""     , Arr) @get:JsonProperty("in_value" ) val inValue : Int,
+    @get:Out("Body"      ) @get:JsonProperty("out_body" ) val outBody : Int,
+    @get:Out("Exit"      ) @get:JsonProperty("out"      ) val out     : Int,
+    @get:Out("Value", Und) @get:JsonProperty("out_value") val outValue: Int,
+) : Node() {
+    override fun initialize(scope: Scope) {
+        val `in` = scope.controlPath(`in`)
+        val inValue = scope.dataPath(inValue)
+        val outBody = scope.controlPath(outBody)
+        val out = scope.controlPath(out)
+        val outValue = scope.dataPath(outValue)
+
         `in`.declare {
             inValue.getOrThrow<Iterable<*>>("in_value").forEach {
                 outValue.set(it)

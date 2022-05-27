@@ -18,25 +18,29 @@ package com.valaphee.flow.input
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Bit
-import com.valaphee.flow.ControlPath
-import com.valaphee.flow.DataPath
+import com.valaphee.flow.Scope
 import com.valaphee.flow.Num
 import com.valaphee.flow.spec.In
-import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 import com.valaphee.foundry.math.Int2
 
 /**
  * @author Kevin Ludwig
  */
-@Node("Input/Set Mouse Button")
+@NodeType("Input/Set Mouse Button")
 class SetMouseButton(
-    @get:In (""          ) @get:JsonProperty("in"       ) override val `in`    : ControlPath,
-    @get:In ("Key"  , Num) @get:JsonProperty("in_button")          val inButton: DataPath   ,
-    @get:In ("State", Bit) @get:JsonProperty("in_state" )          val inState : DataPath   ,
-    @get:Out(""          ) @get:JsonProperty("out"      )          val out     : ControlPath
+    @get:In (""          ) @get:JsonProperty("in"       ) val `in`    : Int,
+    @get:In ("Key"  , Num) @get:JsonProperty("in_button") val inButton: Int,
+    @get:In ("State", Bit) @get:JsonProperty("in_state" ) val inState : Int,
+    @get:Out(""          ) @get:JsonProperty("out"      ) val out     : Int
 ) : Mouse() {
-    override fun initialize() {
+    override fun initialize(scope: Scope) {
+        val `in` = scope.controlPath(`in`)
+        val inButton = scope.dataPath(inButton)
+        val inState = scope.dataPath(inState)
+        val out = scope.controlPath(out)
+
         `in`.declare {
             val button = inButton.getOrThrow<Int>("in_button")
             if (inState.getOrThrow("in_state")) {

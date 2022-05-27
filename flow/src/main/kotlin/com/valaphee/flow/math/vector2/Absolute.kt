@@ -17,10 +17,10 @@
 package com.valaphee.flow.math.vector2
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.DataPath
-import com.valaphee.flow.StatelessNode
+import com.valaphee.flow.Scope
+import com.valaphee.flow.Node
 import com.valaphee.flow.spec.In
-import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 import com.valaphee.foundry.math.Double2
 import com.valaphee.foundry.math.Float2
@@ -30,19 +30,22 @@ import kotlin.math.absoluteValue
 /**
  * @author Kevin Ludwig
  */
-@Node("Math/Vector 2/Absolute")
+@NodeType("Math/Vector 2/Absolute")
 class Absolute(
-    @get:In ("X"  , Vec2) @get:JsonProperty("in" ) val `in`: DataPath,
-    @get:Out("|X|", Vec2) @get:JsonProperty("out") val out : DataPath
-) : StatelessNode() {
-    override fun initialize() {
+    @get:In ("X"  , Vec2) @get:JsonProperty("in" ) val `in`: Int,
+    @get:Out("|X|", Vec2) @get:JsonProperty("out") val out : Int
+) : Node() {
+    override fun initialize(scope: Scope) {
+        val `in` = scope.dataPath(`in`)
+        val out = scope.dataPath(out)
+
         out.set {
-            val `in` = `in`.get()
-            when (`in`) {
-                is Int2    -> `in`                               .abs()
-                is Float2  -> `in`                               .abs()
-                is Double2 -> `in`                               .abs()
-                else       -> this.`in`.getOrThrow<Double2>("in").abs()
+            val _in = `in`.get()
+            when (_in) {
+                is Int2    -> _in                           .abs()
+                is Float2  -> _in                           .abs()
+                is Double2 -> _in                           .abs()
+                else       -> `in`.getOrThrow<Double2>("in").abs()
             }
         }
     }

@@ -17,12 +17,12 @@
 package com.valaphee.flow.math.scalar
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.DataPath
 import com.valaphee.flow.DataPathException
+import com.valaphee.flow.Scope
+import com.valaphee.flow.Node
 import com.valaphee.flow.Num
-import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.spec.In
-import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -31,24 +31,27 @@ import kotlin.math.absoluteValue
 /**
  * @author Kevin Ludwig
  */
-@Node("Math/Scalar/Absolute")
+@NodeType("Math/Scalar/Absolute")
 class Absolute(
-    @get:In ("X"  , Num) @get:JsonProperty("in" ) val `in`: DataPath,
-    @get:Out("|X|", Num) @get:JsonProperty("out") val out : DataPath
-) : StatelessNode() {
-    override fun initialize() {
+    @get:In ("X"  , Num) @get:JsonProperty("in" ) val `in`: Int,
+    @get:Out("|X|", Num) @get:JsonProperty("out") val out : Int
+) : Node() {
+    override fun initialize(scope: Scope) {
+        val `in` = scope.dataPath(`in`)
+        val out = scope.dataPath(out)
+
         out.set {
-            val `in` = `in`.get()
-            when (`in`) {
-                is Byte       -> `in`.toInt().absoluteValue.toByte()
-                is Short      -> `in`.toInt().absoluteValue.toShort()
-                is Int        -> `in`        .absoluteValue
-                is Long       -> `in`        .absoluteValue
-                is BigInteger -> `in`        .abs()
-                is Float      -> `in`        .absoluteValue
-                is Double     -> `in`        .absoluteValue
-                is BigDecimal -> `in`        .abs()
-                else          -> throw DataPathException.invalidTypeInExpression("|$`in`|")
+            val _in = `in`.get()
+            when (_in) {
+                is Byte       -> _in.toInt().absoluteValue.toByte()
+                is Short      -> _in.toInt().absoluteValue.toShort()
+                is Int        -> _in        .absoluteValue
+                is Long       -> _in        .absoluteValue
+                is BigInteger -> _in        .abs()
+                is Float      -> _in        .absoluteValue
+                is Double     -> _in        .absoluteValue
+                is BigDecimal -> _in        .abs()
+                else          -> throw DataPathException.invalidTypeInExpression("|$_in|")
             }
         }
     }

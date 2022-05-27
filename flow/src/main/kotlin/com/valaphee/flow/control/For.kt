@@ -17,28 +17,35 @@
 package com.valaphee.flow.control
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.ControlPath
-import com.valaphee.flow.DataPath
+import com.valaphee.flow.Scope
+import com.valaphee.flow.Node
 import com.valaphee.flow.Num
-import com.valaphee.flow.StatefulNode
 import com.valaphee.flow.spec.In
-import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@Node("Control/For")
+@NodeType("Control/For")
 class For(
-    @get:In (""          ) @get:JsonProperty("in"            ) override val `in`        : ControlPath,
-    @get:In ("Start", Num) @get:JsonProperty("in_range_start")          val inRangeStart: DataPath   ,
-    @get:In ("End"  , Num) @get:JsonProperty("in_range_end"  )          val inRangeEnd  : DataPath   ,
-    @get:In ("Step" , Num) @get:JsonProperty("in_step"       )          val inStep      : DataPath   ,
-    @get:Out("Body"      ) @get:JsonProperty("out_body"      )          val outBody     : ControlPath,
-    @get:Out("Exit"      ) @get:JsonProperty("out"           )          val out         : ControlPath,
-    @get:Out("Index", Num) @get:JsonProperty("out_index"     )          val outIndex    : DataPath   ,
-) : StatefulNode() {
-    override fun initialize() {
+    @get:In (""          ) @get:JsonProperty("in"            ) val `in`        : Int,
+    @get:In ("Start", Num) @get:JsonProperty("in_range_start") val inRangeStart: Int,
+    @get:In ("End"  , Num) @get:JsonProperty("in_range_end"  ) val inRangeEnd  : Int,
+    @get:In ("Step" , Num) @get:JsonProperty("in_step"       ) val inStep      : Int,
+    @get:Out("Body"      ) @get:JsonProperty("out_body"      ) val outBody     : Int,
+    @get:Out("Exit"      ) @get:JsonProperty("out"           ) val out         : Int,
+    @get:Out("Index", Num) @get:JsonProperty("out_index"     ) val outIndex    : Int
+) : Node() {
+    override fun initialize(scope: Scope) {
+        val `in` = scope.controlPath(`in`)
+        val inRangeStart = scope.dataPath(inRangeStart)
+        val inRangeEnd = scope.dataPath(inRangeEnd)
+        val inStep = scope.dataPath(inStep)
+        val outBody = scope.controlPath(outBody)
+        val out = scope.controlPath(out)
+        val outIndex = scope.dataPath(outIndex)
+
         `in`.declare {
             IntProgression.fromClosedRange((inRangeStart.getOrThrow<Number>("in_range_start")).toInt(), (inRangeEnd.getOrThrow<Number>("in_range_end")).toInt(), (inStep.getOrThrow<Number>("in_step")).toInt()).forEach {
                 outIndex.set(it)

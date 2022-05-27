@@ -17,25 +17,29 @@
 package com.valaphee.flow.control
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.ControlPath
-import com.valaphee.flow.DataPath
-import com.valaphee.flow.StatefulNode
+import com.valaphee.flow.Scope
+import com.valaphee.flow.Node
 import com.valaphee.flow.Und
 import com.valaphee.flow.spec.In
-import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@Node("Control/Branch")
+@NodeType("Control/Branch")
 class Branch(
-    @get:In (""            ) @get:JsonProperty("in"         ) override val `in`      : ControlPath           ,
-    @get:In (""       , Und) @get:JsonProperty("in_value"   )          val inValue   : DataPath              ,
-    @get:Out(""            ) @get:JsonProperty("out"        )          val out       : Map<Any?, ControlPath>,
-    @get:Out("Default"     ) @get:JsonProperty("out_default")          val outDefault: ControlPath
-) : StatefulNode() {
-    override fun initialize() {
+    @get:In (""            ) @get:JsonProperty("in"         ) val `in`      : Int           ,
+    @get:In (""       , Und) @get:JsonProperty("in_value"   ) val inValue   : Int           ,
+    @get:Out(""            ) @get:JsonProperty("out"        ) val out       : Map<Any?, Int>,
+    @get:Out("Default"     ) @get:JsonProperty("out_default") val outDefault: Int
+) : Node() {
+    override fun initialize(scope: Scope) {
+        val `in` = scope.controlPath(`in`)
+        val inValue = scope.dataPath(inValue)
+        val out = out.mapValues { scope.controlPath(it.value) }
+        val outDefault = scope.controlPath(outDefault)
+
         `in`.declare { (out[inValue.get()] ?: outDefault)() }
     }
 }

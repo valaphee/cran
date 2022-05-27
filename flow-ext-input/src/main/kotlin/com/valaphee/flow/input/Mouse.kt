@@ -16,7 +16,7 @@
 
 package com.valaphee.flow.input
 
-import com.valaphee.flow.StatefulNode
+import com.valaphee.flow.Node
 import com.valaphee.foundry.math.Int2
 import org.hid4java.HidDevice
 import org.hid4java.HidManager
@@ -26,7 +26,7 @@ import kotlin.concurrent.thread
 /**
  * @author Kevin Ludwig
  */
-abstract class Mouse : StatefulNode() {
+abstract class Mouse : Node() {
     companion object {
         private var hidDevice: HidDevice? = null
         private const val path = "\\\\?\\hid#variable_6&col02#1"

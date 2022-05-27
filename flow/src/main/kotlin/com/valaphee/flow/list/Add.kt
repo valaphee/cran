@@ -18,23 +18,27 @@ package com.valaphee.flow.list
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Arr
-import com.valaphee.flow.DataPath
-import com.valaphee.flow.StatelessNode
+import com.valaphee.flow.Scope
+import com.valaphee.flow.Node
 import com.valaphee.flow.Und
 import com.valaphee.flow.spec.In
-import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@Node("List/Add")
+@NodeType("List/Add")
 class Add(
-    @get:In (""    , Arr) @get:JsonProperty("in_list" ) val inList : DataPath,
-    @get:In ("Item", Und) @get:JsonProperty("in_item" ) val inItem : DataPath,
-    @get:Out(""    , Arr) @get:JsonProperty("out_list") val outList: DataPath,
-) : StatelessNode() {
-    override fun initialize() {
-        outList.set { inList.getOrThrow<Iterable<Any?>>("in_list") + inItem.get() }
+    @get:In (""    , Arr) @get:JsonProperty("in"     ) val `in`  : Int,
+    @get:In ("Item", Und) @get:JsonProperty("in_item") val inItem: Int,
+    @get:Out(""    , Arr) @get:JsonProperty("out"    ) val out   : Int,
+) : Node() {
+    override fun initialize(scope: Scope) {
+        val `in` = scope.dataPath(`in`)
+        val inItem = scope.dataPath(inItem)
+        val out = scope.dataPath(out)
+
+        out.set { `in`.getOrThrow<Iterable<Any?>>("in") + inItem.get() }
     }
 }

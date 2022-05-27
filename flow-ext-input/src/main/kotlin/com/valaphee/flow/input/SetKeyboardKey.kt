@@ -18,12 +18,11 @@ package com.valaphee.flow.input
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Bit
-import com.valaphee.flow.ControlPath
-import com.valaphee.flow.DataPath
+import com.valaphee.flow.Scope
+import com.valaphee.flow.Node
 import com.valaphee.flow.Num
-import com.valaphee.flow.StatefulNode
 import com.valaphee.flow.spec.In
-import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 import org.hid4java.HidDevice
 import org.hid4java.HidManager
@@ -33,14 +32,19 @@ import kotlin.concurrent.thread
 /**
  * @author Kevin Ludwig
  */
-@Node("Input/Set Keyboard Key")
+@NodeType("Input/Set Keyboard Key")
 class SetKeyboardKey(
-    @get:In (""          ) @get:JsonProperty("in"      ) override val `in`   : ControlPath,
-    @get:In ("Key"  , Num) @get:JsonProperty("in_key"  )          val inKey  : DataPath   ,
-    @get:In ("State", Bit) @get:JsonProperty("in_state")          val inState: DataPath   ,
-    @get:Out(""          ) @get:JsonProperty("out"     )          val out    : ControlPath
-) : StatefulNode() {
-    override fun initialize() {
+    @get:In (""          ) @get:JsonProperty("in"      ) val `in`   : Int,
+    @get:In ("Key"  , Num) @get:JsonProperty("in_key"  ) val inKey  : Int,
+    @get:In ("State", Bit) @get:JsonProperty("in_state") val inState: Int,
+    @get:Out(""          ) @get:JsonProperty("out"     ) val out    : Int
+) : Node() {
+    override fun initialize(scope: Scope) {
+        val `in` = scope.controlPath(`in`)
+        val inKey = scope.dataPath(inKey)
+        val inState = scope.dataPath(inState)
+        val out = scope.controlPath(out)
+
         `in`.declare {
             val key = inKey.getOrThrow<Key>("in_key")
             if (inState.getOrThrow("in_state")) {

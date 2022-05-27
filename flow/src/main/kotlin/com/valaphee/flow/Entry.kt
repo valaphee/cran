@@ -17,12 +17,13 @@
 package com.valaphee.flow
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@com.valaphee.flow.spec.Node("Entry")
+@NodeType("Entry")
 class Entry(
-    @get:Out("", "") @get:JsonProperty("out") val out: ControlPath,
+    @get:Out("", "") @get:JsonProperty("out") val out: Int
 ) : Node()

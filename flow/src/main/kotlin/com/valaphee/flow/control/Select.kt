@@ -17,24 +17,29 @@
 package com.valaphee.flow.control
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.DataPath
-import com.valaphee.flow.StatelessNode
+import com.valaphee.flow.Scope
+import com.valaphee.flow.Node
 import com.valaphee.flow.Und
 import com.valaphee.flow.spec.In
-import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@Node("Control/Select")
+@NodeType("Control/Select")
 class Select(
-    @get:In (""       , Und) @get:JsonProperty("in"        ) val `in`     : DataPath           ,
-    @get:In (""       , Und) @get:JsonProperty("in_value"  ) val inValue  : Map<Any?, DataPath>,
-    @get:In ("Default", Und) @get:JsonProperty("in_default") val inDefault: DataPath           ,
-    @get:Out(""       , Und) @get:JsonProperty("out"       ) val out      : DataPath
-) : StatelessNode() {
-    override fun initialize() {
+    @get:In (""       , Und) @get:JsonProperty("in"        ) val `in`     : Int           ,
+    @get:In (""       , Und) @get:JsonProperty("in_value"  ) val inValue  : Map<Any?, Int>,
+    @get:In ("Default", Und) @get:JsonProperty("in_default") val inDefault: Int           ,
+    @get:Out(""       , Und) @get:JsonProperty("out"       ) val out      : Int
+) : Node() {
+    override fun initialize(scope: Scope) {
+        val `in` = scope.dataPath(`in`)
+        val inValue = inValue.mapValues { scope.dataPath(it.value) }
+        val inDefault = scope.dataPath(inDefault)
+        val out = scope.dataPath(out)
+
         out.set { (inValue[`in`.get()] ?: inDefault).get() }
     }
 }

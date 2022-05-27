@@ -17,10 +17,10 @@
 package com.valaphee.flow.input
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.DataPath
-import com.valaphee.flow.StatelessNode
+import com.valaphee.flow.Scope
+import com.valaphee.flow.Node
 import com.valaphee.flow.math.vector2.Vec2
-import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 import com.valaphee.foundry.math.Int2
 import java.awt.MouseInfo
@@ -28,11 +28,13 @@ import java.awt.MouseInfo
 /**
  * @author Kevin Ludwig
  */
-@Node("Input/Mouse Position")
+@NodeType("Input/Mouse Position")
 class MousePosition(
-    @get:Out("", Vec2) @get:JsonProperty("out_position") val out: DataPath,
-) : StatelessNode() {
-    override fun initialize() {
+    @get:Out("", Vec2) @get:JsonProperty("out_position") val out: Int
+) : Node() {
+    override fun initialize(scope: Scope) {
+        val out = scope.dataPath(out)
+
         out.set {
             val position = MouseInfo.getPointerInfo().location
             Int2(position.x, position.y)

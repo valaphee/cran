@@ -33,8 +33,8 @@ abstract class Graph {
     @get:JsonProperty("name" ) abstract val name : String
     @get:JsonProperty("nodes") abstract val nodes: List<Node>
 
-    open fun initialize() {
-        nodes.forEach { it.initialize() }
+    open fun initialize(instance: Scope) {
+        nodes.forEach { it.initialize(instance) }
     }
 
     open fun shutdown() {

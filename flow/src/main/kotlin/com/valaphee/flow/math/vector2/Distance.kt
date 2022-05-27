@@ -17,11 +17,11 @@
 package com.valaphee.flow.math.vector2
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.DataPath
+import com.valaphee.flow.Scope
+import com.valaphee.flow.Node
 import com.valaphee.flow.Num
-import com.valaphee.flow.StatelessNode
 import com.valaphee.flow.spec.In
-import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 import com.valaphee.foundry.math.Double2
 import com.valaphee.foundry.math.Float2
@@ -30,36 +30,40 @@ import com.valaphee.foundry.math.Int2
 /**
  * @author Kevin Ludwig
  */
-@Node("Math/Vector 2/Distance")
+@NodeType("Math/Vector 2/Distance")
 class Distance(
-    @get:In ("p"      , Vec2) @get:JsonProperty("in_p") val inP: DataPath,
-    @get:In ("q"      , Vec2) @get:JsonProperty("in_q") val inQ: DataPath,
-    @get:Out("d(p, q)", Num ) @get:JsonProperty("out" ) val out: DataPath
-) : StatelessNode() {
-    override fun initialize() {
+    @get:In ("p"      , Vec2) @get:JsonProperty("in_p") val inP: Int,
+    @get:In ("q"      , Vec2) @get:JsonProperty("in_q") val inQ: Int,
+    @get:Out("d(p, q)", Num ) @get:JsonProperty("out" ) val out: Int
+) : Node() {
+    override fun initialize(scope: Scope) {
+        val inP = scope.dataPath(inP)
+        val inQ = scope.dataPath(inQ)
+        val out = scope.dataPath(out)
+
         out.set {
-            val inP = inP.get()
-            val inQ = inQ.get()
-            when (inP) {
-                is Int2 -> when (inQ) {
-                    is Int2    -> inP.toFloat2() .distance(inQ.toFloat2()             )
-                    is Float2  -> inP.toFloat2() .distance(inQ                        )
-                    is Double2 -> inP.toDouble2().distance(inQ                        )
-                    else       -> inP.toDouble2().distance(this.inQ.getOrThrow("in_p"))
+            val _inP = inP.get()
+            val _inQ = inQ.get()
+            when (_inP) {
+                is Int2 -> when (_inQ) {
+                    is Int2    -> _inP.toFloat2() .distance(_inQ.toFloat2()       )
+                    is Float2  -> _inP.toFloat2() .distance(_inQ                  )
+                    is Double2 -> _inP.toDouble2().distance(_inQ                  )
+                    else       -> _inP.toDouble2().distance(inQ.getOrThrow("in_p"))
                 }
-                is Float2 -> when (inQ) {
-                    is Int2    -> inP            .distance(inQ.toFloat2()             )
-                    is Float2  -> inP            .distance(inQ                        )
-                    is Double2 -> inP.toDouble2().distance(inQ                        )
-                    else       -> inP.toDouble2().distance(this.inQ.getOrThrow("in_p"))
+                is Float2 -> when (_inQ) {
+                    is Int2    -> _inP            .distance(_inQ.toFloat2()       )
+                    is Float2  -> _inP            .distance(_inQ                  )
+                    is Double2 -> _inP.toDouble2().distance(_inQ                  )
+                    else       -> _inP.toDouble2().distance(inQ.getOrThrow("in_p"))
                 }
-                is Double2 -> when (inQ) {
-                    is Int2    -> inP.distance(inQ.toDouble2()            )
-                    is Float2  -> inP.distance(inQ.toDouble2()            )
-                    is Double2 -> inP.distance(inQ                        )
-                    else       -> inP.distance(this.inQ.getOrThrow("in_p"))
+                is Double2 -> when (_inQ) {
+                    is Int2    -> _inP.distance(_inQ.toDouble2()      )
+                    is Float2  -> _inP.distance(_inQ.toDouble2()      )
+                    is Double2 -> _inP.distance(_inQ                  )
+                    else       -> _inP.distance(inQ.getOrThrow("in_p"))
                 }
-                else -> this.inP.getOrThrow<Double2>("in_p").distance(this.inQ.getOrThrow("in_q"))
+                else -> inP.getOrThrow<Double2>("in_p").distance(inQ.getOrThrow("in_q"))
             }
         }
     }

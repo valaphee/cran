@@ -17,10 +17,10 @@
 package com.valaphee.flow.math.vector4
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.DataPath
-import com.valaphee.flow.StatelessNode
+import com.valaphee.flow.Scope
+import com.valaphee.flow.Node
 import com.valaphee.flow.spec.In
-import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 import com.valaphee.foundry.math.Double4
 import com.valaphee.foundry.math.Float4
@@ -29,36 +29,40 @@ import com.valaphee.foundry.math.Int4
 /**
  * @author Kevin Ludwig
  */
-@Node("Math/Vector 4/Add")
+@NodeType("Math/Vector 4/Add")
 class Add(
-    @get:In ("A"    , Vec4) @get:JsonProperty("in_a") val inA: DataPath,
-    @get:In ("B"    , Vec4) @get:JsonProperty("in_b") val inB: DataPath,
-    @get:Out("A + B", Vec4) @get:JsonProperty("out" ) val out: DataPath
-) : StatelessNode() {
-    override fun initialize() {
+    @get:In ("A"    , Vec4) @get:JsonProperty("in_a") val inA: Int,
+    @get:In ("B"    , Vec4) @get:JsonProperty("in_b") val inB: Int,
+    @get:Out("A + B", Vec4) @get:JsonProperty("out" ) val out: Int
+) : Node() {
+    override fun initialize(scope: Scope) {
+        val inA = scope.dataPath(inA)
+        val inB = scope.dataPath(inB)
+        val out = scope.dataPath(out)
+
         out.set {
-            val inA = inA.get()
-            val inB = inB.get()
-            when (inA) {
-                is Int4 -> when (inB) {
-                    is Int4    -> inA             + inB
-                    is Float4  -> inA.toFloat4()  + inB
-                    is Double4 -> inA.toDouble4() + inB
-                    else       -> inA.toDouble4() + this.inB.getOrThrow("in_b")
+            val _inA = inA.get()
+            val _inB = inB.get()
+            when (_inA) {
+                is Int4 -> when (_inB) {
+                    is Int4    -> _inA             + _inB
+                    is Float4  -> _inA.toFloat4()  + _inB
+                    is Double4 -> _inA.toDouble4() + _inB
+                    else       -> _inA.toDouble4() + inB.getOrThrow("in_b")
                 }
-                is Float4 -> when (inB) {
-                    is Int4    -> inA             + inB.toFloat4()
-                    is Float4  -> inA             + inB
-                    is Double4 -> inA.toDouble4() + inB
-                    else       -> inA.toDouble4() + this.inB.getOrThrow("in_b")
+                is Float4 -> when (_inB) {
+                    is Int4    -> _inA             + _inB.toFloat4()
+                    is Float4  -> _inA             + _inB
+                    is Double4 -> _inA.toDouble4() + _inB
+                    else       -> _inA.toDouble4() + inB.getOrThrow("in_b")
                 }
-                is Double4 -> when (inB) {
-                    is Int4    -> inA + inB.toDouble4()
-                    is Float4  -> inA + inB.toDouble4()
-                    is Double4 -> inA + inB
-                    else       -> inA + this.inB.getOrThrow("in_b")
+                is Double4 -> when (_inB) {
+                    is Int4    -> _inA + _inB.toDouble4()
+                    is Float4  -> _inA + _inB.toDouble4()
+                    is Double4 -> _inA + _inB
+                    else       -> _inA + inB.getOrThrow("in_b")
                 }
-                else -> this.inA.getOrThrow<Double4>("in_a") + this.inB.getOrThrow("in_b")
+                else -> inA.getOrThrow<Double4>("in_a") + inB.getOrThrow("in_b")
             }
         }
     }

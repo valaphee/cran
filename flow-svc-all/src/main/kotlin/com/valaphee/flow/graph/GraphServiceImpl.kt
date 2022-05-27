@@ -21,7 +21,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.google.protobuf.ByteString
-import com.valaphee.flow.Node
+import com.valaphee.flow.Scope
 import com.valaphee.flow.spec.Spec
 import com.valaphee.svc.graph.v1.DeleteGraphRequest
 import com.valaphee.svc.graph.v1.DeleteGraphResponse
@@ -35,7 +35,6 @@ import com.valaphee.svc.graph.v1.UpdateGraphResponse
 import io.github.classgraph.ClassGraph
 import io.grpc.stub.StreamObserver
 import java.util.UUID
-import java.util.zip.GZIPInputStream
 
 /**
  * @author Kevin Ludwig
@@ -44,36 +43,46 @@ import java.util.zip.GZIPInputStream
 class GraphServiceImpl @Inject constructor(
     private val objectMapper: ObjectMapper
 ) : GraphServiceImplBase() {
-    private var spec: Spec
-    private val graphs = mutableMapOf<UUID, GraphImpl>()
+    private val spec: Spec
+    private val graphs = mutableSetOf<GraphImpl>()
 
     init {
-        spec = ClassGraph().scan().use { Spec(it.getResourcesMatchingWildcard("spec.*.dat").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes.onEach { Node.types[it.name] = Class.forName(it.java).kotlin } }) }
-        spec = ClassGraph().scan().use { Spec(spec.nodes + it.getResourcesMatchingWildcard("*.flw").urLs.map { GZIPInputStream(it.openStream()).use { objectMapper.readValue<GraphImpl>(it).toSpec() } }) }
+        ClassGraph().scan().use {
+            spec = Spec(it.getResourcesMatchingWildcard("spec.*.dat").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes })
+            graphs += it.getResourcesMatchingWildcard("**.flw").urLs.map { objectMapper.readValue(it) }
+        }
     }
 
     override fun getSpec(request: GetSpecRequest, responseObserver: StreamObserver<GetSpecResponse>) {
-        responseObserver.onNext(GetSpecResponse.newBuilder().setSpec(ByteString.copyFrom(objectMapper.writeValueAsBytes(spec))).build())
+        responseObserver.onNext(GetSpecResponse.newBuilder().setSpec(ByteString.copyFrom(objectMapper.writeValueAsBytes(Spec(spec.nodes + graphs.map { it.toSpec() })))).build())
         responseObserver.onCompleted()
     }
 
     override fun listGraph(request: ListGraphRequest, responseObserver: StreamObserver<ListGraphResponse>) {
-        responseObserver.onNext(ListGraphResponse.newBuilder().setGraphs(ByteString.copyFrom(objectMapper.writeValueAsBytes(graphs.values))).build())
+        responseObserver.onNext(ListGraphResponse.newBuilder().setGraphs(ByteString.copyFrom(objectMapper.writeValueAsBytes(graphs))).build())
         responseObserver.onCompleted()
     }
 
     override fun updateGraph(request: UpdateGraphRequest, responseObserver: StreamObserver<UpdateGraphResponse>) {
-        val graph = objectMapper.readValue<GraphImpl>(request.graph.toByteArray())
-        if (graphs.containsKey(graph.id)) graphs.remove(graph.id)!!.shutdown()
-        graphs[graph.id] = graph
-        graph.initialize()
+        val newGraph = objectMapper.readValue<GraphImpl>(request.graph.toByteArray())
+        val oldGraph = graphs.find { it.id == newGraph.id }
+        oldGraph?.let {
+            graphs -= it
+            it.shutdown()
+        }
+        graphs += newGraph
+        newGraph.initialize(Scope())
         responseObserver.onNext(UpdateGraphResponse.getDefaultInstance())
         responseObserver.onCompleted()
     }
 
     override fun deleteGraph(request: DeleteGraphRequest, responseObserver: StreamObserver<DeleteGraphResponse>) {
         val graphId = UUID.fromString(request.graphId)
-        if (graphs.containsKey(graphId)) graphs.remove(graphId)!!.shutdown()
+        val graph = graphs.find { it.id == graphId }
+        graph?.let {
+            graphs -= it
+            it.shutdown()
+        }
         responseObserver.onNext(DeleteGraphResponse.getDefaultInstance())
         responseObserver.onCompleted()
     }

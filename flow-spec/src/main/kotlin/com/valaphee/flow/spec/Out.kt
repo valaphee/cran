@@ -20,7 +20,7 @@ package com.valaphee.flow.spec
  * @author Kevin Ludwig
  */
 @Target(AnnotationTarget.PROPERTY_GETTER)
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.RUNTIME)
 annotation class Out(
     val name: String     ,
     val data: String = "",

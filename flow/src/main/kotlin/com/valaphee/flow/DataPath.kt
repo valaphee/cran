@@ -16,29 +16,14 @@
 
 package com.valaphee.flow
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo
-import com.fasterxml.jackson.annotation.JsonIdentityReference
-import com.fasterxml.jackson.annotation.ObjectIdGenerator
-import com.fasterxml.jackson.annotation.ObjectIdGenerators
-import com.fasterxml.jackson.annotation.SimpleObjectIdResolver
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 /**
  * @author Kevin Ludwig
  */
-@JsonIdentityInfo(property = "id", generator = ObjectIdGenerators.PropertyGenerator::class, resolver = DataPath.IdResolver::class)
-@JsonIdentityReference(alwaysAsId = true)
 class DataPath(
     override val id: Int
 ) : Path() {
-    class IdResolver : SimpleObjectIdResolver() {
-        override fun resolveId(id: ObjectIdGenerator.IdKey) = super.resolveId(id) ?: DataPath(id.key as Int).also { bindItem(id, it) }
-
-        override fun newForDeserialization(context: Any?) = IdResolver()
-    }
-
-    /*@Inject lateinit var objectMapper: ObjectMapper*/
-
     private var value: Any? = null
     private var valueFunction: (suspend () -> Any?)? = null
 

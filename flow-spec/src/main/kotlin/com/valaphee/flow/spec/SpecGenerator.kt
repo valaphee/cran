@@ -38,52 +38,36 @@ import javax.tools.StandardLocation
  */
 @AutoService(Processor::class)
 class SpecGenerator : AbstractProcessor() {
-    override fun getSupportedAnnotationTypes() = mutableSetOf(Node::class.java.name)
+    override fun getSupportedAnnotationTypes() = mutableSetOf(NodeType::class.java.name)
 
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latest()
 
     override fun process(annotations: MutableSet<out TypeElement>?, roundEnvironment: RoundEnvironment?): Boolean {
         if (annotations?.isEmpty() == true) return false
-        roundEnvironment?.getElementsAnnotatedWith(Node::class.java)?.mapNotNull { `class` ->
+        roundEnvironment?.getElementsAnnotatedWith(NodeType::class.java)?.mapNotNull { `class` ->
             if (`class`.kind == ElementKind.CLASS && `class` is TypeElement) {
                 if (!`class`.modifiers.contains(Modifier.ABSTRACT)) {
-                    val node = `class`.getAnnotation(Node::class.java)
-                    Spec.Node(node.value, `class`.qualifiedName.toString(), `class`.enclosedElements.mapNotNull { getter ->
+                    Spec.Node(`class`.getAnnotation(NodeType::class.java).value, `class`.qualifiedName.toString(), `class`.enclosedElements.mapNotNull { getter ->
                         if (getter.kind == ElementKind.METHOD && getter is ExecutableElement) {
-                            val type = getter.returnType.toString()
-                            val json = getter.getAnnotation(JsonProperty::class.java)
-
                             val `in` = getter.getAnnotation(In::class.java)
                             val out = getter.getAnnotation(Out::class.java)
                             val const = getter.getAnnotation(Const::class.java)
-                            if (`in` != null) if (out != null) {
-                                processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @In or @Out is allowed, not both.")
-                                return true
-                            } else if (const != null) {
-                                processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @In or @Const is allowed, not both.")
-                                return true
-                            } else Spec.Node.Port(
-                                `in`.name, json.value, when {
-                                    type.contains(Type.ControlPath) -> Spec.Node.Port.Type.InControl
-                                    type.contains(Type.DataPath) -> Spec.Node.Port.Type.InData
-                                    else -> {
-                                        processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @In type $type.")
-                                        return true
-                                    }
-                                }, `in`.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) } ?: NullNode.instance
-                            ) else if (out != null) if (const != null) {
-                                processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @Out or @Const is allowed, not both.")
-                                return true
-                            } else Spec.Node.Port(
-                                out.name, json.value, when {
-                                    type.contains(Type.ControlPath) -> Spec.Node.Port.Type.OutControl
-                                    type.contains(Type.DataPath) -> Spec.Node.Port.Type.OutData
-                                    else -> {
-                                        processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Unknown @Out type $type.")
-                                        return true
-                                    }
-                                }, out.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) } ?: NullNode.instance
-                            ) else if (const != null) Spec.Node.Port(const.name, json.value, Spec.Node.Port.Type.Const, const.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) } ?: NullNode.instance) else null
+                            val json = getter.getAnnotation(JsonProperty::class.java)
+                            if (`in` != null)
+                                if (out != null) {
+                                    processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @In or @Out is allowed, not both.")
+                                    return true
+                                } else if (const != null) {
+                                    processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @In or @Const is allowed, not both.")
+                                    return true
+                                } else `in`.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }?.let { Spec.Node.Port(`in`.name, json.value, Spec.Node.Port.Type.InData, it) } ?: Spec.Node.Port(`in`.name, json.value, Spec.Node.Port.Type.InControl, NullNode.instance)
+                            else if (out != null)
+                                if (const != null) {
+                                    processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @Out or @Const is allowed, not both.")
+                                    return true
+                                } else out.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }?.let { Spec.Node.Port(out.name, json.value, Spec.Node.Port.Type.OutData, it) } ?: Spec.Node.Port(out.name, json.value, Spec.Node.Port.Type.OutControl, NullNode.instance)
+                            else if (const != null) const.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }?.let { Spec.Node.Port(const.name, json.value, Spec.Node.Port.Type.Const, it) } ?: return true
+                            else null
                         } else null
                     })
                 } else null

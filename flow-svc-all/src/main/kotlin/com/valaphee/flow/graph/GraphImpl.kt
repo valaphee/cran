@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Entry
 import com.valaphee.flow.Graph
+import com.valaphee.flow.Scope
 import com.valaphee.flow.Node
 import com.valaphee.flow.meta.Meta
 import kotlinx.coroutines.CoroutineScope
@@ -40,9 +41,9 @@ class GraphImpl(
     @JsonIgnore private val executor = Executors.newSingleThreadExecutor()
     @get:JsonIgnore override val coroutineContext get() = executor.asCoroutineDispatcher()
 
-    override fun initialize() {
-        super.initialize()
-        nodes.forEach { if (it is Entry) launch { it.out() } }
+    override fun initialize(instance: Scope) {
+        super.initialize(instance)
+        nodes.forEach { if (it is Entry) launch { instance.controlPath(it.out)() } }
     }
 
     override fun shutdown() {

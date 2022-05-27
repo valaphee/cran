@@ -29,6 +29,6 @@ open class ControlPathException : Exception {
     constructor(cause: Throwable?) : super(cause)
 
     companion object {
-        val AlreadySet = ControlPathException("Control path has multiple outputs, only one output is allowed.")
+        val AlreadyDeclared = ControlPathException("Control path has multiple outputs, only one output is allowed.")
     }
 }

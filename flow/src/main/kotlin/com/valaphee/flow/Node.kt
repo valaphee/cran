@@ -16,35 +16,39 @@
 
 package com.valaphee.flow
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.DatabindContext
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase
-import com.google.common.collect.HashBiMap
-import kotlin.reflect.KClass
+import com.valaphee.flow.nesting.SubGraph
+import io.github.classgraph.ClassGraph
+import kotlin.reflect.full.findAnnotation
 
 /**
  * @author Kevin Ludwig
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
 @JsonTypeIdResolver(Node.TypeResolver::class)
-abstract class Node {
+open class Node {
     class TypeResolver : TypeIdResolverBase() {
-        override fun idFromValue(value: Any) = checkNotNull(/*value::class.findAnnotation<com.valaphee.flow.spec.Node>()*/types.inverse()[value::class])/*.value*/
+        override fun idFromValue(value: Any) = (value as Node).type
 
-        override fun idFromValueAndType(value: Any?, suggestedType: Class<*>) = value?.let { idFromValue(it) } ?: checkNotNull(/*suggestedType.kotlin.findAnnotation<com.valaphee.flow.spec.Node>()*/types.inverse()[suggestedType.kotlin])/*.value*/
+        override fun idFromValueAndType(value: Any?, suggestedType: Class<*>) = value?.let { idFromValue(it) } ?: checkNotNull(suggestedType.kotlin.findAnnotation<com.valaphee.flow.spec.NodeType>()).value
 
-        override fun typeFromId(context: DatabindContext, id: String): JavaType = context.constructType(checkNotNull(types[id]).java)
+        override fun typeFromId(context: DatabindContext, id: String): JavaType = context.constructType(types[id]?.java ?: SubGraph::class.java)
 
         override fun getMechanism() = JsonTypeInfo.Id.NAME
     }
 
-    open fun initialize() = Unit
+    @get:JsonProperty("type") open val type = this::class.findAnnotation<com.valaphee.flow.spec.NodeType>()?.value
+
+    open fun initialize(scope: Scope) = Unit
 
     open fun shutdown() = Unit
 
     companion object {
-        val types: HashBiMap<String, KClass<*>> = HashBiMap.create()
+        private val types = ClassGraph().enableClassInfo().enableAnnotationInfo().scan().use { it.getClassesWithAnnotation(com.valaphee.flow.spec.NodeType::class.java).map { Class.forName(it.name).kotlin }.associateBy { checkNotNull(it.findAnnotation<com.valaphee.flow.spec.NodeType>()).value } }
     }
 }

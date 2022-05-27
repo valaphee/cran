@@ -16,26 +16,12 @@
 
 package com.valaphee.flow
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo
-import com.fasterxml.jackson.annotation.JsonIdentityReference
-import com.fasterxml.jackson.annotation.ObjectIdGenerator
-import com.fasterxml.jackson.annotation.ObjectIdGenerators
-import com.fasterxml.jackson.annotation.SimpleObjectIdResolver
-
 /**
  * @author Kevin Ludwig
  */
-@JsonIdentityInfo(property = "id", generator = ObjectIdGenerators.PropertyGenerator::class, resolver = ControlPath.IdResolver::class)
-@JsonIdentityReference(alwaysAsId = true)
 class ControlPath(
     override val id: Int
 ) : Path() {
-    class IdResolver : SimpleObjectIdResolver() {
-        override fun resolveId(id: ObjectIdGenerator.IdKey) = super.resolveId(id) ?: ControlPath(id.key as Int).also { bindItem(id, it) }
-
-        override fun newForDeserialization(context: Any?) = IdResolver()
-    }
-
     private var function: (suspend () -> Unit)? = null
 
     suspend operator fun invoke() {
@@ -43,7 +29,7 @@ class ControlPath(
     }
 
     fun declare(function: suspend () -> Unit) {
-        if (this.function != null) throw ControlPathException.AlreadySet
+        if (this.function != null) throw ControlPathException.AlreadyDeclared
 
         this.function = function
     }

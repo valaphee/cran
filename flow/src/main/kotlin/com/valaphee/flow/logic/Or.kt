@@ -18,27 +18,31 @@ package com.valaphee.flow.logic
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Bit
-import com.valaphee.flow.DataPath
 import com.valaphee.flow.DataPathException
-import com.valaphee.flow.StatelessNode
+import com.valaphee.flow.Scope
+import com.valaphee.flow.Node
 import com.valaphee.flow.spec.In
-import com.valaphee.flow.spec.Node
+import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@Node("Logic/Or")
+@NodeType("Logic/Or")
 class Or(
-    @get:In ("A"    , Bit) @get:JsonProperty("in_a") val inA: DataPath,
-    @get:In ("B"    , Bit) @get:JsonProperty("in_b") val inB: DataPath,
-    @get:Out("A ∨ B", Bit) @get:JsonProperty("out" ) val out: DataPath
-) : StatelessNode() {
-    override fun initialize() {
+    @get:In ("A"    , Bit) @get:JsonProperty("in_a") val inA: Int,
+    @get:In ("B"    , Bit) @get:JsonProperty("in_b") val inB: Int,
+    @get:Out("A ∨ B", Bit) @get:JsonProperty("out" ) val out: Int
+) : Node() {
+    override fun initialize(scope: Scope) {
+        val inA = scope.dataPath(inA)
+        val inB = scope.dataPath(inB)
+        val out = scope.dataPath(out)
+
         out.set {
-            val inA = inA.get()
-            val inB = inB.get()
-            if (inA is Boolean && inB is Boolean) inA or inB else DataPathException.invalidTypeInExpression("$inA ∨ $inB")
+            val _inA = inA.get()
+            val _inB = inB.get()
+            if (_inA is Boolean && _inB is Boolean) _inA or _inB else DataPathException.invalidTypeInExpression("$_inA ∨ $_inB")
         }
     }
 }

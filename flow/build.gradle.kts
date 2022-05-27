@@ -25,6 +25,7 @@ dependencies {
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
     implementation("com.google.guava:guava:31.1-jre")
+    implementation("io.github.classgraph:classgraph:4.8.146")
 
     api("com.valaphee:foundry-math:1.4.0")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.1-native-mt")
