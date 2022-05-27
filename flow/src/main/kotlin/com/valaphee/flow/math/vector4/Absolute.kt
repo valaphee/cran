@@ -17,8 +17,8 @@
 package com.valaphee.flow.math.vector4
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.Scope
 import com.valaphee.flow.Node
+import com.valaphee.flow.Scope
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
@@ -32,9 +32,10 @@ import kotlin.math.absoluteValue
  */
 @NodeType("Math/Vector 4/Absolute")
 class Absolute(
+    type: String,
     @get:In ("X"  , Vec4) @get:JsonProperty("in" ) val `in`: Int,
     @get:Out("|X|", Vec4) @get:JsonProperty("out") val out : Int
-) : Node() {
+) : Node(type) {
     override fun initialize(scope: Scope) {
         val `in` = scope.dataPath(`in`)
         val out = scope.dataPath(out)

@@ -18,8 +18,8 @@ package com.valaphee.flow.input
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Bit
-import com.valaphee.flow.Scope
 import com.valaphee.flow.Num
+import com.valaphee.flow.Scope
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
@@ -30,11 +30,12 @@ import com.valaphee.foundry.math.Int2
  */
 @NodeType("Input/Set Mouse Button")
 class SetMouseButton(
+    type: String,
     @get:In (""          ) @get:JsonProperty("in"       ) val `in`    : Int,
     @get:In ("Key"  , Num) @get:JsonProperty("in_button") val inButton: Int,
     @get:In ("State", Bit) @get:JsonProperty("in_state" ) val inState : Int,
     @get:Out(""          ) @get:JsonProperty("out"      ) val out     : Int
-) : Mouse() {
+) : Mouse(type) {
     override fun initialize(scope: Scope) {
         val `in` = scope.controlPath(`in`)
         val inButton = scope.dataPath(inButton)

@@ -17,9 +17,9 @@
 package com.valaphee.flow.control
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.Scope
 import com.valaphee.flow.Node
 import com.valaphee.flow.Num
+import com.valaphee.flow.Scope
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
@@ -29,6 +29,7 @@ import com.valaphee.flow.spec.Out
  */
 @NodeType("Control/For")
 class For(
+    type: String,
     @get:In (""          ) @get:JsonProperty("in"            ) val `in`        : Int,
     @get:In ("Start", Num) @get:JsonProperty("in_range_start") val inRangeStart: Int,
     @get:In ("End"  , Num) @get:JsonProperty("in_range_end"  ) val inRangeEnd  : Int,
@@ -36,7 +37,7 @@ class For(
     @get:Out("Body"      ) @get:JsonProperty("out_body"      ) val outBody     : Int,
     @get:Out("Exit"      ) @get:JsonProperty("out"           ) val out         : Int,
     @get:Out("Index", Num) @get:JsonProperty("out_index"     ) val outIndex    : Int
-) : Node() {
+) : Node(type) {
     override fun initialize(scope: Scope) {
         val `in` = scope.controlPath(`in`)
         val inRangeStart = scope.dataPath(inRangeStart)

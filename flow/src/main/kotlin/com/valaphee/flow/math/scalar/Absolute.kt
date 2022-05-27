@@ -18,9 +18,9 @@ package com.valaphee.flow.math.scalar
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPathException
-import com.valaphee.flow.Scope
 import com.valaphee.flow.Node
 import com.valaphee.flow.Num
+import com.valaphee.flow.Scope
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
@@ -33,9 +33,10 @@ import kotlin.math.absoluteValue
  */
 @NodeType("Math/Scalar/Absolute")
 class Absolute(
+    type: String,
     @get:In ("X"  , Num) @get:JsonProperty("in" ) val `in`: Int,
     @get:Out("|X|", Num) @get:JsonProperty("out") val out : Int
-) : Node() {
+) : Node(type) {
     override fun initialize(scope: Scope) {
         val `in` = scope.dataPath(`in`)
         val out = scope.dataPath(out)

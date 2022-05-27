@@ -18,6 +18,7 @@ package com.valaphee.flow
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.node.NullNode
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.valaphee.flow.nesting.ControlInput
 import com.valaphee.flow.nesting.ControlOutput
 import com.valaphee.flow.nesting.DataInput
@@ -45,8 +46,8 @@ abstract class Graph {
         when (it) {
             is ControlInput -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.InControl, NullNode.instance)
             is ControlOutput -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.OutControl, NullNode.instance)
-            is DataInput -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.InData, NullNode.instance)
-            is DataOutput -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.OutData, NullNode.instance)
+            is DataInput -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.InData, und)
+            is DataOutput -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.OutData, und)
             else -> null
         }
     })
@@ -63,4 +64,9 @@ abstract class Graph {
     }
 
     override fun hashCode() = name.hashCode()
+
+    companion object {
+        private val und = jacksonObjectMapper().readTree(Und)
+        val graphs = mutableSetOf<Graph>()
+    }
 }

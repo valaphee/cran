@@ -25,5 +25,6 @@ import com.valaphee.flow.spec.Out
  */
 @NodeType("Entry")
 class Entry(
+    type: String,
     @get:Out("", "") @get:JsonProperty("out") val out: Int
-) : Node()
+) : Node(type)

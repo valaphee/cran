@@ -17,8 +17,8 @@
 package com.valaphee.flow.input
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.Scope
 import com.valaphee.flow.Node
+import com.valaphee.flow.Scope
 import com.valaphee.flow.math.vector2.Vec2
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
@@ -30,8 +30,9 @@ import java.awt.MouseInfo
  */
 @NodeType("Input/Mouse Position")
 class MousePosition(
+    type: String,
     @get:Out("", Vec2) @get:JsonProperty("out_position") val out: Int
-) : Node() {
+) : Node(type) {
     override fun initialize(scope: Scope) {
         val out = scope.dataPath(out)
 

@@ -29,9 +29,11 @@ import kotlin.reflect.full.findAnnotation
 /**
  * @author Kevin Ludwig
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type", visible = true)
 @JsonTypeIdResolver(Node.TypeResolver::class)
-open class Node {
+open class Node(
+    @get:JsonProperty("type") val type: String
+) {
     class TypeResolver : TypeIdResolverBase() {
         override fun idFromValue(value: Any) = (value as Node).type
 
@@ -41,8 +43,6 @@ open class Node {
 
         override fun getMechanism() = JsonTypeInfo.Id.NAME
     }
-
-    @get:JsonProperty("type") open val type = this::class.findAnnotation<com.valaphee.flow.spec.NodeType>()?.value
 
     open fun initialize(scope: Scope) = Unit
 

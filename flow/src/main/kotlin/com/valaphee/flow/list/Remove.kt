@@ -18,8 +18,8 @@ package com.valaphee.flow.list
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Arr
-import com.valaphee.flow.Scope
 import com.valaphee.flow.Node
+import com.valaphee.flow.Scope
 import com.valaphee.flow.Und
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
@@ -30,10 +30,11 @@ import com.valaphee.flow.spec.Out
  */
 @NodeType("List/Remove")
 class Remove(
+    type: String,
     @get:In (""    , Arr) @get:JsonProperty("in"     ) val `in`  : Int,
     @get:In ("Item", Und) @get:JsonProperty("in_item") val inItem: Int,
     @get:Out(""    , Arr) @get:JsonProperty("out"    ) val out   : Int,
-) : Node() {
+) : Node(type) {
     override fun initialize(scope: Scope) {
         val `in` = scope.dataPath(`in`)
         val inItem = scope.dataPath(inItem)

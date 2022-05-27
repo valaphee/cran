@@ -30,9 +30,10 @@ import com.valaphee.flow.spec.Out
  */
 @NodeType("Logic/Not")
 class Not(
+    type: String,
     @get:In ("X" , Bit) @get:JsonProperty("in" ) val `in`: Int,
     @get:Out("¬X", Bit) @get:JsonProperty("out") val out : Int
-) : Node() {
+) : Node(type) {
     override fun initialize(scope: Scope) {
         val `in` = scope.dataPath(`in`)
         val out = scope.dataPath(out)

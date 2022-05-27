@@ -26,10 +26,11 @@ import com.valaphee.flow.spec.Out
  */
 @NodeType("Value")
 class Value(
-    @get:Const("", Und) @get:JsonProperty("value") val value: Any?           ,
-    @get:Out  ("", Und) @get:JsonProperty("out"  ) val out  : Int            ,
-                        @get:JsonProperty("embed") val embed: Boolean = false
-) : Node() {
+    type: String,
+    @get:Const("", Und) @get:JsonProperty("value") val value: Any?,
+    @get:Out  ("", Und) @get:JsonProperty("out"  ) val out  : Int ,
+    @get:JsonProperty("embed") val embed: Boolean = false
+) : Node(type) {
     override fun initialize(scope: Scope) {
         val out = scope.dataPath(out)
 

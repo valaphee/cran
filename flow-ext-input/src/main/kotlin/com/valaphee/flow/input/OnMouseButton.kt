@@ -26,5 +26,6 @@ import com.valaphee.flow.spec.Out
  */
 @NodeType("Input/On Mouse Button")
 class OnMouseButton(
+    type: String,
     @get:Out("") @get:JsonProperty("out") val out: Int
-) : Node()
+) : Node(type)

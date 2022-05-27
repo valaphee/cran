@@ -18,16 +18,58 @@ package com.valaphee.flow.nesting
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.valaphee.flow.Graph
 import com.valaphee.flow.Node
+import com.valaphee.flow.Scope
 
 /**
  * @author Kevin Ludwig
  */
-class SubGraph : Node() {
+class SubGraph(
+    type: String
+) : Node(type) {
     @get:JsonAnyGetter val paths = mutableMapOf<String, Int>()
 
     @JsonAnySetter
     fun setPath(key: String, value: Int) {
         paths[key] = value
+    }
+
+    override fun initialize(scope: Scope) {
+        val subGraph = checkNotNull(Graph.graphs.find { it.name == type })
+        val subScope = Scope()
+        subGraph.initialize(subScope)
+        subGraph.nodes.forEach {
+            when (it) {
+                is ControlInput -> {
+                    val out = subScope.controlPath(it.out)
+                    paths[it.json]?.let {
+                        val `in` = scope.controlPath(it)
+                        `in`.declare { out() }
+                    }
+                }
+                is ControlOutput -> {
+                    val `in` = subScope.controlPath(it.`in`)
+                    paths[it.json]?.let {
+                        val out = scope.controlPath(it)
+                        `in`.declare { out() }
+                    }
+                }
+                is DataInput -> {
+                    val out = subScope.dataPath(it.out)
+                    paths[it.json]?.let {
+                        val `in` = scope.dataPath(it)
+                        out.set { `in`.get() }
+                    }
+                }
+                is DataOutput -> {
+                    val `in` = subScope.dataPath(it.`in`)
+                    paths[it.json]?.let {
+                        val out = scope.dataPath(it)
+                        out.set { `in`.get() }
+                    }
+                }
+            }
+        }
     }
 }

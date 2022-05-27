@@ -18,9 +18,9 @@ package com.valaphee.flow.math.scalar
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.DataPathException
-import com.valaphee.flow.Scope
 import com.valaphee.flow.Node
 import com.valaphee.flow.Num
+import com.valaphee.flow.Scope
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
@@ -32,10 +32,11 @@ import java.math.BigInteger
  */
 @NodeType("Math/Scalar/Subtract")
 class Subtract(
+    type: String,
     @get:In ("A"    , Num) @get:JsonProperty("in_a") val inA: Int,
     @get:In ("B"    , Num) @get:JsonProperty("in_b") val inB: Int,
     @get:Out("A - B", Num) @get:JsonProperty("out" ) val out: Int
-) : Node() {
+) : Node(type) {
     override fun initialize(scope: Scope) {
         val inA = scope.dataPath(inA)
         val inB = scope.dataPath(inB)

@@ -17,8 +17,8 @@
 package com.valaphee.flow.control
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.Scope
 import com.valaphee.flow.Node
+import com.valaphee.flow.Scope
 import com.valaphee.flow.Und
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
@@ -29,11 +29,12 @@ import com.valaphee.flow.spec.Out
  */
 @NodeType("Control/Branch")
 class Branch(
+    type: String,
     @get:In (""            ) @get:JsonProperty("in"         ) val `in`      : Int           ,
     @get:In (""       , Und) @get:JsonProperty("in_value"   ) val inValue   : Int           ,
     @get:Out(""            ) @get:JsonProperty("out"        ) val out       : Map<Any?, Int>,
     @get:Out("Default"     ) @get:JsonProperty("out_default") val outDefault: Int
-) : Node() {
+) : Node(type) {
     override fun initialize(scope: Scope) {
         val `in` = scope.controlPath(`in`)
         val inValue = scope.dataPath(inValue)

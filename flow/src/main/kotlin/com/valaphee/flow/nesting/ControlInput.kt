@@ -28,7 +28,8 @@ import com.valaphee.flow.spec.Out
  */
 @NodeType("Nesting/Control Input")
 class ControlInput(
+    type: String,
     @get:Const("Name", Str) @get:JsonProperty("name") val name: String,
     @get:Const("Json", Str) @get:JsonProperty("json") val json: String,
     @get:Out  (""         ) @get:JsonProperty("out" ) val out : Int   ,
-) : Node()
+) : Node(type)

@@ -26,7 +26,9 @@ import kotlin.concurrent.thread
 /**
  * @author Kevin Ludwig
  */
-abstract class Mouse : Node() {
+abstract class Mouse(
+    type: String
+) : Node(type) {
     companion object {
         private var hidDevice: HidDevice? = null
         private const val path = "\\\\?\\hid#variable_6&col02#1"

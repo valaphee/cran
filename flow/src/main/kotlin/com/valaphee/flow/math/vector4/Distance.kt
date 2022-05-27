@@ -32,10 +32,11 @@ import com.valaphee.foundry.math.Int4
  */
 @NodeType("Math/Vector 4/Distance")
 class Distance(
+    type: String,
     @get:In ("p"      , Vec4) @get:JsonProperty("in_p") val inP: Int,
     @get:In ("q"      , Vec4) @get:JsonProperty("in_q") val inQ: Int,
     @get:Out("d(p, q)", Num ) @get:JsonProperty("out" ) val out: Int
-) : Node() {
+) : Node(type) {
     override fun initialize(scope: Scope) {
         val inP = scope.dataPath(inP)
         val inQ = scope.dataPath(inQ)

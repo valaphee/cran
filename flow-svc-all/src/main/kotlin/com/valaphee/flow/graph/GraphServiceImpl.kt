@@ -21,6 +21,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.google.protobuf.ByteString
+import com.valaphee.flow.Graph.Companion.graphs
 import com.valaphee.flow.Scope
 import com.valaphee.flow.spec.Spec
 import com.valaphee.svc.graph.v1.DeleteGraphRequest
@@ -44,12 +45,12 @@ class GraphServiceImpl @Inject constructor(
     private val objectMapper: ObjectMapper
 ) : GraphServiceImplBase() {
     private val spec: Spec
-    private val graphs = mutableSetOf<GraphImpl>()
+    /*private val graphs = mutableSetOf<GraphImpl>()*/
 
     init {
         ClassGraph().scan().use {
             spec = Spec(it.getResourcesMatchingWildcard("spec.*.dat").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes })
-            graphs += it.getResourcesMatchingWildcard("**.flw").urLs.map { objectMapper.readValue(it) }
+            graphs += it.getResourcesMatchingWildcard("**.flw").urLs.map { objectMapper.readValue<GraphImpl>(it) }
         }
     }
 

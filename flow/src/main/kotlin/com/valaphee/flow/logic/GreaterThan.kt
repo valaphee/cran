@@ -19,8 +19,8 @@ package com.valaphee.flow.logic
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Bit
 import com.valaphee.flow.DataPathException
-import com.valaphee.flow.Scope
 import com.valaphee.flow.Node
+import com.valaphee.flow.Scope
 import com.valaphee.flow.Und
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
@@ -31,10 +31,11 @@ import com.valaphee.flow.spec.Out
  */
 @NodeType("Logic/Greater Than")
 class GreaterThan(
+    type: String,
     @get:In ("A"    , Und) @get:JsonProperty("in_a") val inA: Int,
     @get:In ("B"    , Und) @get:JsonProperty("in_b") val inB: Int,
     @get:Out("A > B", Bit) @get:JsonProperty("out" ) val out: Int
-) : Node() {
+) : Node(type) {
     override fun initialize(scope: Scope) {
         val inA = scope.dataPath(inA)
         val inB = scope.dataPath(inB)

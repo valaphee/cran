@@ -31,10 +31,11 @@ import com.valaphee.foundry.math.Int4
  */
 @NodeType("Math/Vector 4/Add")
 class Add(
+    type: String,
     @get:In ("A"    , Vec4) @get:JsonProperty("in_a") val inA: Int,
     @get:In ("B"    , Vec4) @get:JsonProperty("in_b") val inB: Int,
     @get:Out("A + B", Vec4) @get:JsonProperty("out" ) val out: Int
-) : Node() {
+) : Node(type) {
     override fun initialize(scope: Scope) {
         val inA = scope.dataPath(inA)
         val inB = scope.dataPath(inB)

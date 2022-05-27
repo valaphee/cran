@@ -17,9 +17,9 @@
 package com.valaphee.flow.math.vector2
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.Scope
 import com.valaphee.flow.Node
 import com.valaphee.flow.Num
+import com.valaphee.flow.Scope
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
@@ -32,10 +32,11 @@ import com.valaphee.foundry.math.Int2
  */
 @NodeType("Math/Vector 2/Distance")
 class Distance(
+    type: String,
     @get:In ("p"      , Vec2) @get:JsonProperty("in_p") val inP: Int,
     @get:In ("q"      , Vec2) @get:JsonProperty("in_q") val inQ: Int,
     @get:Out("d(p, q)", Num ) @get:JsonProperty("out" ) val out: Int
-) : Node() {
+) : Node(type) {
     override fun initialize(scope: Scope) {
         val inP = scope.dataPath(inP)
         val inQ = scope.dataPath(inQ)
