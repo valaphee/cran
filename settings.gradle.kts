@@ -18,6 +18,7 @@ rootProject.name = "flow"
 
 include("flow")
 include("flow-env")
+include("flow-ext-input")
 include("flow-meta")
 include("flow-spec")
 include("flow-svc")

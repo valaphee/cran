@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.node.math.vector3
+package com.valaphee.flow.node.math.vector
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Scope
@@ -22,32 +22,22 @@ import com.valaphee.flow.node.Node
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
-import com.valaphee.foundry.math.Double3
-import com.valaphee.foundry.math.Float3
-import com.valaphee.foundry.math.Int3
-import kotlin.math.absoluteValue
 
 /**
  * @author Kevin Ludwig
  */
-@NodeType("Math/Vector 3/Absolute")
-class Absolute(
+@NodeType("Math/Vector/Subtract")
+class Subtract(
     type: String,
-    @get:In ("X"  , Vec3) @get:JsonProperty("in" ) val `in`: Int,
-    @get:Out("|X|", Vec3) @get:JsonProperty("out") val out : Int
+    @get:In ("A"    , Vec) @get:JsonProperty("in_a") val inA: Int,
+    @get:In ("B"    , Vec) @get:JsonProperty("in_b") val inB: Int,
+    @get:Out("A - B", Vec) @get:JsonProperty("out" ) val out: Int
 ) : Node(type) {
     override fun initialize(scope: Scope) {
-        val `in` = scope.dataPath(`in`)
+        val inA = scope.dataPath(inA)
+        val inB = scope.dataPath(inB)
         val out = scope.dataPath(out)
 
-        out.set { vector3Op(`in`.get(), { it.abs() }, { it.abs() }, { it.abs() }, scope.objectMapper) }
-    }
-
-    companion object {
-        private fun Int3.abs() = Int3(x.absoluteValue, y.absoluteValue, z.absoluteValue)
-
-        private fun Float3.abs() = Float3(x.absoluteValue, y.absoluteValue, z.absoluteValue)
-
-        private fun Double3.abs() = Double3(x.absoluteValue, y.absoluteValue, z.absoluteValue)
+        out.set { vectorOp(inA.get(), inB.get(), { a, b -> a.sub(b) }, { a, b -> a.sub(b) }, { a, b -> a.sub(b) }, scope.objectMapper) }
     }
 }

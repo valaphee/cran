@@ -14,31 +14,31 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.node.math.vector4
+package com.valaphee.flow.input
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Scope
 import com.valaphee.flow.node.Node
-import com.valaphee.flow.node.Num
-import com.valaphee.flow.spec.In
+import com.valaphee.flow.node.math.vector.Vec2
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
+import jdk.incubator.vector.IntVector
+import java.awt.MouseInfo
 
 /**
  * @author Kevin Ludwig
  */
-@NodeType("Math/Vector 4/Distance")
-class Distance(
+@NodeType("Input/Mouse Position")
+class MousePosition(
     type: String,
-    @get:In ("p"      , Vec4) @get:JsonProperty("in_p") val inP: Int,
-    @get:In ("q"      , Vec4) @get:JsonProperty("in_q") val inQ: Int,
-    @get:Out("d(p, q)", Num ) @get:JsonProperty("out" ) val out: Int
+    @get:Out("", Vec2) @get:JsonProperty("out_position") val out: Int
 ) : Node(type) {
     override fun initialize(scope: Scope) {
-        val inP = scope.dataPath(inP)
-        val inQ = scope.dataPath(inQ)
         val out = scope.dataPath(out)
 
-        out.set { vector4Op(inP.get(), inQ.get(), { a, b -> a.toFloat4().distance(b.toFloat4()) }, { a, b -> a.distance(b) }, { a, b -> a.distance(b) }, scope.objectMapper) }
+        out.set {
+            val position = MouseInfo.getPointerInfo().location
+            IntVector.fromArray(IntVector.SPECIES_64, intArrayOf(position.x, position.y), 0)
+        }
     }
 }

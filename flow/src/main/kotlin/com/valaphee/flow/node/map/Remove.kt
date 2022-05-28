@@ -31,9 +31,9 @@ import com.valaphee.flow.spec.Out
 @NodeType("Map/Remove")
 class Remove(
     type: String,
-    @get:In (""     , Arr) @get:JsonProperty("in"      ) val `in`   : Int,
-    @get:In ("Key"  , Und) @get:JsonProperty("in_key"  ) val inKey  : Int,
-    @get:Out(""     , Arr) @get:JsonProperty("out"     ) val out    : Int,
+    @get:In (""   , Arr) @get:JsonProperty("in"    ) val `in` : Int,
+    @get:In ("Key", Und) @get:JsonProperty("in_key") val inKey: Int,
+    @get:Out(""   , Arr) @get:JsonProperty("out"   ) val out  : Int
 ) : Node(type) {
     override fun initialize(scope: Scope) {
         val `in` = scope.dataPath(`in`)

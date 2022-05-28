@@ -2,4 +2,4 @@
 FROM openjdk:17
 COPY build/libs/flow-env.jar /opt
 WORKDIR /opt
-ENTRYPOINT [ "java", "-jar", "/opt/flow-env.jar" ]
+ENTRYPOINT [ "java", "--add-modules=jdk.incubator.vector", "-jar", "/opt/flow-env.jar" ]

@@ -14,30 +14,18 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.node.math.vector3
+package com.valaphee.flow.input
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.flow.Scope
 import com.valaphee.flow.node.Node
-import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@NodeType("Math/Vector 3/Add")
-class Add(
+@NodeType("Input/On Keyboard Key")
+class OnKeyboardKey(
     type: String,
-    @get:In ("A"    , Vec3) @get:JsonProperty("in_a") val inA: Int,
-    @get:In ("B"    , Vec3) @get:JsonProperty("in_b") val inB: Int,
-    @get:Out("A + B", Vec3) @get:JsonProperty("out" ) val out: Int
-) : Node(type) {
-    override fun initialize(scope: Scope) {
-        val inA = scope.dataPath(inA)
-        val inB = scope.dataPath(inB)
-        val out = scope.dataPath(out)
-
-        out.set { vector3Op(inA.get(), inB.get(), { a, b -> a + b }, { a, b -> a + b }, { a, b -> a + b }, scope.objectMapper) }
-    }
-}
+    @get:Out("") @get:JsonProperty("out") val out: Int
+) : Node(type)

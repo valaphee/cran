@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.node.math.vector2
+package com.valaphee.flow.node.map
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Scope
+import com.valaphee.flow.node.Arr
 import com.valaphee.flow.node.Node
+import com.valaphee.flow.node.Und
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
@@ -26,18 +28,18 @@ import com.valaphee.flow.spec.Out
 /**
  * @author Kevin Ludwig
  */
-@NodeType("Math/Vector 2/Subtract")
-class Subtract(
+@NodeType("Map/Get")
+class Get(
     type: String,
-    @get:In ("A"    , Vec2) @get:JsonProperty("in_a") val inA: Int,
-    @get:In ("B"    , Vec2) @get:JsonProperty("in_b") val inB: Int,
-    @get:Out("A - B", Vec2) @get:JsonProperty("out" ) val out: Int
+    @get:In (""   , Arr) @get:JsonProperty("in"    ) val `in` : Int,
+    @get:In ("Key", Und) @get:JsonProperty("in_key") val inKey: Int,
+    @get:Out(""   , Arr) @get:JsonProperty("out"   ) val out  : Int
 ) : Node(type) {
     override fun initialize(scope: Scope) {
-        val inA = scope.dataPath(inA)
-        val inB = scope.dataPath(inB)
+        val `in` = scope.dataPath(`in`)
+        val inKey = scope.dataPath(inKey)
         val out = scope.dataPath(out)
 
-        out.set { vector2Op(inA.get(), inB.get(), { a, b -> a - b }, { a, b -> a - b }, { a, b -> a - b }, scope.objectMapper) }
+        out.set { `in`.getOfType<Map<Any?, Any?>>()[inKey.get()] }
     }
 }

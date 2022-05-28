@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.node.math.vector2
+package com.valaphee.flow.node.math.vector
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Scope
@@ -22,32 +22,22 @@ import com.valaphee.flow.node.Node
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
-import com.valaphee.foundry.math.Double2
-import com.valaphee.foundry.math.Float2
-import com.valaphee.foundry.math.Int2
-import kotlin.math.absoluteValue
 
 /**
  * @author Kevin Ludwig
  */
-@NodeType("Math/Vector 2/Absolute")
-class Absolute(
+@NodeType("Math/Vector/Add")
+class Add(
     type: String,
-    @get:In ("X"  , Vec2) @get:JsonProperty("in" ) val `in`: Int,
-    @get:Out("|X|", Vec2) @get:JsonProperty("out") val out : Int
+    @get:In ("A"    , Vec) @get:JsonProperty("in_a") val inA: Int,
+    @get:In ("B"    , Vec) @get:JsonProperty("in_b") val inB: Int,
+    @get:Out("A + B", Vec) @get:JsonProperty("out" ) val out: Int
 ) : Node(type) {
     override fun initialize(scope: Scope) {
-        val `in` = scope.dataPath(`in`)
+        val inA = scope.dataPath(inA)
+        val inB = scope.dataPath(inB)
         val out = scope.dataPath(out)
 
-        out.set { vector2Op(`in`.get(), { it.abs() }, { it.abs() }, { it.abs() }, scope.objectMapper) }
-    }
-
-    companion object {
-        private fun Int2.abs() = Int2(x.absoluteValue, y.absoluteValue)
-
-        private fun Float2.abs() = Float2(x.absoluteValue, y.absoluteValue)
-
-        private fun Double2.abs() = Double2(x.absoluteValue, y.absoluteValue)
+        out.set { vectorOp(inA.get(), inB.get(), { a, b -> a.add(b) }, { a, b -> a.add(b) }, { a, b -> a.add(b) }, scope.objectMapper) }
     }
 }

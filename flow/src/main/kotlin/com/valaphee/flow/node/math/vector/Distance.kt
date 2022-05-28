@@ -14,24 +14,28 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.node.math.vector3
+package com.valaphee.flow.node.math.vector
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.google.common.math.IntMath
 import com.valaphee.flow.Scope
 import com.valaphee.flow.node.Node
 import com.valaphee.flow.node.Num
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
+import jdk.incubator.vector.VectorOperators
+import java.math.RoundingMode
+import kotlin.math.sqrt
 
 /**
  * @author Kevin Ludwig
  */
-@NodeType("Math/Vector 3/Distance")
+@NodeType("Math/Vector/Distance")
 class Distance(
     type: String,
-    @get:In ("p"      , Vec3) @get:JsonProperty("in_p") val inP: Int,
-    @get:In ("q"      , Vec3) @get:JsonProperty("in_q") val inQ: Int,
+    @get:In ("p"      , Vec) @get:JsonProperty("in_p") val inP: Int,
+    @get:In ("q"      , Vec) @get:JsonProperty("in_q") val inQ: Int,
     @get:Out("d(p, q)", Num ) @get:JsonProperty("out" ) val out: Int
 ) : Node(type) {
     override fun initialize(scope: Scope) {
@@ -39,6 +43,15 @@ class Distance(
         val inQ = scope.dataPath(inQ)
         val out = scope.dataPath(out)
 
-        out.set { vector3Op(inP.get(), inQ.get(), { a, b -> a.toFloat3().distance(b.toFloat3()) }, { a, b -> a.distance(b) }, { a, b -> a.distance(b) }, scope.objectMapper) }
+        out.set { vectorOp(inP.get(), inQ.get(), { p, q ->
+            val pSubQ = p.sub(q)
+            IntMath.sqrt(pSubQ.mul(pSubQ).reduceLanes(VectorOperators.ADD), RoundingMode.HALF_UP)
+        }, { p, q ->
+            val pSubQ = p.sub(q)
+            sqrt(pSubQ.mul(pSubQ).reduceLanes(VectorOperators.ADD))
+        }, { p, q ->
+            val pSubQ = p.sub(q)
+            sqrt(pSubQ.mul(pSubQ).reduceLanes(VectorOperators.ADD))
+        }, scope.objectMapper) }
     }
 }
