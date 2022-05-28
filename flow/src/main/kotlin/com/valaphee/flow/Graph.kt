@@ -40,17 +40,17 @@ abstract class Graph {
         nodes.forEach { it.initialize(scope) }
     }
 
-    open fun shutdown() {
-        nodes.forEach { it.shutdown() }
+    open fun shutdown(scope: Scope) {
+        nodes.forEach { it.shutdown(scope) }
     }
 
     fun toSpec() = Spec.Node(name, "", nodes.mapNotNull {
         when (it) {
-            is ControlInput -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.InControl, NullNode.instance)
+            is ControlInput  -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.InControl , NullNode.instance)
             is ControlOutput -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.OutControl, NullNode.instance)
-            is DataInput -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.InData, und)
-            is DataOutput -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.OutData, und)
-            else -> null
+            is DataInput     -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.InData    , und              )
+            is DataOutput    -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.OutData   , und              )
+            else             -> null
         }
     })
 

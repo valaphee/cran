@@ -47,15 +47,13 @@ class GraphServiceImpl @Inject constructor(
 ) : GraphServiceImplBase(), GraphManager {
     private val spec: Spec
     private val graphs = mutableSetOf<GraphImpl>()
+    private val scopes = mutableMapOf<UUID, Scope>()
 
     init {
         ClassGraph().scan().use {
-            spec = Spec(it.getResourcesMatchingWildcard("spec.*.dat").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes })
-            graphs += it.getResourcesMatchingWildcard("**.flw").urLs.map { objectMapper.readValue(it) }
+            spec = Spec(it.getResourcesMatchingWildcard("spec.*.dat").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes.onEach { log.info("Built-in node {} found", it.name) } })
+            graphs += it.getResourcesMatchingWildcard("**.flw").urLs.map { objectMapper.readValue<GraphImpl>(it).also { log.info("Built-in node {} with graph found", it.name) } }
         }
-
-        spec.nodes.forEach { log.info("Built-in node {} found", it.name) }
-        graphs.forEach { log.info("Built-in graph node {} found", it.name) }
     }
 
     override fun getGraph(name: String) = graphs.find { it.name == name }
@@ -74,10 +72,10 @@ class GraphServiceImpl @Inject constructor(
         val graph = objectMapper.readValue<GraphImpl>(request.graph.toByteArray())
         graphs.find { it.id == graph.id }?.let {
             graphs -= it
-            it.shutdown()
+            it.shutdown(checkNotNull(scopes[graph.id]))
         }
         graphs += graph
-        graph.initialize(Scope(objectMapper, this))
+        graph.initialize(Scope(objectMapper, this).also { scopes[graph.id] = it })
         responseObserver.onNext(UpdateGraphResponse.getDefaultInstance())
         responseObserver.onCompleted()
     }
@@ -86,7 +84,7 @@ class GraphServiceImpl @Inject constructor(
         val graphId = UUID.fromString(request.graphId)
         graphs.find { it.id == graphId }?.let {
             graphs -= it
-            it.shutdown()
+            it.shutdown(checkNotNull(scopes[graphId]))
         }
         responseObserver.onNext(DeleteGraphResponse.getDefaultInstance())
         responseObserver.onCompleted()

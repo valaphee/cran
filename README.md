@@ -16,11 +16,10 @@ integrations as possible.
 The language itself should be intuitive, or simply not allow specific behavior which might be unlogical/hard to track, like for example<br>
 mutable structures, without willingly activating it. (See list nodes, which are by default immutable and can be toggled to be mutable.)
 
-This project consists of 5 parts:
+This project consists of 6 parts:
 * flow: Actual implementation (contains all common nodes)
-* flow-ext-*: Extensions
-* flow-gui: JavaFX-based visual editor
+* flow-env: Flow environment with gRPC services (with all extensions)
 * flow-meta: Metadata for additional details of graphs (required for development)
 * flow-spec: Specification for nodes (required for development)
 * flow-svc: Flow gRPC services for development
-* flow-svc-all: Flow processor with gRPC services (with all extensions)
+* flow-vis: JavaFX-based visual editor

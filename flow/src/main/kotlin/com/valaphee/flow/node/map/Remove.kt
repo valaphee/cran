@@ -14,18 +14,32 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.input
+package com.valaphee.flow.node.map
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.flow.Scope
+import com.valaphee.flow.node.Arr
 import com.valaphee.flow.node.Node
+import com.valaphee.flow.node.Und
+import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@NodeType("Input/On Mouse Move")
-class OnMouseMove(
+@NodeType("Map/Remove")
+class Remove(
     type: String,
-    @get:Out("") @get:JsonProperty("out") val out: Int
-) : Node(type)
+    @get:In (""     , Arr) @get:JsonProperty("in"      ) val `in`   : Int,
+    @get:In ("Key"  , Und) @get:JsonProperty("in_key"  ) val inKey  : Int,
+    @get:Out(""     , Arr) @get:JsonProperty("out"     ) val out    : Int,
+) : Node(type) {
+    override fun initialize(scope: Scope) {
+        val `in` = scope.dataPath(`in`)
+        val inKey = scope.dataPath(inKey)
+        val out = scope.dataPath(out)
+
+        out.set { `in`.getOfType<MutableMap<Any?, Any?>>().also { it.remove(inKey.get()) } }
+    }
+}

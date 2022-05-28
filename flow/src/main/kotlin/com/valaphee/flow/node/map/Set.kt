@@ -14,31 +14,34 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.input
+package com.valaphee.flow.node.map
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Scope
+import com.valaphee.flow.node.Arr
 import com.valaphee.flow.node.Node
-import com.valaphee.flow.node.math.vector2.Vec2
+import com.valaphee.flow.node.Und
+import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
-import com.valaphee.foundry.math.Int2
-import java.awt.MouseInfo
 
 /**
  * @author Kevin Ludwig
  */
-@NodeType("Input/Mouse Position")
-class MousePosition(
+@NodeType("Map/Set")
+class Set(
     type: String,
-    @get:Out("", Vec2) @get:JsonProperty("out_position") val out: Int
+    @get:In (""     , Arr) @get:JsonProperty("in"      ) val `in`   : Int,
+    @get:In ("Key"  , Und) @get:JsonProperty("in_key"  ) val inKey  : Int,
+    @get:In ("Value", Und) @get:JsonProperty("in_value") val inValue: Int,
+    @get:Out(""     , Arr) @get:JsonProperty("out"     ) val out    : Int,
 ) : Node(type) {
     override fun initialize(scope: Scope) {
+        val `in` = scope.dataPath(`in`)
+        val inKey = scope.dataPath(inKey)
+        val inValue = scope.dataPath(inValue)
         val out = scope.dataPath(out)
 
-        out.set {
-            val position = MouseInfo.getPointerInfo().location
-            Int2(position.x, position.y)
-        }
+        out.set { `in`.getOfType<MutableMap<Any?, Any?>>().also { it[inKey.get()] = inValue.get() } }
     }
 }

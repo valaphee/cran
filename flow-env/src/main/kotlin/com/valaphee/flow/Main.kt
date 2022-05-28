@@ -87,10 +87,11 @@ fun main(arguments: Array<String>) {
         }
     })
 
-    ServerBuilder
+    val server = ServerBuilder
         .forPort(port)
         .addService(injector.getInstance(GraphServiceImplBase::class.java))
         .build()
         .start()
-        .awaitTermination()
+    LogManager.getLogger("Main").info("Listening on $port")
+    server.awaitTermination()
 }

@@ -46,8 +46,8 @@ class GraphImpl(
         nodes.forEach { if (it is Entry) launch { scope.controlPath(it.out)() } }
     }
 
-    override fun shutdown() {
-        super.shutdown()
+    override fun shutdown(scope: Scope) {
+        super.shutdown(scope)
         executor.shutdown()
     }
 }

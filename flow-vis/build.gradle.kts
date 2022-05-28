@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-plugins { id("com.github.johnrengelman.shadow") }
+plugins {
+    id("com.github.johnrengelman.shadow")
+    id("org.openjfx.javafxplugin")
+}
 
 dependencies {
-    implementation(project(":flow"))
-    implementation(project(":flow-ext-input"))
     implementation(project(":flow-meta"))
     implementation(project(":flow-spec"))
     implementation(project(":flow-svc"))
@@ -26,19 +27,15 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-guice:2.13.3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
     implementation("com.google.inject:guice:5.1.0")
-    implementation("io.github.classgraph:classgraph:4.8.146")
-    implementation("io.netty:netty-tcnative:2.0.52.Final")
-    implementation("io.netty:netty-tcnative-boringssl-static:2.0.52.Final")
-    implementation("io.netty:netty-tcnative-boringssl-static:2.0.52.Final:windows-x86_64")
-    implementation("org.apache.logging.log4j:log4j-core:2.17.2")
-    implementation("org.apache.logging.log4j:log4j-iostreams:2.17.2")
-    implementation("org.apache.logging.log4j:log4j-jul:2.17.2")
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.17.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.4")
+    implementation("no.tornado:tornadofx:1.7.20")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:1.6.1")
+    implementation("eu.mihosoft.vrl.workflow:vworkflows-fx:0.2.5.0")
 }
 
 tasks {
     jar { manifest { attributes(mapOf("Main-Class" to "com.valaphee.flow.MainKt")) } }
 
-    shadowJar { archiveName = "flow.jar" }
+    shadowJar { archiveName = "flow-vis.jar" }
 }
+
+javafx { modules("javafx.controls", "javafx.fxml", "javafx.graphics") }
