@@ -16,9 +16,65 @@
 
 package com.valaphee.flow.radio
 
-fun deinterleave(value: FloatArray, count: Int): List<FloatArray> {
-    check(value.size % count == 0)
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.flow.Scope
+import com.valaphee.flow.node.Arr
+import com.valaphee.flow.node.Node
+import com.valaphee.flow.spec.In
+import com.valaphee.flow.spec.NodeType
+import com.valaphee.flow.spec.Out
 
-    val size = value.size / count
-    return List(count) { n -> FloatArray(size) { i -> value[n + i * count] } }
+/**
+ * @author Kevin Ludwig
+ */
+@NodeType("Radio/Deinterleave")
+class Deinterleave(
+    type: String,
+    @get:In (""  , Arr) @get:JsonProperty("in"    ) val `in` : Int,
+    @get:Out("Re", Arr) @get:JsonProperty("out_re") val outRe: Int,
+    @get:Out("Im", Arr) @get:JsonProperty("out_im") val outIm: Int,
+) : Node(type) {
+    private val states = mutableMapOf<Scope, State>()
+
+    override fun initialize(scope: Scope) {
+        val state = states.getOrPut(scope) { State() }
+        val `in` = scope.dataPath(`in`)
+        val outRe = scope.dataPath(outRe)
+        val outIm = scope.dataPath(outIm)
+
+        outRe.set {
+            state.re?.also { state.re = null } ?: run {
+                val (inRe, inIm) = deinterleave(`in`.getOfType(), 2)
+                state.re = inRe
+                state.im = inIm
+                inRe
+            }
+        }
+        outIm.set {
+            state.im?.also { state.im = null } ?: run {
+                val (inRe, inIm) = deinterleave(`in`.getOfType(), 2)
+                state.re = inRe
+                state.im = inIm
+                inIm
+            }
+        }
+    }
+
+    override fun shutdown(scope: Scope) {
+        states.remove(scope)
+    }
+
+    private class State {
+        var re: FloatArray? = null
+        var im: FloatArray? = null
+    }
+
+    companion object {
+        fun deinterleave(value: FloatArray, count: Int): List<FloatArray> {
+            check(value.size % count == 0)
+
+            val size = value.size / count
+            return List(count) { n -> FloatArray(size) { i -> value[n + i * count] } }
+        }
+    }
 }

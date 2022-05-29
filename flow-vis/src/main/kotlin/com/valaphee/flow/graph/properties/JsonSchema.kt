@@ -24,9 +24,6 @@ import javafx.beans.property.ObjectProperty
 import javafx.scene.Node
 import javafx.scene.control.CheckBox
 import javafx.scene.control.TextField
-import javafx.scene.layout.HBox
-import javafx.scene.layout.Priority
-import tornadofx.hgrow
 import tornadofx.onChange
 
 /**
@@ -72,11 +69,11 @@ class JsonSchema(
             text = value?.toString()
             textProperty().onChange { toValue() }
         }
-        Type.Array -> HBox().apply {
+        /*Type.Array -> HBox().apply {
             check(items != null && minItems != null && maxItems != null)
             val _value = value as List<*>?
             repeat(minItems) { children += items.toNode(_value?.get(it) ?: 0, toValue).apply { hgrow = Priority.ALWAYS } }
-        }
+        }*/
         else -> TextField().apply {
             text = objectMapper.writeValueAsString(value)
             focusedProperty().onChange { toValue() }
@@ -89,11 +86,11 @@ class JsonSchema(
             Type.Integer -> (node as TextField).text = (value as Number?)?.toString() ?: "0.0"
             Type.Number  -> (node as TextField).text = (value as Number?)?.toString() ?: "0"
             Type.String  -> (node as TextField).text = value?.toString() ?: ""
-            Type.Array   -> {
+            /*Type.Array   -> {
                 check(items != null && minItems != null && maxItems != null)
                 val _value = value as List<*>?
                 (node as HBox).children.forEachIndexed { i, child -> items.updateNode(_value?.get(i) ?: 0, child) }
-            }
+            }*/
             else         -> (node as TextField).text = objectMapper.writeValueAsString(value)
         }
     }
@@ -103,10 +100,10 @@ class JsonSchema(
         Type.Integer -> (node as TextField).text?.toInt() ?: 0
         Type.Number  -> (node as TextField).text?.toDouble() ?: 0.0
         Type.String  -> (node as TextField).text ?: ""
-        Type.Array   -> {
+        /*Type.Array   -> {
             check(items != null && minItems != null && maxItems != null)
             (node as HBox).children.map { items.toValue(it) }
-        }
+        }*/
         else         -> objectMapper.readValue((node as TextField).text)
     }
 }

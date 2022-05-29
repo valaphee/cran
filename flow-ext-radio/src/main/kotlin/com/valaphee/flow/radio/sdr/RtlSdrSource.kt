@@ -21,9 +21,9 @@ import com.sun.jna.Pointer
 import com.sun.jna.ptr.IntByReference
 import com.sun.jna.ptr.PointerByReference
 import com.valaphee.flow.Scope
+import com.valaphee.flow.node.Arr
 import com.valaphee.flow.node.Int
 import com.valaphee.flow.node.Node
-import com.valaphee.flow.node.Num
 import com.valaphee.flow.spec.Const
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
@@ -40,7 +40,7 @@ class RtlSdrSource(
     @get:Const("Frequency"  , Int) @get:JsonProperty("frequency"  ) val frequency : Int,
     @get:In   ("Begin"           ) @get:JsonProperty("in_begin"   ) val inBegin   : Int,
     @get:In   ("Abort"           ) @get:JsonProperty("in_abort"   ) val inAbort   : Int,
-    @get:Out  (""           , Num) @get:JsonProperty("out"        ) val out       : Int
+    @get:Out  (""           , Arr) @get:JsonProperty("out"        ) val out       : Int
 ) : Node(type) {
     private val states = mutableMapOf<Scope, State>()
 

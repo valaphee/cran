@@ -29,7 +29,7 @@ import jdk.incubator.vector.FloatVector
 import jdk.incubator.vector.IntVector
 import jdk.incubator.vector.VectorOperators
 
-const val Vec = """{"type":"array","items":{"type":"number"}}"""
+const val Vec  = """{"type":"array","items":{"type":"number"}}"""
 const val Vec2 = """{"type":"array","items":{"type":"number"},"minItems":2,"maxItems":2}"""
 const val Vec3 = """{"type":"array","items":{"type":"number"},"minItems":3,"maxItems":3}"""
 const val Vec4 = """{"type":"array","items":{"type":"number"},"minItems":4,"maxItems":4}"""

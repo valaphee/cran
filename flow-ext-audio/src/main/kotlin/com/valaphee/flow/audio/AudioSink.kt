@@ -18,9 +18,9 @@ package com.valaphee.flow.audio
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Scope
+import com.valaphee.flow.node.Arr
 import com.valaphee.flow.node.Int
 import com.valaphee.flow.node.Node
-import com.valaphee.flow.node.Num
 import com.valaphee.flow.spec.Const
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
@@ -41,7 +41,7 @@ class AudioSink(
     @get:Const("Sample Rate", Int) @get:JsonProperty("sample_rate") val sampleRate: Int,
     @get:In   ("Begin"           ) @get:JsonProperty("in_begin"   ) val inBegin   : Int,
     @get:In   ("Abort"           ) @get:JsonProperty("in_abort"   ) val inAbort   : Int,
-    @get:In   (""           , Num) @get:JsonProperty("in"         ) val `in`      : Int
+    @get:In   (""           , Arr) @get:JsonProperty("in"         ) val `in`      : Int
 ) : Node(type) {
     private val states = mutableMapOf<Scope, State>()
 

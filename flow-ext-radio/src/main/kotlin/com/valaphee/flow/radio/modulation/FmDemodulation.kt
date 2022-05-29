@@ -18,11 +18,10 @@ package com.valaphee.flow.radio.modulation
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Scope
+import com.valaphee.flow.node.Arr
 import com.valaphee.flow.node.Int
 import com.valaphee.flow.node.Node
-import com.valaphee.flow.node.Num
-import com.valaphee.flow.radio.deinterleave
-import com.valaphee.flow.radio.interleave
+import com.valaphee.flow.radio.Deinterleave
 import com.valaphee.flow.spec.Const
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
@@ -38,8 +37,8 @@ class FmDemodulation(
     type: String,
     @get:Const("Deviation"  , Int) @get:JsonProperty("deviation"  ) val deviation : Int,
     @get:Const("Sample Rate", Int) @get:JsonProperty("sample_rate") val sampleRate: Int,
-    @get:In   (""           , Num) @get:JsonProperty("in"         ) val `in`      : Int,
-    @get:Out  (""           , Num) @get:JsonProperty("out"        ) val out       : Int
+    @get:In   (""           , Arr) @get:JsonProperty("in"         ) val `in`      : Int,
+    @get:Out  (""           , Arr) @get:JsonProperty("out"        ) val out       : Int
 ) : Node(type) {
     private val states = mutableMapOf<Scope, State>()
 
@@ -50,7 +49,7 @@ class FmDemodulation(
 
         val gain = sampleRate / (2 * PI.toFloat() * deviation)
         out.set {
-            val (inRe, inIm) = deinterleave(`in`.getOfType(), 2)
+            val (inRe, inIm) = Deinterleave.deinterleave(`in`.getOfType(), 2)
             val size = inRe.size
             var prevRe = if (state.prevRe.isNaN()) inRe.first().also { state.prevRe = it } else state.prevRe
             var prevIm = if (state.prevIm.isNaN()) inIm.first().also { state.prevIm = it } else state.prevIm
@@ -66,7 +65,7 @@ class FmDemodulation(
                 prevRe = _inRe
                 prevIm = _inIm
             }
-            interleave(outRe, outIm)
+            /*interleave(*/outRe/*, outIm)*/
         }
     }
 

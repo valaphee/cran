@@ -18,9 +18,9 @@ package com.valaphee.flow.radio.modulation
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Scope
+import com.valaphee.flow.node.Arr
 import com.valaphee.flow.node.Node
-import com.valaphee.flow.node.Num
-import com.valaphee.flow.radio.deinterleave
+import com.valaphee.flow.radio.Deinterleave
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
@@ -31,8 +31,8 @@ import com.valaphee.flow.spec.Out
 @NodeType("Radio/Demodulation/AM")
 class AmDemodulation(
     type: String,
-    @get:In ("", Num) @get:JsonProperty("in" ) val `in`: Int,
-    @get:Out("", Num) @get:JsonProperty("out") val out : Int
+    @get:In ("", Arr) @get:JsonProperty("in" ) val `in`: Int,
+    @get:Out("", Arr) @get:JsonProperty("out") val out : Int
 ) : Node(type) {
     private val states = mutableMapOf<Scope, State>()
 
@@ -42,7 +42,7 @@ class AmDemodulation(
         val out = scope.dataPath(out)
 
         out.set {
-            val (inRe, inIm) = deinterleave(`in`.getOfType(), 2)
+            val (inRe, inIm) = Deinterleave.deinterleave(`in`.getOfType(), 2)
             val size = inRe.size
             val _out = FloatArray(size)
 
