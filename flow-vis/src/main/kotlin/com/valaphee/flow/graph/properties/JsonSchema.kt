@@ -40,6 +40,7 @@ class JsonSchema(
 ) {
     enum class Type {
         @JsonProperty("boolean") Boolean,
+        @JsonProperty("integer") Integer,
         @JsonProperty("number" ) Number ,
         @JsonProperty("string" ) String ,
         @JsonProperty("array"  ) Array
@@ -58,6 +59,10 @@ class JsonSchema(
         Type.Boolean -> CheckBox().apply {
             isSelected = value as Boolean? ?: false
             selectedProperty().onChange { toValue() }
+        }
+        Type.Integer -> TextField().apply {
+            text = (value as Number?)?.toString()
+            textProperty().onChange { toValue() }
         }
         Type.Number -> TextField().apply {
             text = (value as Number?)?.toString()
@@ -81,25 +86,27 @@ class JsonSchema(
     private fun updateNode(value: Any?, node: Node) {
         when (type) {
             Type.Boolean -> (node as CheckBox).isSelected = value as Boolean? ?: false
-            Type.Number -> (node as TextField).text = (value as Number?)?.toString() ?: "0"
-            Type.String -> (node as TextField).text = value?.toString() ?: ""
-            Type.Array -> {
+            Type.Integer -> (node as TextField).text = (value as Number?)?.toString() ?: "0.0"
+            Type.Number  -> (node as TextField).text = (value as Number?)?.toString() ?: "0"
+            Type.String  -> (node as TextField).text = value?.toString() ?: ""
+            Type.Array   -> {
                 check(items != null && minItems != null && maxItems != null)
                 val _value = value as List<*>?
                 (node as HBox).children.forEachIndexed { i, child -> items.updateNode(_value?.get(i) ?: 0, child) }
             }
-            else -> (node as TextField).text = objectMapper.writeValueAsString(value)
+            else         -> (node as TextField).text = objectMapper.writeValueAsString(value)
         }
     }
 
     private fun toValue(node: Node): Any? = when (type) {
         Type.Boolean -> (node as CheckBox).isSelected
-        Type.Number -> (node as TextField).text?.toDouble() ?: 0.0
-        Type.String -> (node as TextField).text ?: ""
-        Type.Array -> {
+        Type.Integer -> (node as TextField).text?.toInt() ?: 0
+        Type.Number  -> (node as TextField).text?.toDouble() ?: 0.0
+        Type.String  -> (node as TextField).text ?: ""
+        Type.Array   -> {
             check(items != null && minItems != null && maxItems != null)
             (node as HBox).children.map { items.toValue(it) }
         }
-        else -> objectMapper.readValue((node as TextField).text)
+        else         -> objectMapper.readValue((node as TextField).text)
     }
 }

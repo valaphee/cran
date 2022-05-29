@@ -19,8 +19,8 @@ package com.valaphee.flow.node.list
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Scope
 import com.valaphee.flow.node.Arr
+import com.valaphee.flow.node.Int
 import com.valaphee.flow.node.Node
-import com.valaphee.flow.node.Num
 import com.valaphee.flow.node.Und
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
@@ -33,7 +33,7 @@ import com.valaphee.flow.spec.Out
 class Get(
     type: String,
     @get:In (""     , Arr) @get:JsonProperty("in"      ) val `in`   : Int,
-    @get:In ("Index", Num) @get:JsonProperty("in_index") val inIndex: Int,
+    @get:In ("Index", Int) @get:JsonProperty("in_index") val inIndex: Int,
     @get:Out(""     , Und) @get:JsonProperty("out"     ) val out    : Int
 ) : Node(type) {
     override fun initialize(scope: Scope) {
@@ -41,6 +41,6 @@ class Get(
         val inIndex = scope.dataPath(inIndex)
         val out = scope.dataPath(out)
 
-        out.set { `in`.getOfType<List<Any?>>()[inIndex.getOfType<Number>().toInt()] }
+        out.set { `in`.getOfType<List<Any?>>()[inIndex.getOfType()] }
     }
 }

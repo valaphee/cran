@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-rootProject.name = "flow"
+package com.valaphee.flow.radio
 
-include("flow")
-include("flow-env")
-include("flow-ext-audio")
-include("flow-ext-input")
-include("flow-ext-radio")
-include("flow-meta")
-include("flow-spec")
-include("flow-svc")
-include("flow-vis")
+fun interleave(vararg value: FloatArray): FloatArray {
+    val size = value[0].size
+    check(value.all { it.size == size })
+    val count = value.size - 1
+
+    var n = 0
+    var i = 0
+    return FloatArray(value.size * size) {
+        if (n == count) {
+            n = 0
+            i++
+        }
+        value[n++][i]
+    }
+}

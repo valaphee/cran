@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-rootProject.name = "flow"
+package com.valaphee.flow.radio
 
-include("flow")
-include("flow-env")
-include("flow-ext-audio")
-include("flow-ext-input")
-include("flow-ext-radio")
-include("flow-meta")
-include("flow-spec")
-include("flow-svc")
-include("flow-vis")
+fun deinterleave(value: FloatArray, count: Int): List<FloatArray> {
+    check(value.size % count == 0)
+
+    val size = value.size / count
+    return List(count) { n -> FloatArray(size) { i -> value[n + i * count] } }
+}

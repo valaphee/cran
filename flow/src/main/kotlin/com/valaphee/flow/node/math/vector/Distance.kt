@@ -17,7 +17,6 @@
 package com.valaphee.flow.node.math.vector
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.google.common.math.IntMath
 import com.valaphee.flow.Scope
 import com.valaphee.flow.node.Node
 import com.valaphee.flow.node.Num
@@ -25,7 +24,6 @@ import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 import jdk.incubator.vector.VectorOperators
-import java.math.RoundingMode
 import kotlin.math.sqrt
 
 /**
@@ -45,7 +43,7 @@ class Distance(
 
         out.set { vectorOp(inP.get(), inQ.get(), { p, q ->
             val pSubQ = p.sub(q)
-            IntMath.sqrt(pSubQ.mul(pSubQ).reduceLanes(VectorOperators.ADD), RoundingMode.HALF_UP)
+            sqrt(pSubQ.mul(pSubQ).reduceLanes(VectorOperators.ADD).toFloat()).toInt()
         }, { p, q ->
             val pSubQ = p.sub(q)
             sqrt(pSubQ.mul(pSubQ).reduceLanes(VectorOperators.ADD))

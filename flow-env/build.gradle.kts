@@ -18,7 +18,9 @@ plugins { id("com.github.johnrengelman.shadow") }
 
 dependencies {
     implementation(project(":flow"))
+    implementation(project(":flow-ext-audio"))
     implementation(project(":flow-ext-input"))
+    implementation(project(":flow-ext-radio"))
     implementation(project(":flow-meta"))
     implementation(project(":flow-spec"))
     implementation(project(":flow-svc"))
