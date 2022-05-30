@@ -38,7 +38,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             pom.apply {
-                name.set("Flow Extension: Input")
+                name.set("Flow Extension: Radio")
                 description.set("Flow-based programming \"language\"")
                 url.set("https://valaphee.com")
                 scm {

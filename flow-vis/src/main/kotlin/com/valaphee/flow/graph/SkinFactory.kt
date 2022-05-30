@@ -33,6 +33,4 @@ class SkinFactory(
     override fun createSkin(node: VNode, flow: VFlow) = NodeSkin(this, fxParent, node, flow)
 
     override fun createSkin(connection: Connection, flow: VFlow, type: String): FXConnectionSkin = ConnectionSkin(this, fxParent, connection, flow, type).init()
-
-
 }

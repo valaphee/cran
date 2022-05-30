@@ -26,7 +26,7 @@ import kotlin.coroutines.coroutineContext
 /**
  * @author Kevin Ludwig
  */
-abstract class State(
+abstract class Task(
     type: String
 ) : Node(type) {
     private val jobs = mutableMapOf<Scope, Job>()

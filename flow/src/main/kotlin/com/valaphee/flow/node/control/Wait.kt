@@ -18,13 +18,13 @@ package com.valaphee.flow.node.control
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Scope
-import com.valaphee.flow.node.Int
-import com.valaphee.flow.node.State
-import com.valaphee.flow.spec.Const
+import com.valaphee.flow.node.Num
+import com.valaphee.flow.node.Task
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * @author Kevin Ludwig
@@ -32,19 +32,16 @@ import kotlinx.coroutines.delay
 @NodeType("Control/Wait")
 class Wait(
     type: String,
-    @get:Const("Timeout" , Int) @get:JsonProperty("timeout"      )          val timeout    : Int,
-    @get:In   ("Begin"        ) @get:JsonProperty("in_begin"     ) override val inBegin    : Int,
-    @get:In   ("Abort"        ) @get:JsonProperty("in_abort"     ) override val inAbort    : Int,
-    @get:Out  ("OnFinish"     ) @get:JsonProperty("out_on_finish")          val outOnFinish: Int,
-    @get:Out  ("OnAbort"      ) @get:JsonProperty("out_on_abort" )          val outOnAbort : Int,
-    @get:Out  ("Subgraph"     ) @get:JsonProperty("out_subgraph" ) override val outSubgraph: Int,
-) : State(type) {
+    @get:In ("Timeout" , Num) @get:JsonProperty("in_timeout"   )          val inTimeout  : Int,
+    @get:In ("Begin"        ) @get:JsonProperty("in_begin"     ) override val inBegin    : Int,
+    @get:In ("Abort"        ) @get:JsonProperty("in_abort"     ) override val inAbort    : Int,
+    @get:Out("OnFinish"     ) @get:JsonProperty("out_on_finish")          val outOnFinish: Int,
+    @get:Out("Subgraph"     ) @get:JsonProperty("out_subgraph" ) override val outSubgraph: Int,
+) : Task(type) {
     override suspend fun onBegin(scope: Scope) {
-        delay(timeout.toLong())
-        scope.controlPath(outOnFinish)()
-    }
+        val inTimeout = scope.dataPath(inTimeout).getOfType<Int>()
 
-    override suspend fun onAbort(scope: Scope) {
-        scope.controlPath(outOnAbort)()
+        delay(inTimeout.seconds)
+        scope.controlPath(outOnFinish)()
     }
 }

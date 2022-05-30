@@ -22,5 +22,5 @@ package com.valaphee.flow.spec
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class NodeType(
-    val value: String
+    val name: String
 )

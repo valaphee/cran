@@ -20,8 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Scope
 import com.valaphee.flow.node.Arr
 import com.valaphee.flow.node.Int
-import com.valaphee.flow.node.State
-import com.valaphee.flow.spec.Const
+import com.valaphee.flow.node.Task
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
@@ -37,16 +36,17 @@ import org.lwjgl.openal.ALC10
 @NodeType("Audio/Sink")
 class AudioSink(
     type: String,
-    @get:Const("Sample Rate", Int) @get:JsonProperty("sample_rate" )          val sampleRate : Int,
-    @get:In   ("Begin"           ) @get:JsonProperty("in_begin"    ) override val inBegin    : Int,
-    @get:In   ("Abort"           ) @get:JsonProperty("in_abort"    ) override val inAbort    : Int,
-    @get:In   (""           , Arr) @get:JsonProperty("in"          )          val `in`       : Int,
-    @get:Out  ("Subgraph"        ) @get:JsonProperty("out_subgraph") override val outSubgraph: Int
-) : State(type) {
-    private val states = mutableMapOf<Scope, State>()
-
+    @get:In ("Begin"            ) @get:JsonProperty("in_begin"      ) override val inBegin      : Int,
+    @get:In ("Abort"            ) @get:JsonProperty("in_abort"      ) override val inAbort      : Int,
+    @get:In ("Buffer Count", Int) @get:JsonProperty("in_buffer_size")          val inBufferCount: Int,
+    @get:In ("Sample Rate" , Int) @get:JsonProperty("in_sample_rate")          val inSampleRate : Int,
+    @get:In (""            , Arr) @get:JsonProperty("in"            )          val `in`         : Int,
+    @get:Out("Subgraph"         ) @get:JsonProperty("out_subgraph"  ) override val outSubgraph  : Int
+) : Task(type) {
     override suspend fun onBegin(scope: Scope) {
         val `in` = scope.dataPath(`in`)
+        val inBufferCount = scope.dataPath(inBufferCount).getOfType<Int>()
+        val inSampleRate = scope.dataPath(inSampleRate).getOfType<Int>()
 
         var deviceHandle = 0L
         var context = 0L
@@ -59,24 +59,26 @@ class AudioSink(
             ALC10.alcMakeContextCurrent(context)
             AL.createCapabilities(ALC.createCapabilities(deviceHandle))
             source = AL10.alGenSources()
-            buffers = IntArray(8).also { AL10.alGenBuffers(it) }
-            buffers.forEach {
-                val data = `in`.getOfTypeOrNull() ?: floatArrayOf()
-                AL10.alBufferData(it, AL10.AL_FORMAT_MONO16, ShortArray(data.size) { (Short.MAX_VALUE * data[it]).toInt().toShort() }, sampleRate)
-                AL10.alSourceQueueBuffers(source, it)
+            buffers = IntArray(inBufferCount).also { AL10.alGenBuffers(it) }
+            buffers.forEach { buffer ->
+                `in`.getOfTypeOrNull<FloatArray>()?.let { _in ->
+                    AL10.alBufferData(buffer, AL10.AL_FORMAT_MONO16, ShortArray(_in.size) { (Short.MAX_VALUE * _in[it]).toInt().toShort() }, inSampleRate)
+                    AL10.alSourceQueueBuffers(source, buffer)
+                }
             }
-            AL10.alSourcePlay(source)
+            if (AL10.alGetSourcei(source, AL10.AL_BUFFERS_QUEUED) != 0) AL10.alSourcePlay(source)
 
             while (true) {
                 repeat(AL10.alGetSourcei(source, AL10.AL_BUFFERS_PROCESSED)) {
-                    val buffer = AL10.alSourceUnqueueBuffers(source)
-                    val _in = `in`.getOfTypeOrNull() ?: floatArrayOf()
-                    AL10.alBufferData(buffer, AL10.AL_FORMAT_MONO16, ShortArray(_in.size) { (Short.MAX_VALUE * _in[it]).toInt().toShort() }, sampleRate)
-                    AL10.alSourceQueueBuffers(source, buffer)
+                    `in`.getOfTypeOrNull<FloatArray>()?.let { _in ->
+                        val buffer = AL10.alSourceUnqueueBuffers(source)
+                        AL10.alBufferData(buffer, AL10.AL_FORMAT_MONO16, ShortArray(_in.size) { (Short.MAX_VALUE * _in[it]).toInt().toShort() }, inSampleRate)
+                        AL10.alSourceQueueBuffers(source, buffer)
+                    }
                 }
-                if (AL10.alGetSourcei(source, AL10.AL_SOURCE_STATE) != AL10.AL_PLAYING) AL10.alSourcePlay(source)
+                if (AL10.alGetSourcei(source, AL10.AL_BUFFERS_QUEUED) != 0 && AL10.alGetSourcei(source, AL10.AL_SOURCE_STATE) != AL10.AL_PLAYING) AL10.alSourcePlay(source)
 
-                delay(10)
+                /*yield()*/delay(10) // TODO
             }
         } finally {
             if (source != 0) AL10.alDeleteSources(source)

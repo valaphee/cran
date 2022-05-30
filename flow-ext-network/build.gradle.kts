@@ -24,15 +24,8 @@ dependencies {
     implementation(project(":flow-spec"))
     kapt(project(":flow-spec"))
 
-    implementation(platform("org.lwjgl:lwjgl-bom:3.3.1"))
-    listOf("", "-openal").forEach {
-        implementation("org.lwjgl", "lwjgl$it")
-        if (it != "-vulkan") {
-            runtimeOnly("org.lwjgl", "lwjgl$it", classifier = "natives-windows")
-            runtimeOnly("org.lwjgl", "lwjgl$it", classifier = "natives-linux")
-            runtimeOnly("org.lwjgl", "lwjgl$it", classifier = "natives-macos")
-        }
-    }
+    implementation("com.google.guava:guava:31.1-jre")
+    api("io.netty:netty-all:4.1.77.Final")
 }
 
 java {
@@ -46,7 +39,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             pom.apply {
-                name.set("Flow Extension: Audio")
+                name.set("Flow Extension: Network")
                 description.set("Flow-based programming \"language\"")
                 url.set("https://valaphee.com")
                 scm {

@@ -23,8 +23,7 @@ import com.sun.jna.ptr.PointerByReference
 import com.valaphee.flow.Scope
 import com.valaphee.flow.node.Arr
 import com.valaphee.flow.node.Int
-import com.valaphee.flow.node.State
-import com.valaphee.flow.spec.Const
+import com.valaphee.flow.node.Task
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
@@ -37,15 +36,18 @@ import java.nio.ByteBuffer
 @NodeType("Radio/Source/RTL-SDR Source")
 class RtlSdrSource(
     type: String,
-    @get:Const("Buffer Size", Int) @get:JsonProperty("buffer_size" )          val bufferSize : Int,
-    @get:Const("Sample Rate", Int) @get:JsonProperty("sample_rate" )          val sampleRate : Int,
-    @get:Const("Frequency"  , Int) @get:JsonProperty("frequency"   )          val frequency  : Int,
-    @get:In   ("Begin"           ) @get:JsonProperty("in_begin"    ) override val inBegin    : Int,
-    @get:In   ("Abort"           ) @get:JsonProperty("in_abort"    ) override val inAbort    : Int,
-    @get:Out  ("Subgraph"        ) @get:JsonProperty("out_subgraph") override val outSubgraph: Int,
-    @get:Out  (""           , Arr) @get:JsonProperty("out"         )          val out        : Int
-) : State(type) {
+    @get:In ("Begin"           ) @get:JsonProperty("in_begin"      ) override val inBegin     : Int,
+    @get:In ("Abort"           ) @get:JsonProperty("in_abort"      ) override val inAbort     : Int,
+    @get:In ("Buffer Size", Int) @get:JsonProperty("in_buffer_size")          val inBufferSize: Int,
+    @get:In ("Sample Rate", Int) @get:JsonProperty("in_sample_rate")          val inSampleRate: Int,
+    @get:In ("Frequency"  , Int) @get:JsonProperty("in_frequency"  )          val inFrequency : Int,
+    @get:Out("Subgraph"        ) @get:JsonProperty("out_subgraph"  ) override val outSubgraph : Int,
+    @get:Out(""           , Arr) @get:JsonProperty("out"           )          val out         : Int
+) : Task(type) {
     override suspend fun onBegin(scope: Scope) {
+        val inBufferSize = scope.dataPath(inBufferSize).getOfType<Int>()
+        val inSampleRate = scope.dataPath(inSampleRate).getOfType<Int>()
+        val inFrequency = scope.dataPath(inFrequency).getOfType<Int>()
         val out = scope.dataPath(out)
 
         var device: Pointer? = null
@@ -56,15 +58,15 @@ class RtlSdrSource(
             if (result == 0) {
                 device = deviceByReference.value
 
-                result = LibRtlSdr.Instance.rtlsdr_set_sample_rate(device, sampleRate)
+                result = LibRtlSdr.Instance.rtlsdr_set_sample_rate(device, inSampleRate)
                 if (result != 0) println("rtlsdr_set_sample_rate returned non-zero. ($result)")
-                result = LibRtlSdr.Instance.rtlsdr_set_center_freq(device, frequency)
+                result = LibRtlSdr.Instance.rtlsdr_set_center_freq(device, inFrequency)
                 if (result != 0) println("rtlsdr_set_center_freq returned non-zero. ($result)")
                 result = LibRtlSdr.Instance.rtlsdr_reset_buffer(device)
                 if (result != 0) println("rtlsdr_reset_buffer returned non-zero. ($result)")
             } else println("rtlsdr_open returned non-zero. ($result)")
 
-            val buffer = ByteBuffer.allocate(bufferSize)
+            val buffer = ByteBuffer.allocate(inBufferSize)
             val read = IntByReference()
             out.set {
                 result = LibRtlSdr.Instance.rtlsdr_read_sync(device!!, buffer, buffer.capacity(), read)

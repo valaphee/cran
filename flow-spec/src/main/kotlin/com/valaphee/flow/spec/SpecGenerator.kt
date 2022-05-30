@@ -47,7 +47,7 @@ class SpecGenerator : AbstractProcessor() {
         roundEnvironment?.getElementsAnnotatedWith(NodeType::class.java)?.mapNotNull { `class` ->
             if (`class`.kind == ElementKind.CLASS && `class` is TypeElement) {
                 if (!`class`.modifiers.contains(Modifier.ABSTRACT)) {
-                    Spec.Node(`class`.getAnnotation(NodeType::class.java).value, `class`.qualifiedName.toString(), `class`.enclosedElements.mapNotNull { getter ->
+                    Spec.Node(`class`.getAnnotation(NodeType::class.java).name, `class`.qualifiedName.toString(), `class`.enclosedElements.mapNotNull { getter ->
                         if (getter.kind == ElementKind.METHOD && getter is ExecutableElement) {
                             val `in` = getter.getAnnotation(In::class.java)
                             val out = getter.getAnnotation(Out::class.java)

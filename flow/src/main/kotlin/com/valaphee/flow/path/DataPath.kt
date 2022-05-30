@@ -31,10 +31,7 @@ class DataPath(
 
     suspend fun get() = value ?: valueFunction?.invoke()
 
-    suspend fun <T: Any> getOfTypeOrNull(type: KClass<T>): T? {
-        val value = get()
-        @Suppress("UNCHECKED_CAST") return if (type.isInstance(value)) value as T else objectMapper.convertValue(value, type.java)
-    }
+    suspend fun <T: Any> getOfTypeOrNull(type: KClass<T>) = value?.let { if (type.isInstance(value)) value as T else objectMapper.convertValue(value, type.java).also { value = it } } ?: valueFunction?.invoke()?.let { if (type.isInstance(value)) value as T else objectMapper.convertValue(value, type.java) }
 
     fun set(value: Any?) {
         if (valueFunction != null) throw DataPathException.AlreadySet
