@@ -16,12 +16,25 @@
 
 package com.valaphee.flow.graph
 
-import com.valaphee.flow.spec.Spec
-import eu.mihosoft.vrl.workflow.DefaultValueObject
+import eu.mihosoft.vrl.workflow.Connector
+import eu.mihosoft.vrl.workflow.VFlow
+import eu.mihosoft.vrl.workflow.fx.FXNewConnectionSkin
+import eu.mihosoft.vrl.workflow.fx.FXSkinFactory
+import javafx.scene.Parent
 
 /**
  * @author Kevin Ludwig
  */
-class ConnectorValueObject(
-    val spec: Spec.Node.Port
-) : DefaultValueObject()
+class NewConnectionSkin(
+    skinFactory: FXSkinFactory,
+    parent: Parent,
+    sender: Connector,
+    flow: VFlow,
+    type: String
+) : FXNewConnectionSkin(skinFactory, parent, sender, flow, type) {
+    override fun initSenderAndReceiver() {
+        super.initSenderAndReceiver()
+
+        receiverConnectorUI.isVisible = false
+    }
+}

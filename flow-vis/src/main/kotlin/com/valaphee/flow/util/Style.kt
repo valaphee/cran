@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.graph
+package com.valaphee.flow.util
 
-fun String.asNodeStyleClass() = removeSuffix("/").replace('/', '-').replace(' ', '-').lowercase()
+fun String.asStyleClass() = nonAlphanumericRegex.replace(this, "-").lowercase()
+
+private val nonAlphanumericRegex = "[^A-Za-z0-9]".toRegex()

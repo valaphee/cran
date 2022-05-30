@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.radio.sdr
+package com.valaphee.flow.radio.source
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.sun.jna.Pointer
@@ -33,9 +33,10 @@ import java.nio.ByteBuffer
 /**
  * @author Kevin Ludwig
  */
-@NodeType("Radio/SDR/RTL-SDR Source")
+@NodeType("Radio/Source/RTL-SDR Source")
 class RtlSdrSource(
     type: String,
+    @get:Const("Buffer Size", Int) @get:JsonProperty("buffer_size") val bufferSize: Int,
     @get:Const("Sample Rate", Int) @get:JsonProperty("sample_rate") val sampleRate: Int,
     @get:Const("Frequency"  , Int) @get:JsonProperty("frequency"  ) val frequency : Int,
     @get:In   ("Begin"           ) @get:JsonProperty("in_begin"   ) val inBegin   : Int,
@@ -75,7 +76,7 @@ class RtlSdrSource(
             }
         }
 
-        val buffer = ByteBuffer.allocate(16 * 16384)
+        val buffer = ByteBuffer.allocate(bufferSize)
         val read = IntByReference()
         out.set {
             state.device?.let {

@@ -58,7 +58,7 @@ class ConnectorShape(
     override fun setConnector(connector: Connector) {
         this.connector = connector
 
-        if (connector.type != "const") dynamicContent(connector.valueObjectProperty()) {
+        dynamicContent(connector.valueObjectProperty()) {
             children.clear()
 
             if (it is ConnectorValueObject) {
@@ -76,10 +76,10 @@ class ConnectorShape(
                             0.0, 4.0,
                             0.0, -4.0,
                         ) {
-                            fill = Color.WHITE
+                            styleClass += "node-connector-shape-${connector.type}"
                             if (topDown) rotate = 90.0
                         }
-                        "data" -> circle(4.0, 0.0, 4.0) { fill = Color.WHITE }
+                        "data" -> circle(4.0, 0.0, 4.0) { styleClass += "node-connector-shape-${connector.type}" }
                         else -> error(connector.type)
                     }
                     label(when (it.spec.name) {
@@ -113,10 +113,10 @@ class ConnectorShape(
                             0.0, 4.0,
                             0.0, -4.0
                         ) {
-                            fill = Color.WHITE
+                            styleClass += "node-connector-shape-${connector.type}"
                             if (topDown) rotate = 90.0
                         }
-                        "data" -> circle(4.0, 0.0, 4.0) { fill = Color.WHITE }
+                        "data" -> circle(4.0, 0.0, 4.0) { styleClass += "node-connector-shape-${connector.type}" }
                         else -> error(connector.type)
                     }
                 }

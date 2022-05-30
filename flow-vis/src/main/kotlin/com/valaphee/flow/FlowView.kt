@@ -23,10 +23,11 @@ import com.google.inject.Injector
 import com.google.protobuf.ByteString
 import com.valaphee.flow.graph.Graph
 import com.valaphee.flow.graph.SkinFactory
-import com.valaphee.flow.graph.asNodeStyleClass
 import com.valaphee.flow.meta.Meta
 import com.valaphee.flow.settings.SettingsView
 import com.valaphee.flow.spec.Spec
+import com.valaphee.flow.util.PathTree
+import com.valaphee.flow.util.asStyleClass
 import com.valaphee.svc.graph.v1.DeleteGraphRequest
 import com.valaphee.svc.graph.v1.GetSpecRequest
 import com.valaphee.svc.graph.v1.GraphServiceGrpc
@@ -164,50 +165,27 @@ class FlowView(
                     }
                 }
 
-                val treeItems = mutableListOf<MenuItem>()
                 val nodeItems = mutableMapOf<String, MenuItem>()
-                spec.nodes.forEach { node ->
-                    val name = node.name.split('/')
-                    val path = StringBuilder()
-                    var item: MenuItem? = null
-                    name.forEachIndexed { i, element ->
-                        path.append("${element}/")
-                        val _styleClass = "menu-${path.toString().asNodeStyleClass()}"
-                        item = when (val _item = item) {
-                            is Menu -> _item.items.find { it.text == element } ?: if (i == name.lastIndex) MenuItem(element).apply {
-                                _item.items += this
-                                nodeItems[node.name] = this
+                val treeItems = (PathTree(spec.nodes) { it.name }.convert<MenuItem> { parent, current ->
+                    val _styleClass = current.path.asStyleClass()
+                    current.value?.let {
+                        MenuItem(current.name).apply {
+                            (parent as Menu?)?.let { it.items += this }
+                            nodeItems[current.path] = this
 
-                                styleClass += _styleClass
+                            styleClass += _styleClass
 
-                                action {
-                                    val local = sceneToLocal(x - currentWindow!!.x, y - currentWindow!!.y)
-                                    graph?.newNode(node, Meta.Node(if (local.x.isNaN()) 0.0 else local.x, if (local.y.isNaN()) 0.0 else local.y))
-                                }
-                            } else Menu(element).apply {
-                                _item.items += this
-
-                                styleClass += _styleClass
+                            action {
+                                val local = sceneToLocal(x - currentWindow!!.x, y - currentWindow!!.y)
+                                graph?.newNode(it, Meta.Node(if (local.x.isNaN()) 0.0 else local.x, if (local.y.isNaN()) 0.0 else local.y))
                             }
-                            null -> treeItems.find { it.text == element } ?: if (i == name.lastIndex) MenuItem(element).apply {
-                                treeItems += this
-                                nodeItems[node.name] = this
-
-                                styleClass += _styleClass
-
-                                action {
-                                    val local = sceneToLocal(x - currentWindow!!.x, y - currentWindow!!.y)
-                                    graph?.newNode(node, Meta.Node(if (local.x.isNaN()) 0.0 else local.x, if (local.y.isNaN()) 0.0 else local.y))
-                                }
-                            } else Menu(element).apply {
-                                treeItems += this
-
-                                styleClass += _styleClass
-                            }
-                            else -> error("$_item")
                         }
+                    } ?: Menu(current.name).apply {
+                        (parent as Menu?)?.let { it.items += this }
+
+                        styleClass += _styleClass
                     }
-                }
+                } as Menu).items
 
                 val items = items.toMutableList()
                 this.items.addAll(treeItems)

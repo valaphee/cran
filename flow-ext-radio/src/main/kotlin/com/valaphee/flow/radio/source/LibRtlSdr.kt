@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.valaphee.flow.radio.sdr
+package com.valaphee.flow.radio.source
 
 import com.sun.jna.Callback
 import com.sun.jna.Library

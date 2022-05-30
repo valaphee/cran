@@ -40,6 +40,12 @@ class ConnectionSkin(
     flow: VFlow,
     type: String
 ) : DefaultFXConnectionSkin(skinFactory, parent, connection, flow, type) {
+    override fun initSenderAndReceiver() {
+        super.initSenderAndReceiver()
+
+        receiverConnectorUI.isVisible = false
+    }
+
     override fun initConnnectionPath() {
         // Fix top-down connection path
         val senderNode = senderShape.node

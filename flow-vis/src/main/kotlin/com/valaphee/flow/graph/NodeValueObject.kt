@@ -18,10 +18,17 @@ package com.valaphee.flow.graph
 
 import com.valaphee.flow.spec.Spec
 import eu.mihosoft.vrl.workflow.DefaultValueObject
+import javafx.beans.property.ObjectProperty
 
 /**
  * @author Kevin Ludwig
  */
 class NodeValueObject(
     val spec: Spec.Node,
-) : DefaultValueObject()
+    val const: List<Const>
+) : DefaultValueObject() {
+    class Const(
+        val spec: Spec.Node.Port,
+        val valueProperty: ObjectProperty<Any>
+    )
+}

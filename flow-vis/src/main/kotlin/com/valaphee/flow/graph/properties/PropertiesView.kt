@@ -51,10 +51,13 @@ class PropertiesView(
         form {
             vgrow = Priority.ALWAYS
 
-            fieldset {
-                node.connectors.forEach { connector ->
-                    if (connector.isInput) {
-                        val valueObject = connector.valueObject as ConnectorValueObject
+            val const = (node.valueObject as NodeValueObject).const
+            if (const.isNotEmpty()) fieldset { const.forEach { objectMapper.treeToValue<JsonSchema?>(it.spec.data)?.let { jsonSchema -> field("${it.spec.name} (${it.spec.json})") { inputContainer.add(jsonSchema.toNode(viewModel.bind { it.valueProperty })) } } } }
+            val connectors = node.connectors
+            if (connectors.isNotEmpty()) fieldset {
+                connectors.forEach {
+                    if (it.isInput) {
+                        val valueObject = it.valueObject as ConnectorValueObject
                         objectMapper.treeToValue<JsonSchema?>(valueObject.spec.data)?.let { jsonSchema -> field("${valueObject.spec.name} (${valueObject.spec.json})") { inputContainer.add(jsonSchema.toNode(viewModel.bind { valueObject.valueProperty() })) } }
                     }
                 }

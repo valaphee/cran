@@ -27,7 +27,9 @@ import eu.mihosoft.vrl.workflow.Connector
 import eu.mihosoft.vrl.workflow.FlowFactory
 import eu.mihosoft.vrl.workflow.VFlow
 import eu.mihosoft.vrl.workflow.VNode
+import javafx.beans.property.SimpleObjectProperty
 import java.util.UUID
+import kotlin.math.max
 import kotlin.math.round
 
 /**
@@ -47,13 +49,12 @@ class Graph(
             var index = connections.lastOrNull()?.index?.let { it + 1 } ?: 0
             val embed = mutableListOf<Map<String, Any?>>()
             return flow.nodes.map { node ->
-                mapOf<String, Any?>("type" to (node.valueObject as NodeValueObject).spec.name) + node.inputs.associate { input ->
-                    val valueObject = input.valueObject as ConnectorValueObject
-                    valueObject.spec.json to (connections.find { it.value.contains(input) }?.index ?: valueObject.value?.let {
-                        if (valueObject.spec.type != Spec.Node.Port.Type.Const) {
-                            embed += mapOf("type" to "Value", "value" to it, "out" to index, "embed" to true)
-                            index++
-                        } else it
+                val nodeValueObject = node.valueObject as NodeValueObject
+                mapOf<String, Any?>("type" to nodeValueObject.spec.name) +  nodeValueObject.const.associate { it.spec.json to it.valueProperty.value } + node.inputs.associate { input ->
+                    val connectorValueObject = input.valueObject as ConnectorValueObject
+                    connectorValueObject.spec.json to (connections.find { it.value.contains(input) }?.index ?: connectorValueObject.value?.let {
+                        embed += mapOf("type" to "Value", "value" to it, "out" to index, "embed" to true)
+                        index++
                     } ?: index++)
                 } + node.outputs.associate { output -> output.localId to (connections.find { it.value.contains(output) }?.index ?: index++) }
             } + embed
@@ -71,14 +72,14 @@ class Graph(
                 other.forEachIndexed { i, node ->
                     val type = node.remove("type") as String
                     val spec = spec.nodes.single { it.name == type }
-                    newNode(spec, meta.nodes.getOrNull(i), settings).connectors.forEach { connector ->
-                        val valueObject = (connector.valueObject as ConnectorValueObject)
-                        if (valueObject.spec.type == Spec.Node.Port.Type.Const) valueObject.value = node[valueObject.spec.json]
-                        else {
-                            val connectionId = node[valueObject.spec.json] as Int
-                            if (valueObject.spec.type == Spec.Node.Port.Type.InData) valueObject.value = _embed[connectionId]
+                    newNode(spec, meta.nodes.getOrNull(i), settings).apply {
+                        (valueObject as NodeValueObject).const.forEach { it.valueProperty.value = node[it.spec.json] }
+                        connectors.forEach {
+                            val connectorValueObject = it.valueObject as ConnectorValueObject
+                            val connectionId = node[connectorValueObject.spec.json] as Int
+                            if (connectorValueObject.spec.type == Spec.Node.Port.Type.InData) connectorValueObject.value = _embed[connectionId]
 
-                            getOrPut(connectionId) { mutableListOf() } += connector
+                            getOrPut(connectionId) { mutableListOf() } += it
                         }
                     }
                 }
@@ -104,16 +105,17 @@ class Graph(
     companion object {
         private fun VFlow.newNode(spec: Spec.Node, meta: Meta.Node?, settings: Settings): VNode = newNode().apply {
             title = spec.name
-            xProperty().update { if (settings.gridX > 0) x = round(it / settings.gridX) * settings.gridX }
-            yProperty().update { if (settings.gridY > 0) y = round(it / settings.gridY) * settings.gridY }
-            widthProperty().update { if (settings.gridX > 0) width = round(it / settings.gridX) * settings.gridX }
-            heightProperty().update { if (settings.gridY > 0) height = round(it / settings.gridY) * settings.gridY }
             meta?.let {
                 x = it.x
                 y = it.y
             }
-            valueObject = NodeValueObject(spec)
 
+            xProperty().update { if (settings.gridX > 0) x = round(max(it, 0.0) / settings.gridX) * settings.gridX }
+            yProperty().update { if (settings.gridY > 0) y = round(max(it, 0.0) / settings.gridY) * settings.gridY }
+            widthProperty().update { if (settings.gridX > 0) width = round(it / settings.gridX) * settings.gridX }
+            heightProperty().update { if (settings.gridY > 0) height = round(it / settings.gridY) * settings.gridY }
+
+            val const = mutableListOf<NodeValueObject.Const>()
             spec.ports.forEach { portSpec ->
                 when (portSpec.type) {
                     Spec.Node.Port.Type.InControl -> addInput("control").apply {
@@ -134,12 +136,11 @@ class Graph(
                         localId = portSpec.json
                         valueObject = ConnectorValueObject(portSpec)
                     }
-                    Spec.Node.Port.Type.Const -> addInput("const").apply {
-                        localId = portSpec.json
-                        valueObject = ConnectorValueObject(portSpec)
-                    }
+                    Spec.Node.Port.Type.Const -> const += NodeValueObject.Const(portSpec, SimpleObjectProperty(null))
                 }
             }
+
+            valueObject = NodeValueObject(spec, const)
         }
     }
 }

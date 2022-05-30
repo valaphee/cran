@@ -24,7 +24,6 @@ dependencies {
     implementation(project(":flow-spec"))
     kapt(project(":flow-spec"))
 
-    implementation("com.github.psambit9791:jdsp:1.0.0")
     implementation("net.java.dev.jna:jna:5.11.0")
 }
 

@@ -20,9 +20,12 @@ import com.valaphee.flow.graph.properties.PropertiesView
 import eu.mihosoft.vrl.workflow.Connector
 import eu.mihosoft.vrl.workflow.VFlow
 import eu.mihosoft.vrl.workflow.VNode
+import eu.mihosoft.vrl.workflow.fx.FXConnectionSkin
 import eu.mihosoft.vrl.workflow.fx.FXFlowNodeSkin
 import eu.mihosoft.vrl.workflow.fx.FlowNodeWindow
+import eu.mihosoft.vrl.workflow.fx.NodeUtil
 import javafx.scene.Parent
+import javafx.scene.input.MouseEvent
 import tornadofx.action
 import tornadofx.contextmenu
 import tornadofx.item
@@ -34,10 +37,13 @@ import tornadofx.separator
  */
 class NodeSkin(
     skinFactory: SkinFactory,
-    parent: Parent,
+    private val parent: Parent,
     node: VNode,
     controller: VFlow
 ) : FXFlowNodeSkin(skinFactory, parent, node, controller) {
+    private var newConnectionSkin: FXConnectionSkin? = null
+    private var newConnectionPressEvent: MouseEvent? = null
+
     override fun createNodeWindow(): FlowNodeWindow = super.createNodeWindow().apply {
         // Prevent minimizing, closing and resizing
         leftIcons.clear()
@@ -56,12 +62,47 @@ class NodeSkin(
     override fun addConnector(connector: Connector) {
         super.addConnector(connector)
 
-        // Prevent connecting
-        if (connector.type == "const") {
-            val connectorShape = getConnectorShape(connector)
-            connectorShape.node.setOnMousePressed { }
-            connectorShape.node.setOnMouseDragged { }
-            connectorShape.node.setOnMouseReleased { }
+        val connectorShape = getConnectorShape(connector)
+
+        // Use own new connection skin
+        val connectorNode = connectorShape.node
+        connectorNode.setOnMousePressed {
+            if (!controller.getConnections(connector.type).isInputConnected(connector)) {
+                it.consume()
+                newConnectionPressEvent = it
+            }
+        }
+        connectorNode.setOnMouseDragged {
+            if (!connectorNode.isMouseTransparent) {
+                if (!controller.getConnections(connector.type).isInputConnected(connector)) {
+                    val numOfExistingConnections = connector.node.flow.getConnections(connector.type).getAllWith(connector).size
+
+                    if (numOfExistingConnections < connector.maxNumberOfConnections) {
+                        if (newConnectionSkin == null) {
+                            newConnectionSkin = NewConnectionSkin(skinFactory, parent, connector, controller, connector.type).init()
+                            newConnectionSkin!!.add()
+                            MouseEvent.fireEvent(newConnectionSkin!!.receiverUI, newConnectionPressEvent!!)
+                        }
+                        it.consume()
+                        MouseEvent.fireEvent(newConnectionSkin!!.receiverUI, it)
+                        it.consume()
+                        MouseEvent.fireEvent(newConnectionSkin!!.receiverUI, it)
+                    }
+                }
+            }
+        }
+        connectorNode.setOnMouseReleased {
+            if (!connectorNode.isMouseTransparent) {
+                connector.click(NodeUtil.mouseBtnFromEvent(it), it)
+                if (!controller.getConnections(connector.type).isInputConnected(connector)) {
+                    it.consume()
+                    try {
+                        MouseEvent.fireEvent(newConnectionSkin!!.receiverUI, it)
+                    } catch (_: Exception) {
+                    }
+                    newConnectionSkin = null
+                }
+            }
         }
     }
 
