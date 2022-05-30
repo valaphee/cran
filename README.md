@@ -17,9 +17,9 @@ The language itself should be intuitive, or simply not allow specific behavior w
 mutable structures, without willingly activating it. (See list nodes, which are by default immutable and can be toggled to be mutable.)
 
 This project consists of 6 parts:
-* flow: Actual implementation (contains all common nodes)
-* flow-env: Flow environment with gRPC services (with all extensions)
-* flow-meta: Metadata for additional details of graphs (required for development)
-* flow-spec: Specification for nodes (required for development)
-* flow-svc: Flow gRPC services for development
-* flow-vis: JavaFX-based visual editor
+* cran: Actual implementation (contains all common nodes)
+* cran-env: Flow environment with gRPC services (with all extensions)
+* cran-meta: Metadata for additional details of graphs (required for development)
+* cran-spec: Specification for nodes (required for development)
+* cran-svc: Flow gRPC services for development
+* cran-vis: JavaFX-based visual editor

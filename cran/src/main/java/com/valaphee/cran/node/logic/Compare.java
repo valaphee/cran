@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
-rootProject.name = "cran"
+package com.valaphee.cran.node.logic;
 
-include("cran")
-include("cran-env")
-include("cran-ext-audio")
-include("cran-ext-input")
-include("cran-ext-network")
-include("cran-ext-network-http")
-include("cran-ext-radio")
-include("cran-meta")
-include("cran-spec")
-include("cran-svc")
-include("cran-vis")
+/**
+ * @author Kevin Ludwig
+ */
+public class Compare {
+    private Compare() {
+    }
+
+    public static int compare(Object inA, Object inB) {
+        if (inA instanceof Comparable<?>) {
+            return ((Comparable<Object>) inA).compareTo(inB);
+        } else /*if (inB instanceof Comparable<?>) {
+            return ((Comparable<Object>) inB).compareTo(inA);
+        } else */ {
+            return Integer.MAX_VALUE;
+        }
+    }
+}

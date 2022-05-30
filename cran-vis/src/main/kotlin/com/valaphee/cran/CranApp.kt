@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
-rootProject.name = "cran"
+package com.valaphee.cran
 
-include("cran")
-include("cran-env")
-include("cran-ext-audio")
-include("cran-ext-input")
-include("cran-ext-network")
-include("cran-ext-network-http")
-include("cran-ext-radio")
-include("cran-meta")
-include("cran-spec")
-include("cran-svc")
-include("cran-vis")
+import javafx.scene.Scene
+import javafx.scene.image.Image
+import tornadofx.App
+import tornadofx.UIComponent
+import tornadofx.importStylesheet
+
+/**
+ * @author Kevin Ludwig
+ */
+class CranApp : App(Image(CranApp::class.java.getResourceAsStream("/app@48x.png")), CranView::class) {
+    override fun init() {
+        importStylesheet("/dark_theme.css")
+        importStylesheet("/graph/graph.css")
+    }
+
+    override fun createPrimaryScene(view: UIComponent) = Scene(view.root, 1000.0, 800.0)
+}

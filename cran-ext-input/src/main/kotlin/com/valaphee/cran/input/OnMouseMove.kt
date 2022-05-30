@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-rootProject.name = "cran"
+package com.valaphee.cran.input
 
-include("cran")
-include("cran-env")
-include("cran-ext-audio")
-include("cran-ext-input")
-include("cran-ext-network")
-include("cran-ext-network-http")
-include("cran-ext-radio")
-include("cran-meta")
-include("cran-spec")
-include("cran-svc")
-include("cran-vis")
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.cran.node.Node
+import com.valaphee.cran.spec.NodeType
+import com.valaphee.cran.spec.Out
+
+/**
+ * @author Kevin Ludwig
+ */
+@NodeType("Input/On Mouse Move")
+class OnMouseMove(
+    type: String,
+    @get:Out("") @get:JsonProperty("out") val out: Int
+) : Node(type)

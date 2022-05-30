@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-rootProject.name = "cran"
+package com.valaphee.cran.graph
 
-include("cran")
-include("cran-env")
-include("cran-ext-audio")
-include("cran-ext-input")
-include("cran-ext-network")
-include("cran-ext-network-http")
-include("cran-ext-radio")
-include("cran-meta")
-include("cran-spec")
-include("cran-svc")
-include("cran-vis")
+import com.valaphee.cran.spec.Spec
+import eu.mihosoft.vrl.workflow.DefaultValueObject
+
+/**
+ * @author Kevin Ludwig
+ */
+class ConnectorValueObject(
+    val spec: Spec.Node.Port
+) : DefaultValueObject()

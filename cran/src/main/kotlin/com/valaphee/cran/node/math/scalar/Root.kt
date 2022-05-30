@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
-rootProject.name = "cran"
+package com.valaphee.cran.node.math.scalar
 
-include("cran")
-include("cran-env")
-include("cran-ext-audio")
-include("cran-ext-input")
-include("cran-ext-network")
-include("cran-ext-network-http")
-include("cran-ext-radio")
-include("cran-meta")
-include("cran-spec")
-include("cran-svc")
-include("cran-vis")
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.cran.node.Node
+import com.valaphee.cran.node.Num
+import com.valaphee.cran.spec.In
+import com.valaphee.cran.spec.NodeType
+import com.valaphee.cran.spec.Out
+
+/**
+ * @author Kevin Ludwig
+ */
+@NodeType("Math/Scalar/Root")
+class Root(
+    type: String,
+    @get:In ("x"  , Num) @get:JsonProperty("in_x") val inX: Int,
+    @get:In ("n"  , Num) @get:JsonProperty("in_n") val inN: Int,
+    @get:Out("ⁿ√x", Num) @get:JsonProperty("out" ) val out: Int
+) : Node(type)

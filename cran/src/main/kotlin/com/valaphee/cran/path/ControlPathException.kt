@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-rootProject.name = "cran"
+package com.valaphee.cran.path
 
-include("cran")
-include("cran-env")
-include("cran-ext-audio")
-include("cran-ext-input")
-include("cran-ext-network")
-include("cran-ext-network-http")
-include("cran-ext-radio")
-include("cran-meta")
-include("cran-spec")
-include("cran-svc")
-include("cran-vis")
+/**
+ * @author Kevin Ludwig
+ */
+open class ControlPathException : Exception {
+    constructor() : super()
+
+    constructor(message: String) : super(message)
+
+    constructor(message: String, cause: Throwable?) : super(message, cause)
+
+    constructor(cause: Throwable?) : super(cause)
+
+    companion object {
+        val AlreadyDeclared = ControlPathException("Control path has multiple outputs, only one output is allowed.")
+    }
+}

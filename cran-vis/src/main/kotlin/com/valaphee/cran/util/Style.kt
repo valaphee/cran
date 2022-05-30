@@ -14,16 +14,8 @@
  * limitations under the License.
  */
 
-rootProject.name = "cran"
+package com.valaphee.cran.util
 
-include("cran")
-include("cran-env")
-include("cran-ext-audio")
-include("cran-ext-input")
-include("cran-ext-network")
-include("cran-ext-network-http")
-include("cran-ext-radio")
-include("cran-meta")
-include("cran-spec")
-include("cran-svc")
-include("cran-vis")
+fun String.asStyleClass() = nonAlphanumericRegex.replace(this, "-").lowercase()
+
+private val nonAlphanumericRegex = "[^A-Za-z0-9]".toRegex()

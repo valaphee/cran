@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-rootProject.name = "cran"
+package com.valaphee.cran
 
-include("cran")
-include("cran-env")
-include("cran-ext-audio")
-include("cran-ext-input")
-include("cran-ext-network")
-include("cran-ext-network-http")
-include("cran-ext-radio")
-include("cran-meta")
-include("cran-spec")
-include("cran-svc")
-include("cran-vis")
+/**
+ * @author Kevin Ludwig
+ */
+interface GraphManager {
+    fun getGraph(name: String): Graph?
+}

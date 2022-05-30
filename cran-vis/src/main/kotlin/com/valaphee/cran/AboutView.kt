@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-rootProject.name = "cran"
+package com.valaphee.cran
 
-include("cran")
-include("cran-env")
-include("cran-ext-audio")
-include("cran-ext-input")
-include("cran-ext-network")
-include("cran-ext-network-http")
-include("cran-ext-radio")
-include("cran-meta")
-include("cran-spec")
-include("cran-svc")
-include("cran-vis")
+import javafx.scene.Parent
+import tornadofx.View
+
+/**
+ * @author Kevin Ludwig
+ */
+class AboutView : View("About") {
+    override val root by fxml<Parent>("/about.fxml")
+}

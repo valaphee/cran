@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-rootProject.name = "cran"
+package com.valaphee.cran.util
 
-include("cran")
-include("cran-env")
-include("cran-ext-audio")
-include("cran-ext-input")
-include("cran-ext-network")
-include("cran-ext-network-http")
-include("cran-ext-radio")
-include("cran-meta")
-include("cran-spec")
-include("cran-svc")
-include("cran-vis")
+import javafx.beans.value.ObservableDoubleValue
+import javafx.beans.value.ObservableValue
+
+fun ObservableDoubleValue.update(op: (Double) -> Unit) = apply {
+    addListener { _, _, value -> op(value?.toDouble() ?: 0.0) }
+    op(value?.toDouble() ?: 0.0)
+}
+
+fun <T> ObservableValue<T>.update(op: (T?) -> Unit) = apply {
+    addListener { _, _, value -> op(value) }
+    op(value)
+}

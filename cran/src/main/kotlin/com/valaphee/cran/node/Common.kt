@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-rootProject.name = "cran"
+package com.valaphee.cran.node
 
-include("cran")
-include("cran-env")
-include("cran-ext-audio")
-include("cran-ext-input")
-include("cran-ext-network")
-include("cran-ext-network-http")
-include("cran-ext-radio")
-include("cran-meta")
-include("cran-spec")
-include("cran-svc")
-include("cran-vis")
+const val Und = """{}"""
+const val Bit = """{"type":"boolean"}"""
+const val Int = """{"type":"integer"}"""
+const val Num = """{"type":"number"}"""
+const val Str = """{"type":"string"}"""
+const val Arr = """{"type":"array"}"""

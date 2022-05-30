@@ -14,16 +14,23 @@
  * limitations under the License.
  */
 
-rootProject.name = "cran"
+package com.valaphee.cran.path
 
-include("cran")
-include("cran-env")
-include("cran-ext-audio")
-include("cran-ext-input")
-include("cran-ext-network")
-include("cran-ext-network-http")
-include("cran-ext-radio")
-include("cran-meta")
-include("cran-spec")
-include("cran-svc")
-include("cran-vis")
+/**
+ * @author Kevin Ludwig
+ */
+class ControlPath(
+    override val id: Int
+) : Path() {
+    internal var function: (suspend () -> Unit)? = null
+
+    suspend operator fun invoke() {
+        function?.invoke()
+    }
+
+    fun declare(function: suspend () -> Unit) {
+        if (this.function != null) throw ControlPathException.AlreadyDeclared
+
+        this.function = function
+    }
+}

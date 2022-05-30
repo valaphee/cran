@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-rootProject.name = "cran"
+package com.valaphee.cran.meta
 
-include("cran")
-include("cran-env")
-include("cran-ext-audio")
-include("cran-ext-input")
-include("cran-ext-network")
-include("cran-ext-network-http")
-include("cran-ext-radio")
-include("cran-meta")
-include("cran-spec")
-include("cran-svc")
-include("cran-vis")
+import com.fasterxml.jackson.annotation.JsonProperty
+
+/**
+ * @author Kevin Ludwig
+ */
+data class Meta(
+    @get:JsonProperty("nodes") val nodes: List<Node>
+) {
+    class Node(
+        @get:JsonProperty("x") val x: Double,
+        @get:JsonProperty("y") val y: Double
+    )
+}
