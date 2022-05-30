@@ -43,7 +43,7 @@ class GraphImpl(
 
     override fun initialize(scope: Scope) {
         super.initialize(scope)
-        nodes.forEach { if (it is Entry) launch { scope.controlPath(it.out)() } }
+        nodes.forEach { if (it is Entry) launch { it(scope) } }
     }
 
     override fun shutdown(scope: Scope) {

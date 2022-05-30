@@ -37,6 +37,7 @@ import io.github.classgraph.ClassGraph
 import io.grpc.stub.StreamObserver
 import org.apache.logging.log4j.LogManager
 import java.util.UUID
+import kotlin.concurrent.thread
 
 /**
  * @author Kevin Ludwig
@@ -50,6 +51,8 @@ class GraphServiceImpl @Inject constructor(
     private val scopes = mutableMapOf<UUID, Scope>()
 
     init {
+        Runtime.getRuntime().addShutdownHook(thread(false) { scopes.forEach { (id, scope) -> graphs.find { it.id ==  id}?.shutdown(scope) } })
+
         ClassGraph().scan().use {
             spec = Spec(it.getResourcesMatchingWildcard("spec.*.dat").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes.onEach { log.info("Built-in node {} found", it.name) } })
             graphs += it.getResourcesMatchingWildcard("**.flw").urLs.map { objectMapper.readValue<GraphImpl>(it).also { log.info("Built-in node {} with graph found", it.name) } }

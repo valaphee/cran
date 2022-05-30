@@ -16,41 +16,44 @@
 
 package com.valaphee.flow.node
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.flow.Scope
-import com.valaphee.flow.spec.NodeType
-import com.valaphee.flow.spec.Out
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlin.coroutines.coroutineContext
 
 /**
  * @author Kevin Ludwig
  */
-@NodeType("Entry")
-class Entry(
-    type: String,
-    @get:Out("", "") @get:JsonProperty("out") val out: Int
+abstract class State(
+    type: String
 ) : Node(type) {
     private val jobs = mutableMapOf<Scope, Job>()
 
-    override fun shutdown(scope: Scope) {
-        runBlocking { jobs.remove(scope)?.cancelAndJoin() }
-    }
+    abstract val inBegin: Int
+    abstract val inAbort: Int
+    abstract val outSubgraph: Int
 
-    suspend operator fun invoke(scope: Scope) {
-        val out = scope.controlPath(out)
+    override fun initialize(scope: Scope) {
+        val inBegin = scope.controlPath(inBegin)
+        val inAbort = scope.controlPath(inAbort)
+        val outSubgraph = scope.controlPath(outSubgraph)
 
-        if (!jobs.containsKey(scope)) {
-            with(CoroutineScope(coroutineContext)) {
-                jobs[scope] = launch {
-                    out()
-                    jobs.remove(scope)
-                }
+        inBegin.declare {
+            if (!jobs.containsKey(scope)) {
+                with(CoroutineScope(coroutineContext)) { jobs[scope] = launch { outSubgraph() } }
+                onBegin(scope)
+                jobs.remove(scope)?.cancelAndJoin()
             }
         }
+        inAbort.declare {
+            onAbort(scope)
+            jobs.remove(scope)?.cancelAndJoin()
+        }
     }
+
+    protected open suspend fun onBegin(scope: Scope) {}
+
+    protected open suspend fun onAbort(scope: Scope) {}
 }

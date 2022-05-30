@@ -31,7 +31,7 @@ class DataPath(
 
     suspend fun get() = value ?: valueFunction?.invoke()
 
-    suspend fun <T: Any> getOfType(type: KClass<T>): T {
+    suspend fun <T: Any> getOfTypeOrNull(type: KClass<T>): T? {
         val value = get()
         @Suppress("UNCHECKED_CAST") return if (type.isInstance(value)) value as T else objectMapper.convertValue(value, type.java)
     }
@@ -48,5 +48,7 @@ class DataPath(
         this.valueFunction = getValue
     }
 
-    suspend inline fun <reified T : Any> getOfType(): T = getOfType(T::class)
+    suspend inline fun <reified T : Any> getOfTypeOrNull(): T? = getOfTypeOrNull(T::class)
+
+    suspend inline fun <reified T : Any> getOfType(): T = checkNotNull(getOfTypeOrNull(T::class))
 }

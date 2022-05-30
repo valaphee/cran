@@ -23,11 +23,12 @@ import com.sun.jna.ptr.PointerByReference
 import com.valaphee.flow.Scope
 import com.valaphee.flow.node.Arr
 import com.valaphee.flow.node.Int
-import com.valaphee.flow.node.Node
+import com.valaphee.flow.node.State
 import com.valaphee.flow.spec.Const
 import com.valaphee.flow.spec.In
 import com.valaphee.flow.spec.NodeType
 import com.valaphee.flow.spec.Out
+import kotlinx.coroutines.awaitCancellation
 import java.nio.ByteBuffer
 
 /**
@@ -36,76 +37,54 @@ import java.nio.ByteBuffer
 @NodeType("Radio/Source/RTL-SDR Source")
 class RtlSdrSource(
     type: String,
-    @get:Const("Buffer Size", Int) @get:JsonProperty("buffer_size") val bufferSize: Int,
-    @get:Const("Sample Rate", Int) @get:JsonProperty("sample_rate") val sampleRate: Int,
-    @get:Const("Frequency"  , Int) @get:JsonProperty("frequency"  ) val frequency : Int,
-    @get:In   ("Begin"           ) @get:JsonProperty("in_begin"   ) val inBegin   : Int,
-    @get:In   ("Abort"           ) @get:JsonProperty("in_abort"   ) val inAbort   : Int,
-    @get:Out  (""           , Arr) @get:JsonProperty("out"        ) val out       : Int
-) : Node(type) {
-    private val states = mutableMapOf<Scope, State>()
-
-    override fun initialize(scope: Scope) {
-        val state = states.getOrPut(scope) { State() }
-        val inBegin = scope.controlPath(inBegin)
-        val inAbort = scope.controlPath(inAbort)
+    @get:Const("Buffer Size", Int) @get:JsonProperty("buffer_size" )          val bufferSize : Int,
+    @get:Const("Sample Rate", Int) @get:JsonProperty("sample_rate" )          val sampleRate : Int,
+    @get:Const("Frequency"  , Int) @get:JsonProperty("frequency"   )          val frequency  : Int,
+    @get:In   ("Begin"           ) @get:JsonProperty("in_begin"    ) override val inBegin    : Int,
+    @get:In   ("Abort"           ) @get:JsonProperty("in_abort"    ) override val inAbort    : Int,
+    @get:Out  ("Subgraph"        ) @get:JsonProperty("out_subgraph") override val outSubgraph: Int,
+    @get:Out  (""           , Arr) @get:JsonProperty("out"         )          val out        : Int
+) : State(type) {
+    override suspend fun onBegin(scope: Scope) {
         val out = scope.dataPath(out)
 
-        inBegin.declare {
-            if (state.device == null) {
-                val deviceByReference = PointerByReference()
-                var result = LibRtlSdr.Instance.rtlsdr_open(deviceByReference, 0)
-                if (result == 0) {
-                    state.device = deviceByReference.value
+        var device: Pointer? = null
 
-                    result = LibRtlSdr.Instance.rtlsdr_set_sample_rate(state.device!!, sampleRate)
-                    if (result != 0) println("rtlsdr_set_sample_rate returned non-zero. ($result)")
-                    result = LibRtlSdr.Instance.rtlsdr_set_center_freq(state.device!!, frequency)
-                    if (result != 0) println("rtlsdr_set_center_freq returned non-zero. ($result)")
-                    result = LibRtlSdr.Instance.rtlsdr_reset_buffer(state.device!!)
-                    if (result != 0) println("rtlsdr_reset_buffer returned non-zero. ($result)")
-                } else println("rtlsdr_open returned non-zero. ($result)")
-            }
-        }
-        inAbort.declare {
-            state.device?.let {
-                state.device = null
+        try {
+            val deviceByReference = PointerByReference()
+            var result = LibRtlSdr.Instance.rtlsdr_open(deviceByReference, 0)
+            if (result == 0) {
+                device = deviceByReference.value
 
-                val result = LibRtlSdr.Instance.rtlsdr_close(it)
-                if (result != 0) println("rtlsdr_close returned non-zero. ($result)")
-            }
-        }
+                result = LibRtlSdr.Instance.rtlsdr_set_sample_rate(device, sampleRate)
+                if (result != 0) println("rtlsdr_set_sample_rate returned non-zero. ($result)")
+                result = LibRtlSdr.Instance.rtlsdr_set_center_freq(device, frequency)
+                if (result != 0) println("rtlsdr_set_center_freq returned non-zero. ($result)")
+                result = LibRtlSdr.Instance.rtlsdr_reset_buffer(device)
+                if (result != 0) println("rtlsdr_reset_buffer returned non-zero. ($result)")
+            } else println("rtlsdr_open returned non-zero. ($result)")
 
-        val buffer = ByteBuffer.allocate(bufferSize)
-        val read = IntByReference()
-        out.set {
-            state.device?.let {
-                val result = LibRtlSdr.Instance.rtlsdr_read_sync(it, buffer, buffer.capacity(), read)
+            val buffer = ByteBuffer.allocate(bufferSize)
+            val read = IntByReference()
+            out.set {
+                result = LibRtlSdr.Instance.rtlsdr_read_sync(device!!, buffer, buffer.capacity(), read)
                 if (result == 0) FloatArray(read.value) { values[buffer[it].toInt() and 0xFF] } else {
                     println("rtlsdr_read_sync returned non-zero. ($result)")
-                    noData
+
+                    null
                 }
-            } ?: noData
-        }
-    }
+            }
 
-    override fun shutdown(scope: Scope) {
-        states.remove(scope)?.let { state ->
-            state.device?.let {
-                state.device = null
-
+            awaitCancellation()
+        } finally {
+            device?.let {
                 val result = LibRtlSdr.Instance.rtlsdr_close(it)
                 if (result != 0) println("rtlsdr_close returned non-zero. ($result)")
             }
         }
-    }
-
-    private class State {
-        var device: Pointer? = null
     }
 
     companion object {
         private val values = FloatArray(256) { (it - 127.4f) / 128.0f }
-        private val noData = floatArrayOf()
     }
 }
