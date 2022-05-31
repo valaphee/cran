@@ -22,8 +22,8 @@ import com.valaphee.cran.network.BossGroup
 import com.valaphee.cran.network.CurrentUnderlyingNetworking
 import com.valaphee.cran.network.WorkerGroup
 import com.valaphee.cran.node.Int
+import com.valaphee.cran.node.State
 import com.valaphee.cran.node.Str
-import com.valaphee.cran.node.Task
 import com.valaphee.cran.node.Und
 import com.valaphee.cran.spec.In
 import com.valaphee.cran.spec.NodeType
@@ -45,13 +45,13 @@ class TcpBind(
     @get:In ("Port"    , Int) @get:JsonProperty("in_port"      )          val inPort     : Int,
     @get:Out("Subgraph"     ) @get:JsonProperty("out_subgraph" ) override val outSubgraph: Int,
     @get:Out("OnAccept"     ) @get:JsonProperty("out_on_accept")          val outOnAccept: Int,
-    @get:Out("Accept"  , Und) @get:JsonProperty("out_accept"   )          val outAccept  : Int
-) : Task(type) {
+    @get:Out(""        , Und) @get:JsonProperty("out"          )          val out        : Int
+) : State(type) {
     override suspend fun onBegin(scope: Scope) {
         val inHost = scope.dataPath(inHost).getOfType<String>()
         val inPort = scope.dataPath(inPort).getOfType<Int>()
         val outOnAccept = scope.controlPath(outOnAccept)
-        val outAccept = scope.dataPath(outAccept)
+        val out = scope.dataPath(out)
 
         @Suppress("UNCHECKED_CAST")
         ServerBootstrap()
@@ -59,7 +59,7 @@ class TcpBind(
             .channelFactory(CurrentUnderlyingNetworking.serverSocketChannel)
             .childHandler(object : ChannelInitializer<Channel>() {
                 override fun initChannel(channel: Channel) {
-                    outAccept.set(channel)
+                    out.set(channel)
                     runBlocking { outOnAccept() }
                 }
             })

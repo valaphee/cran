@@ -19,7 +19,7 @@ package com.valaphee.cran.node.control
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.cran.Scope
 import com.valaphee.cran.node.Num
-import com.valaphee.cran.node.Task
+import com.valaphee.cran.node.State
 import com.valaphee.cran.spec.In
 import com.valaphee.cran.spec.NodeType
 import com.valaphee.cran.spec.Out
@@ -37,7 +37,7 @@ class Wait(
     @get:In ("Abort"        ) @get:JsonProperty("in_abort"     ) override val inAbort    : Int,
     @get:Out("OnFinish"     ) @get:JsonProperty("out_on_finish")          val outOnFinish: Int,
     @get:Out("Subgraph"     ) @get:JsonProperty("out_subgraph" ) override val outSubgraph: Int,
-) : Task(type) {
+) : State(type) {
     override suspend fun onBegin(scope: Scope) {
         val inTimeout = scope.dataPath(inTimeout).getOfType<Int>()
 

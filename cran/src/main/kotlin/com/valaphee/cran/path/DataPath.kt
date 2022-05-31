@@ -31,7 +31,7 @@ class DataPath(
 
     suspend fun get() = value ?: valueFunction?.invoke()
 
-    suspend fun <T: Any> getOfTypeOrNull(type: KClass<T>) = value?.let { if (type.isInstance(value)) value as T else objectMapper.convertValue(value, type.java).also { value = it } } ?: valueFunction?.invoke()?.let { if (type.isInstance(value)) value as T else objectMapper.convertValue(value, type.java) }
+    suspend fun <T: Any> getOfTypeOrNull(type: KClass<T>) = value?.let { if (type.isInstance(it)) it as T else objectMapper.convertValue(value, type.java).also { value = it } } ?: valueFunction?.invoke()?.let { if (type.isInstance(it)) it as T else objectMapper.convertValue(value, type.java) }
 
     fun set(value: Any?) {
         if (valueFunction != null) throw DataPathException.AlreadySet
@@ -47,5 +47,5 @@ class DataPath(
 
     suspend inline fun <reified T : Any> getOfTypeOrNull(): T? = getOfTypeOrNull(T::class)
 
-    suspend inline fun <reified T : Any> getOfType(): T = checkNotNull(getOfTypeOrNull(T::class))
+    suspend inline fun <reified T : Any> getOfType(): T = checkNotNull(getOfTypeOrNull())
 }

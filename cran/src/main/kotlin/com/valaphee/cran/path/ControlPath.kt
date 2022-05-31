@@ -24,6 +24,8 @@ class ControlPath(
 ) : Path() {
     internal var function: (suspend () -> Unit)? = null
 
+    val isDeclared get() = function != null
+
     suspend operator fun invoke() {
         function?.invoke()
     }

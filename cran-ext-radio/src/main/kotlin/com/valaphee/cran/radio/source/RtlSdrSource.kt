@@ -23,7 +23,7 @@ import com.sun.jna.ptr.PointerByReference
 import com.valaphee.cran.Scope
 import com.valaphee.cran.node.Arr
 import com.valaphee.cran.node.Int
-import com.valaphee.cran.node.Task
+import com.valaphee.cran.node.State
 import com.valaphee.cran.spec.In
 import com.valaphee.cran.spec.NodeType
 import com.valaphee.cran.spec.Out
@@ -36,18 +36,20 @@ import java.nio.ByteBuffer
 @NodeType("Radio/Source/RTL-SDR Source")
 class RtlSdrSource(
     type: String,
-    @get:In ("Begin"           ) @get:JsonProperty("in_begin"      ) override val inBegin     : Int,
-    @get:In ("Abort"           ) @get:JsonProperty("in_abort"      ) override val inAbort     : Int,
-    @get:In ("Buffer Size", Int) @get:JsonProperty("in_buffer_size")          val inBufferSize: Int,
-    @get:In ("Sample Rate", Int) @get:JsonProperty("in_sample_rate")          val inSampleRate: Int,
-    @get:In ("Frequency"  , Int) @get:JsonProperty("in_frequency"  )          val inFrequency : Int,
-    @get:Out("Subgraph"        ) @get:JsonProperty("out_subgraph"  ) override val outSubgraph : Int,
-    @get:Out(""           , Arr) @get:JsonProperty("out"           )          val out         : Int
-) : Task(type) {
+    @get:In ("Begin"              ) @get:JsonProperty("in_begin"          ) override val inBegin         : Int,
+    @get:In ("Abort"              ) @get:JsonProperty("in_abort"          ) override val inAbort         : Int,
+    @get:In ("Buffer Size"   , Int) @get:JsonProperty("in_buffer_size"    )          val inBufferSize    : Int,
+    @get:In ("Sample Rate"   , Int) @get:JsonProperty("in_sample_rate"    )          val inSampleRate    : Int,
+    @get:In ("Frequency"     , Int) @get:JsonProperty("in_frequency"      )          val inFrequency     : Int,
+    @get:Out("Subgraph"           ) @get:JsonProperty("out_subgraph"      ) override val outSubgraph     : Int,
+    @get:Out("Ready Subgraph"     ) @get:JsonProperty("out_ready_subgraph")          val outReadySubgraph: Int,
+    @get:Out(""              , Arr) @get:JsonProperty("out"               )          val out             : Int
+) : State(type) {
     override suspend fun onBegin(scope: Scope) {
         val inBufferSize = scope.dataPath(inBufferSize).getOfType<Int>()
         val inSampleRate = scope.dataPath(inSampleRate).getOfType<Int>()
         val inFrequency = scope.dataPath(inFrequency).getOfType<Int>()
+        val outReadySubgraph = scope.controlPath(outReadySubgraph)
         val out = scope.dataPath(out)
 
         var device: Pointer? = null
@@ -76,6 +78,8 @@ class RtlSdrSource(
                     null
                 }
             }
+
+            scope.invoke(outReadySubgraph)
 
             awaitCancellation()
         } finally {

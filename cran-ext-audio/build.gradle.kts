@@ -25,6 +25,7 @@ dependencies {
     implementation(project(":cran-spec"))
     kapt(project(":cran-spec"))
 
+    implementation("org.jcodec:jcodec:0.2.5")
     implementation(platform("org.lwjgl:lwjgl-bom:3.3.1"))
     listOf("", "-openal").forEach {
         implementation("org.lwjgl", "lwjgl$it")

@@ -22,7 +22,6 @@ import com.valaphee.cran.node.Arr
 import com.valaphee.cran.node.Int
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.radio.Deinterleave
-import com.valaphee.cran.spec.Const
 import com.valaphee.cran.spec.In
 import com.valaphee.cran.spec.NodeType
 import com.valaphee.cran.spec.Out
@@ -35,19 +34,20 @@ import kotlin.math.atan2
 @NodeType("Radio/Demodulation/FM")
 class FmDemodulation(
     type: String,
-    @get:Const("Deviation"  , Int) @get:JsonProperty("deviation"  ) val deviation : Int,
-    @get:Const("Sample Rate", Int) @get:JsonProperty("sample_rate") val sampleRate: Int,
-    @get:In   (""           , Arr) @get:JsonProperty("in"         ) val `in`      : Int,
-    @get:Out  (""           , Arr) @get:JsonProperty("out"        ) val out       : Int
+    @get:In ("Deviation"  , Int) @get:JsonProperty("in_deviation"  ) val inDeviation : Int,
+    @get:In ("Sample Rate", Int) @get:JsonProperty("in_sample_rate") val inSampleRate: Int,
+    @get:In (""           , Arr) @get:JsonProperty("in"            ) val `in`      : Int,
+    @get:Out(""           , Arr) @get:JsonProperty("out"           ) val out       : Int
 ) : Node(type) {
     private val states = mutableMapOf<Scope, State>()
 
     override fun initialize(scope: Scope) {
         val state = states.getOrPut(scope) { State() }
+        val inDeviation = scope.dataPath(inDeviation)
+        val inSampleRate = scope.dataPath(inSampleRate)
         val `in` = scope.dataPath(`in`)
         val out = scope.dataPath(out)
 
-        val gain = sampleRate / (2 * PI.toFloat() * deviation)
         out.set {
             val (inRe, inIm) = Deinterleave.deinterleave(`in`.getOfType(), 2)
             val size = inRe.size
@@ -55,6 +55,7 @@ class FmDemodulation(
             var prevIm = if (state.prevIm.isNaN()) inIm.first().also { state.prevIm = it } else state.prevIm
             val outRe = FloatArray(size)
             val outIm = FloatArray(size)
+            val gain = inSampleRate.getOfType<Int>() / (2 * PI.toFloat() * inDeviation.getOfType<Int>())
             repeat(size) {
                 val _inRe = inRe[it]
                 val _inIm = inIm[it]
@@ -65,7 +66,7 @@ class FmDemodulation(
                 prevRe = _inRe
                 prevIm = _inIm
             }
-            /*interleave(*/outRe/*, outIm)*/
+            /*Interleave.interleave(*/outRe/*, outIm)*/
         }
     }
 

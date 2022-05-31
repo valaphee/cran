@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.audio
+package com.valaphee.cran.audio.sink
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.cran.Scope
 import com.valaphee.cran.node.Arr
 import com.valaphee.cran.node.Int
-import com.valaphee.cran.node.Task
+import com.valaphee.cran.node.State
 import com.valaphee.cran.spec.In
 import com.valaphee.cran.spec.NodeType
 import com.valaphee.cran.spec.Out
@@ -33,7 +33,7 @@ import org.lwjgl.openal.ALC10
 /**
  * @author Kevin Ludwig
  */
-@NodeType("Audio/Sink")
+@NodeType("Audio/Sink/Audio")
 class AudioSink(
     type: String,
     @get:In ("Begin"            ) @get:JsonProperty("in_begin"      ) override val inBegin      : Int,
@@ -42,7 +42,7 @@ class AudioSink(
     @get:In ("Sample Rate" , Int) @get:JsonProperty("in_sample_rate")          val inSampleRate : Int,
     @get:In (""            , Arr) @get:JsonProperty("in"            )          val `in`         : Int,
     @get:Out("Subgraph"         ) @get:JsonProperty("out_subgraph"  ) override val outSubgraph  : Int
-) : Task(type) {
+) : State(type) {
     override suspend fun onBegin(scope: Scope) {
         val `in` = scope.dataPath(`in`)
         val inBufferCount = scope.dataPath(inBufferCount).getOfType<Int>()
@@ -61,22 +61,20 @@ class AudioSink(
             source = AL10.alGenSources()
             buffers = IntArray(inBufferCount).also { AL10.alGenBuffers(it) }
             buffers.forEach { buffer ->
-                `in`.getOfTypeOrNull<FloatArray>()?.let { _in ->
-                    AL10.alBufferData(buffer, AL10.AL_FORMAT_MONO16, ShortArray(_in.size) { (Short.MAX_VALUE * _in[it]).toInt().toShort() }, inSampleRate)
-                    AL10.alSourceQueueBuffers(source, buffer)
-                }
+                val _in = `in`.getOfType<FloatArray>()
+                AL10.alBufferData(buffer, AL10.AL_FORMAT_MONO16, ShortArray(_in.size) { (Short.MAX_VALUE * _in[it]).toInt().toShort() }, inSampleRate)
+                AL10.alSourceQueueBuffers(source, buffer)
             }
-            if (AL10.alGetSourcei(source, AL10.AL_BUFFERS_QUEUED) != 0) AL10.alSourcePlay(source)
+            AL10.alSourcePlay(source)
 
             while (true) {
                 repeat(AL10.alGetSourcei(source, AL10.AL_BUFFERS_PROCESSED)) {
-                    `in`.getOfTypeOrNull<FloatArray>()?.let { _in ->
-                        val buffer = AL10.alSourceUnqueueBuffers(source)
-                        AL10.alBufferData(buffer, AL10.AL_FORMAT_MONO16, ShortArray(_in.size) { (Short.MAX_VALUE * _in[it]).toInt().toShort() }, inSampleRate)
-                        AL10.alSourceQueueBuffers(source, buffer)
-                    }
+                    val _in = `in`.getOfType<FloatArray>()
+                    val buffer = AL10.alSourceUnqueueBuffers(source)
+                    AL10.alBufferData(buffer, AL10.AL_FORMAT_MONO16, ShortArray(_in.size) { (Short.MAX_VALUE * _in[it]).toInt().toShort() }, inSampleRate)
+                    AL10.alSourceQueueBuffers(source, buffer)
                 }
-                if (AL10.alGetSourcei(source, AL10.AL_BUFFERS_QUEUED) != 0 && AL10.alGetSourcei(source, AL10.AL_SOURCE_STATE) != AL10.AL_PLAYING) AL10.alSourcePlay(source)
+                if (AL10.alGetSourcei(source, AL10.AL_SOURCE_STATE) != AL10.AL_PLAYING) AL10.alSourcePlay(source)
 
                 /*yield()*/delay(10) // TODO
             }

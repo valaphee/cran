@@ -24,7 +24,7 @@ import com.valaphee.cran.node.Node
 /**
  * @author Kevin Ludwig
  */
-class SubGraph(
+class Subgraph(
     type: String
 ) : Node(type) {
     @get:JsonAnyGetter val paths = mutableMapOf<String, Int>()
@@ -36,7 +36,7 @@ class SubGraph(
 
     override fun initialize(scope: Scope) {
         val subGraph = checkNotNull(scope.graphManager.getGraph(type))
-        val subScope = scope.subScope()
+        val subScope = scope.subscope()
         subGraph.initialize(subScope)
         subGraph.nodes.forEach {
             when (it) {

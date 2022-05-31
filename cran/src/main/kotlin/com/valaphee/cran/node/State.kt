@@ -17,19 +17,20 @@
 package com.valaphee.cran.node
 
 import com.valaphee.cran.Scope
+import com.valaphee.cran.path.ControlPath
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
-import kotlin.coroutines.coroutineContext
+import kotlin.coroutines.CoroutineContext
 
 /**
  * @author Kevin Ludwig
  */
-abstract class Task(
+abstract class State(
     type: String
 ) : Node(type) {
-    private val jobs = mutableMapOf<Scope, Job>()
+    private val subgraphs = mutableMapOf<Scope, MutableList<Job>>()
 
     abstract val inBegin: Int
     abstract val inAbort: Int
@@ -41,19 +42,25 @@ abstract class Task(
         val outSubgraph = scope.controlPath(outSubgraph)
 
         inBegin.declare {
-            if (!jobs.containsKey(scope)) {
-                with(CoroutineScope(coroutineContext)) { jobs[scope] = launch { outSubgraph() } }
+            if (!subgraphs.containsKey(scope)) {
+                scope.invoke(outSubgraph)
                 onBegin(scope)
-                jobs.remove(scope)?.cancelAndJoin()
+                subgraphs.remove(scope)?.forEach { it.cancelAndJoin() }
             }
         }
         inAbort.declare {
             onAbort(scope)
-            jobs.remove(scope)?.cancelAndJoin()
+            subgraphs.remove(scope)?.forEach { it.cancelAndJoin() }
         }
     }
 
     protected open suspend fun onBegin(scope: Scope) {}
 
     protected open suspend fun onAbort(scope: Scope) {}
+
+    protected fun Scope.invoke(coroutineContext: CoroutineContext, subgraph: ControlPath) {
+        if (subgraph.isDeclared) with(CoroutineScope(coroutineContext)) { subgraphs.getOrPut(this@invoke) { mutableListOf() } += launch { subgraph() } }
+    }
+
+    protected suspend fun Scope.invoke(subgraph: ControlPath) = invoke(kotlin.coroutines.coroutineContext, subgraph)
 }
