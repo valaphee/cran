@@ -36,8 +36,8 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             pom.apply {
-                name.set("cran Service")
-                description.set("cran-based programming \"language\"")
+                name.set("Cran Service")
+                description.set("Flow-based programming \"language\"")
                 url.set("https://valaphee.com")
                 scm {
                     connection.set("https://github.com/valaphee/cran.git")

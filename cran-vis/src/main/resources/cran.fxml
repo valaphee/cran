@@ -16,46 +16,39 @@
   ~ limitations under the License.
   -->
 
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.SeparatorMenuItem?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.VBox?>
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#keyPressed" prefHeight="800.0" prefWidth="1000.0" styleClass="background" stylesheets="@dark_theme.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
+<?import java.net.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#keyPressed" prefHeight="800.0" prefWidth="1000.0" styleClass="background" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <MenuBar>
             <menus>
                 <Menu mnemonicParsing="false" text="File">
                     <items>
-                        <MenuItem mnemonicParsing="false" onAction="#fileSettingsMenuItemAction" text="Settings"/>
-                        <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem mnemonicParsing="false" onAction="#fileImportMenuItemAction" text="Import"/>
-                        <MenuItem mnemonicParsing="false" onAction="#fileExportAsMenuItemAction" text="Export As..."/>
-                        <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem mnemonicParsing="false" onAction="#fileExitMenuItemAction" text="Exit"/>
+                        <MenuItem mnemonicParsing="false" onAction="#fileSettingsMenuItemAction" text="Settings" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#fileImportMenuItemAction" text="Import" />
+                        <MenuItem mnemonicParsing="false" onAction="#fileExportAsMenuItemAction" text="Export As..." />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#fileExitMenuItemAction" text="Exit" />
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Edit">
                     <items>
                         <Menu mnemonicParsing="false" text="Layout">
                             <items>
-                                <MenuItem mnemonicParsing="false" onAction="#editLayoutIsomMenuItemAction" text="Interpretable Self-Organizing Maps"/>
-                                <MenuItem mnemonicParsing="false" onAction="#editLayoutFrMenuItemAction" text="Fruchterman-Reingold"/>
-                                <MenuItem mnemonicParsing="false" onAction="#editLayoutKkMenuItemAction" text="Kamada-Kawai"/>
-                                <MenuItem mnemonicParsing="false" onAction="#editLayoutDacMenuItemAction" text="Directed Acyclic Graph"/>
+                                <MenuItem mnemonicParsing="false" onAction="#editLayoutIsomMenuItemAction" text="Interpretable Self-Organizing Maps" />
+                                <MenuItem mnemonicParsing="false" onAction="#editLayoutFrMenuItemAction" text="Fruchterman-Reingold" />
+                                <MenuItem mnemonicParsing="false" onAction="#editLayoutKkMenuItemAction" text="Kamada-Kawai" />
+                                <MenuItem mnemonicParsing="false" onAction="#editLayoutDacMenuItemAction" text="Directed Acyclic Graph" />
                             </items>
                         </Menu>
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Help">
                     <items>
-                        <MenuItem mnemonicParsing="false" onAction="#helpAboutMenuItemAction" text="About"/>
+                        <MenuItem mnemonicParsing="false" onAction="#helpAboutMenuItemAction" text="About" />
                     </items>
                 </Menu>
             </menus>
@@ -68,14 +61,14 @@
                             <content>
                                 <ScrollPane fx:id="graphScrollPane">
                                     <content>
-                                        <Pane fx:id="graphPane" style="-fx-background-color: #666, #111; -fx-background-radius: 0; -fx-background-insets: 0, 1;"/>
+                                        <Pane fx:id="graphPane" style="-fx-background-color: #666, #111; -fx-background-radius: 0; -fx-background-insets: 0, 1;" />
                                     </content>
                                 </ScrollPane>
                             </content>
                         </Tab>
                         <Tab onSelectionChanged="#jsonTabSelectionChanged" text="JSON">
                             <content>
-                                <TextArea fx:id="jsonTextArea" editable="false"/>
+                                <TextArea fx:id="jsonTextArea" editable="false" />
                             </content>
                         </Tab>
                     </tabs>
@@ -83,4 +76,8 @@
             </children>
         </HBox>
     </children>
+   <stylesheets>
+      <URL value="@dark_theme.css" />
+      <URL value="@toolbar/toolbar.css" />
+   </stylesheets>
 </VBox>

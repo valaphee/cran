@@ -52,27 +52,34 @@ class PropertiesView(
             vgrow = Priority.ALWAYS
 
             val const = (node.valueObject as NodeValueObject).const
-            if (const.isNotEmpty()) fieldset { const.forEach { objectMapper.treeToValue<JsonSchema?>(it.spec.data)?.let { jsonSchema -> field("${it.spec.name} (${it.spec.json})") { inputContainer.add(jsonSchema.toNode(viewModel.bind { it.valueProperty })) } } } }
+            if (const.isNotEmpty()) fieldset { const.forEach { objectMapper.treeToValue<JsonSchema?>(it.spec.data)?.let { jsonSchema -> field("${it.spec.name} (${it.spec.json})") { inputContainer.add(jsonSchema.toNode(viewModel.bind { it.valueProperty }, true)) } } } }
             val connectors = node.connectors
             if (connectors.isNotEmpty()) fieldset {
                 connectors.forEach {
                     if (it.isInput) {
                         val valueObject = it.valueObject as ConnectorValueObject
-                        objectMapper.treeToValue<JsonSchema?>(valueObject.spec.data)?.let { jsonSchema -> field("${valueObject.spec.name} (${valueObject.spec.json})") { inputContainer.add(jsonSchema.toNode(viewModel.bind { valueObject.valueProperty() })) } }
+                        objectMapper.treeToValue<JsonSchema?>(valueObject.spec.data)?.let { jsonSchema -> field("${valueObject.spec.name} (${valueObject.spec.json})") { inputContainer.add(jsonSchema.toNode(viewModel.bind { valueObject.valueProperty() }, node.flow.getConnections(it.type).isInputConnected(it))) } }
                     }
                 }
             }
         }
         buttonbar {
             button("Ok") {
+                isDefaultButton = true
+
                 action {
                     viewModel.commit()
                     close()
                 }
             }
-            button("Cancel") { action { close() } }
+            button("Cancel") {
+                isCancelButton = true
+
+                action { close() }
+            }
             button("Apply") {
                 enableWhen(viewModel.dirty)
+
                 action { viewModel.commit() }
             }
         }

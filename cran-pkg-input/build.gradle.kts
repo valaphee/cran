@@ -20,14 +20,12 @@ plugins {
 }
 
 dependencies {
+    api(project(":cran"))
+
     implementation(project(":cran-spec"))
     kapt(project(":cran-spec"))
 
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
-    implementation("com.google.guava:guava:31.1-jre")
-    implementation("io.github.classgraph:classgraph:4.8.146")
-
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.1-native-mt")
+    implementation("org.hid4java:hid4java:0.7.0")
 }
 
 java {
@@ -41,7 +39,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             pom.apply {
-                name.set("Cran")
+                name.set("Cran: Input")
                 description.set("Flow-based programming \"language\"")
                 url.set("https://valaphee.com")
                 scm {

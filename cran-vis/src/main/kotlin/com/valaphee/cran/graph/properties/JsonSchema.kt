@@ -17,6 +17,7 @@
 package com.valaphee.cran.graph.properties
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.inject.Inject
@@ -45,37 +46,37 @@ class JsonSchema(
 
     @Inject private lateinit var objectMapper: ObjectMapper
 
-    fun toNode(valueProperty: ObjectProperty<Any?>): Node {
+    fun toNode(valueProperty: ObjectProperty<Any?>, writable: Boolean): Node {
         lateinit var node: Node
-        node = toNode(valueProperty.value) { valueProperty.value = toValue(node) }
+        node = toNode(valueProperty.value, writable) { toValue(node)?.let { valueProperty.value = it } }
         valueProperty.onChange { updateNode(it, node) }
         return node
     }
 
-    private fun toNode(value: Any?, toValue: () -> Unit): Node = when (type) {
+    private fun toNode(value: Any?, writable: Boolean, toValue: () -> Unit): Node = when (type) {
         Type.Boolean -> CheckBox().apply {
             isSelected = value as Boolean? ?: false
             selectedProperty().onChange { toValue() }
+            isDisable = writable
         }
         Type.Integer -> TextField().apply {
-            text = (value as Number?)?.toString()
+            isDisable = writable
+            text = (value as Number?)?.toString() ?: "0"
             textProperty().onChange { toValue() }
         }
         Type.Number -> TextField().apply {
-            text = (value as Number?)?.toString()
+            isDisable = writable
+            text = (value as Number?)?.toString() ?: "0.0"
             textProperty().onChange { toValue() }
         }
         Type.String -> TextField().apply {
-            text = value?.toString()
+            isDisable = writable
+            text = value?.toString() ?: ""
             textProperty().onChange { toValue() }
         }
-        /*Type.Array -> HBox().apply {
-            check(items != null && minItems != null && maxItems != null)
-            val _value = value as List<*>?
-            repeat(minItems) { children += items.toNode(_value?.get(it) ?: 0, toValue).apply { hgrow = Priority.ALWAYS } }
-        }*/
         else -> TextField().apply {
-            text = objectMapper.writeValueAsString(value)
+            isDisable = writable
+            text = value?.let { objectMapper.writeValueAsString(it) } ?: ""
             focusedProperty().onChange { toValue() }
         }
     }
@@ -86,24 +87,19 @@ class JsonSchema(
             Type.Integer -> (node as TextField).text = (value as Number?)?.toString() ?: "0.0"
             Type.Number  -> (node as TextField).text = (value as Number?)?.toString() ?: "0"
             Type.String  -> (node as TextField).text = value?.toString() ?: ""
-            /*Type.Array   -> {
-                check(items != null && minItems != null && maxItems != null)
-                val _value = value as List<*>?
-                (node as HBox).children.forEachIndexed { i, child -> items.updateNode(_value?.get(i) ?: 0, child) }
-            }*/
-            else         -> (node as TextField).text = objectMapper.writeValueAsString(value)
+            else         -> (node as TextField).text = value?.let { objectMapper.writeValueAsString(it) } ?: ""
         }
     }
 
     private fun toValue(node: Node): Any? = when (type) {
         Type.Boolean -> (node as CheckBox).isSelected
-        Type.Integer -> (node as TextField).text?.toInt() ?: 0
-        Type.Number  -> (node as TextField).text?.toDouble() ?: 0.0
-        Type.String  -> (node as TextField).text ?: ""
-        /*Type.Array   -> {
-            check(items != null && minItems != null && maxItems != null)
-            (node as HBox).children.map { items.toValue(it) }
-        }*/
-        else         -> objectMapper.readValue((node as TextField).text)
+        Type.Integer -> (node as TextField).text?.toIntOrNull()
+        Type.Number  -> (node as TextField).text?.toDoubleOrNull()
+        Type.String  -> (node as TextField).text
+        else         -> try {
+            objectMapper.readValue((node as TextField).text)
+        } catch (_: JsonParseException) {
+            null
+        }
     }
 }
