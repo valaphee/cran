@@ -44,12 +44,10 @@ class Entry(
     suspend operator fun invoke(scope: Scope) {
         val out = scope.controlPath(out)
 
-        if (!jobs.containsKey(scope)) {
-            with(CoroutineScope(coroutineContext)) {
-                jobs[scope] = launch {
-                    out()
-                    jobs.remove(scope)
-                }
+        if (!jobs.containsKey(scope)) with(CoroutineScope(coroutineContext)) {
+            jobs[scope] = launch {
+                out()
+                jobs.remove(scope)
             }
         }
     }

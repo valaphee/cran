@@ -17,10 +17,8 @@
 package com.valaphee.cran
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.inject.Injector
-import com.google.protobuf.ByteString
 import com.valaphee.cran.graph.Graph
 import com.valaphee.cran.graph.SkinFactory
 import com.valaphee.cran.meta.Meta
@@ -224,7 +222,7 @@ class CranView(
                 event.consume()
             }*/
             KeyCode.S -> {
-                graph?.let { graph -> launch { graphService.updateGraph(UpdateGraphRequest.newBuilder().setGraph(ByteString.copyFrom(objectMapper.writeValueAsBytes(graph))).build()) } }
+                graph?.let { graph -> launch { graphService.updateGraph(UpdateGraphRequest.newBuilder().setGraph(objectMapper.writeValueAsString(graph)).build()) } }
                 event.consume()
             }
             /*KeyCode.V -> Unit*/
@@ -247,7 +245,7 @@ class CranView(
     }
 
     fun fileImportMenuItemAction() {
-        chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("cran", "*.flw"), FileChooser.ExtensionFilter("All Files", "*.*"))).singleOrNull()?.let {
+        chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Graph", "*.gph"), FileChooser.ExtensionFilter("All Files", "*.*"))).singleOrNull()?.let {
             val graph = it.inputStream().use { objectMapper.readValue<Graph>(GZIPInputStream(it)).also { it.spec = spec } }
             graphsListView.items += graph
             graphsListView.selectionModel.select(graph)
@@ -255,7 +253,7 @@ class CranView(
     }
 
     fun fileExportAsMenuItemAction() {
-        chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("cran", "*.flw"), FileChooser.ExtensionFilter("All Files", "*.*")), mode = FileChooserMode.Save).singleOrNull()?.let { it.outputStream().use { objectMapper.writeValue(GZIPOutputStream(it), graph) } }
+        chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Graph", "*.gph"), FileChooser.ExtensionFilter("All Files", "*.*")), mode = FileChooserMode.Save).singleOrNull()?.let { it.outputStream().use { objectMapper.writeValue(GZIPOutputStream(it), graph) } }
     }
 
     fun fileExitMenuItemAction() {
@@ -299,7 +297,7 @@ class CranView(
     }
 
     private suspend fun refresh() {
-        val graphs = objectMapper.readValue<List<Graph>>(graphService.listGraph(ListGraphRequest.getDefaultInstance()).graphs.toByteArray()).onEach { it.spec = spec }
+        val graphs = graphService.listGraph(ListGraphRequest.getDefaultInstance()).graphList.map { objectMapper.readValue<Graph>(it).apply { spec = this@CranView.spec } }
         withContext(Dispatchers.Main) {
             val graphId = graph?.id
             graphsListView.items.setAll(graphs)
@@ -309,9 +307,5 @@ class CranView(
 
     private fun delete(graphs: List<Graph>) {
         graphs.forEach { graphService.deleteGraph(DeleteGraphRequest.newBuilder().setGraphId(it.id.toString()).build()) }
-    }
-
-    companion object {
-        private val bitData = jacksonObjectMapper().readTree("""{"type":"boolean"}""")
     }
 }

@@ -74,7 +74,7 @@ class SpecGenerator : AbstractProcessor() {
             } else null
         }?.let {
             val bytes = objectMapper.writeValueAsBytes(Spec(it))
-            processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", "spec.${MessageDigest.getInstance("MD5").digest(bytes).toHexString()}.dat").openOutputStream().use { it.write(bytes) }
+            processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", "${MessageDigest.getInstance("MD5").digest(bytes).toHexString()}.spec.json").openOutputStream().use { it.write(bytes) }
         }
         return true
     }

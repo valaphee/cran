@@ -8,17 +8,17 @@ option java_generic_services = true;
 message GetSpecRequest {}
 
 message GetSpecResponse {
-  bytes spec = 1;
+  string spec = 1;
 }
 
 message ListGraphRequest {}
 
 message ListGraphResponse {
-  bytes graphs = 1;
+  repeated string graph = 1;
 }
 
 message UpdateGraphRequest {
-  bytes graph = 1;
+  string graph = 1;
 }
 
 message UpdateGraphResponse {}

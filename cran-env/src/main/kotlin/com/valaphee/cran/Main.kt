@@ -45,7 +45,7 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.io.IoBuilder
 
 fun main(arguments: Array<String>) {
-    val argumentParser = ArgParser("cran")
+    val argumentParser = ArgParser("cran-env")
     val port by argumentParser.option(ArgType.Int, "port", "p", "Port").default(8080)
     argumentParser.parse(arguments)
 

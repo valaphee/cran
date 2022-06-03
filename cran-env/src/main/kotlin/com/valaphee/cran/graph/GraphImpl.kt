@@ -33,10 +33,10 @@ import java.util.concurrent.Executors
  * @author Kevin Ludwig
  */
 class GraphImpl(
-                               override val id   : UUID      ,
-                               override val name : String    ,
-    @get:JsonProperty("meta" )          val meta : Meta?     ,
-                               override val nodes: List<Node>
+                              override val id   : UUID      ,
+                              override val name : String    ,
+    @get:JsonProperty("meta")          val meta : Meta?     ,
+                              override val nodes: List<Node>
 ) : Graph(), CoroutineScope {
     @JsonIgnore private val executor = Executors.newSingleThreadExecutor()
     @get:JsonIgnore override val coroutineContext get() = executor.asCoroutineDispatcher()

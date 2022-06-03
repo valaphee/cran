@@ -47,12 +47,12 @@
     -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 1, 0.8, 0, 1);
 }
 
-.vnode-connection-control      { -fx-stroke: #90CC0E }
-.vnode-new-connection-control  { -fx-stroke: #90CC0E }
-.node-connector-shape-control  { -fx-stroke: #90CC0E }
-.vnode-connection-data         { -fx-stroke: #E6E6E6 }
-.vnode-new-connection-data     { -fx-stroke: #E6E6E6 }
-.node-connector-shape-data     { -fx-stroke: #E6E6E6 }
+.vnode-connection-control      { -fx-stroke: #E6E6E6 }
+.vnode-new-connection-control  { -fx-stroke: #E6E6E6 }
+.node-connector-shape-control  { -fx-stroke: #E6E6E6 }
+.vnode-connection-data         { -fx-stroke: #90CC0E }
+.vnode-new-connection-data     { -fx-stroke: #90CC0E }
+.node-connector-shape-data     { -fx-stroke: #90CC0E }
 .vnode-connection-data-bit     { -fx-stroke: #F0A35E }
 .vnode-new-connection-data-bit { -fx-stroke: #F0A35E }
 .node-connector-shape-data-bit { -fx-stroke: #F0A35E }

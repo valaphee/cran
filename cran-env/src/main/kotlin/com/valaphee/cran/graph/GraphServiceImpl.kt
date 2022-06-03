@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import com.google.protobuf.ByteString
 import com.valaphee.cran.GraphManager
 import com.valaphee.cran.Scope
 import com.valaphee.cran.spec.Spec
@@ -54,20 +53,20 @@ class GraphServiceImpl @Inject constructor(
         Runtime.getRuntime().addShutdownHook(thread(false) { scopes.forEach { (id, scope) -> graphs.find { it.id ==  id}?.shutdown(scope) } })
 
         ClassGraph().scan().use {
-            spec = Spec(it.getResourcesMatchingWildcard("spec.*.dat").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes.onEach { log.info("Built-in node {} found", it.name) } })
-            graphs += it.getResourcesMatchingWildcard("**.flw").urLs.map { objectMapper.readValue<GraphImpl>(it).also { log.info("Built-in node {} with graph found", it.name) } }
+            spec = Spec(it.getResourcesMatchingWildcard("**.spec.json").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes.onEach { log.info("Built-in node {} found", it.name) } })
+            graphs += it.getResourcesMatchingWildcard("**.gph").urLs.map { objectMapper.readValue<GraphImpl>(it).also { log.info("Built-in node {} with graph found", it.name) } }
         }
     }
 
     override fun getGraph(name: String) = graphs.find { it.name == name }
 
     override fun getSpec(request: GetSpecRequest, responseObserver: StreamObserver<GetSpecResponse>) {
-        responseObserver.onNext(GetSpecResponse.newBuilder().setSpec(ByteString.copyFrom(objectMapper.writeValueAsBytes(Spec(spec.nodes + graphs.map { it.toSpec() })))).build())
+        responseObserver.onNext(GetSpecResponse.newBuilder().setSpec(objectMapper.writeValueAsString(Spec(spec.nodes + graphs.map { it.toSpec() }))).build())
         responseObserver.onCompleted()
     }
 
     override fun listGraph(request: ListGraphRequest, responseObserver: StreamObserver<ListGraphResponse>) {
-        responseObserver.onNext(ListGraphResponse.newBuilder().setGraphs(ByteString.copyFrom(objectMapper.writeValueAsBytes(graphs))).build())
+        responseObserver.onNext(ListGraphResponse.newBuilder().apply { addAllGraph(graphs.map { objectMapper.writeValueAsString(it) }) }.build())
         responseObserver.onCompleted()
     }
 

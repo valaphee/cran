@@ -34,11 +34,15 @@ abstract class State(
 
     abstract val inBegin: Int
     abstract val inAbort: Int
+    abstract val outOnBegin: Int
+    abstract val outOnEnd: Int
     abstract val outSubgraph: Int
 
     override fun initialize(scope: Scope) {
         val inBegin = scope.controlPath(inBegin)
         val inAbort = scope.controlPath(inAbort)
+        val outOnBegin = scope.controlPath(outOnBegin)
+        val outOnEnd = scope.controlPath(outOnEnd)
         val outSubgraph = scope.controlPath(outSubgraph)
 
         inBegin.declare {
@@ -46,17 +50,16 @@ abstract class State(
                 scope.invoke(outSubgraph)
                 onBegin(scope)
                 subgraphs.remove(scope)?.forEach { it.cancelAndJoin() }
+                outOnEnd()
             }
         }
         inAbort.declare {
-            onAbort(scope)
             subgraphs.remove(scope)?.forEach { it.cancelAndJoin() }
+            outOnEnd()
         }
     }
 
     protected open suspend fun onBegin(scope: Scope) {}
-
-    protected open suspend fun onAbort(scope: Scope) {}
 
     protected fun Scope.invoke(coroutineContext: CoroutineContext, subgraph: ControlPath) {
         if (subgraph.isDeclared) with(CoroutineScope(coroutineContext)) { subgraphs.getOrPut(this@invoke) { mutableListOf() } += launch { subgraph() } }
