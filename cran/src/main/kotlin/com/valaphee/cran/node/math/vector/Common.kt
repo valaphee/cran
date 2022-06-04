@@ -108,11 +108,11 @@ object DoubleVectorDeserializer : JsonDeserializer<DoubleVector>() {
     }
 }
 
-inline fun vectorOp(n: Any?, intOp: (IntVector) -> Any, floatOp: (FloatVector) -> Any, doubleOp: (DoubleVector) -> Any, objectMapper: ObjectMapper) = when (n) {
-    is IntVector    -> intOp   (n                                         )
-    is FloatVector  -> floatOp (n                                         )
-    is DoubleVector -> doubleOp(n                                         )
-    else            -> doubleOp(objectMapper.convertValue(checkNotNull(n)))
+inline fun vectorOp(x: Any?, intOp: (IntVector) -> Any, floatOp: (FloatVector) -> Any, doubleOp: (DoubleVector) -> Any, objectMapper: ObjectMapper) = when (x) {
+    is IntVector    -> intOp   (x                                         )
+    is FloatVector  -> floatOp (x                                         )
+    is DoubleVector -> doubleOp(x                                         )
+    else            -> doubleOp(objectMapper.convertValue(checkNotNull(x)))
 }
 
 inline fun vectorOp(a: Any?, b: Any?, intOp: (IntVector, IntVector) -> Any, floatOp: (FloatVector, FloatVector) -> Any, doubleOp: (DoubleVector, DoubleVector) -> Any, objectMapper: ObjectMapper) = when (a) {

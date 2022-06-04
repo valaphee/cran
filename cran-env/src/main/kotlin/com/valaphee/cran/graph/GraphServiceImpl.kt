@@ -36,7 +36,6 @@ import io.github.classgraph.ClassGraph
 import io.grpc.stub.StreamObserver
 import org.apache.logging.log4j.LogManager
 import java.util.UUID
-import kotlin.concurrent.thread
 
 /**
  * @author Kevin Ludwig
@@ -47,14 +46,12 @@ class GraphServiceImpl @Inject constructor(
 ) : GraphServiceImplBase(), GraphManager {
     private val spec: Spec
     private val graphs = mutableSetOf<GraphImpl>()
-    private val scopes = mutableMapOf<UUID, Scope>()
+    private val scopes = mutableSetOf<Scope>()
 
     init {
-        Runtime.getRuntime().addShutdownHook(thread(false) { scopes.forEach { (id, scope) -> graphs.find { it.id ==  id}?.shutdown(scope) } })
-
         ClassGraph().scan().use {
-            spec = Spec(it.getResourcesMatchingWildcard("**.spec.json").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes.onEach { log.info("Built-in node {} found", it.name) } })
-            graphs += it.getResourcesMatchingWildcard("**.gph").urLs.map { objectMapper.readValue<GraphImpl>(it).also { log.info("Built-in node {} with graph found", it.name) } }
+            spec = Spec(it.getResourcesMatchingWildcard("**.spec.json").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes.onEach { log.info("Built-in node '{}' found", it.name) } })
+            graphs += it.getResourcesMatchingWildcard("**.gph").urLs.map { objectMapper.readValue<GraphImpl>(it).also { log.info("Built-in node '{}' with graph found", it.name) } }
         }
     }
 
@@ -71,23 +68,13 @@ class GraphServiceImpl @Inject constructor(
     }
 
     override fun updateGraph(request: UpdateGraphRequest, responseObserver: StreamObserver<UpdateGraphResponse>) {
-        val graph = objectMapper.readValue<GraphImpl>(request.graph.toByteArray())
-        graphs.find { it.id == graph.id }?.let {
-            graphs -= it
-            it.shutdown(checkNotNull(scopes[graph.id]))
-        }
-        graphs += graph
-        graph.initialize(Scope(objectMapper, this).also { scopes[graph.id] = it })
+        objectMapper.readValue<GraphImpl>(request.graph.toByteArray())
         responseObserver.onNext(UpdateGraphResponse.getDefaultInstance())
         responseObserver.onCompleted()
     }
 
     override fun deleteGraph(request: DeleteGraphRequest, responseObserver: StreamObserver<DeleteGraphResponse>) {
-        val graphId = UUID.fromString(request.graphId)
-        graphs.find { it.id == graphId }?.let {
-            graphs -= it
-            it.shutdown(checkNotNull(scopes[graphId]))
-        }
+        UUID.fromString(request.graphId)
         responseObserver.onNext(DeleteGraphResponse.getDefaultInstance())
         responseObserver.onCompleted()
     }

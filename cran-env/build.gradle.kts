@@ -18,11 +18,7 @@ plugins { id("com.github.johnrengelman.shadow") }
 
 dependencies {
     implementation(project(":cran"))
-    implementation(project(":cran-pkg-audio"))
     implementation(project(":cran-pkg-input"))
-    implementation(project(":cran-pkg-network"))
-    implementation(project(":cran-pkg-network-http"))
-    implementation(project(":cran-pkg-radio"))
 
     implementation(project(":cran-meta"))
     implementation(project(":cran-spec"))

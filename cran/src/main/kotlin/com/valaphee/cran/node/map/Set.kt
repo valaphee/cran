@@ -42,6 +42,6 @@ class Set(
         val inValue = scope.dataPath(inValue)
         val out = scope.dataPath(out)
 
-        out.set { `in`.getOfType<MutableMap<Any?, Any?>>().also { it[inKey.get()] = inValue.get() } }
+        out.set { `in`.getOfType<Map<Any?, Any?>>().also { it + (inKey.get() to inValue.get()) } }
     }
 }

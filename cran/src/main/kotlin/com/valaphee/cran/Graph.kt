@@ -26,6 +26,7 @@ import com.valaphee.cran.node.nesting.ControlOutput
 import com.valaphee.cran.node.nesting.DataInput
 import com.valaphee.cran.node.nesting.DataOutput
 import com.valaphee.cran.spec.Spec
+import kotlinx.coroutines.runBlocking
 import java.util.UUID
 
 /**
@@ -41,7 +42,7 @@ abstract class Graph {
     }
 
     open fun shutdown(scope: Scope) {
-        nodes.forEach { it.shutdown(scope) }
+        nodes.forEach { runBlocking { it.shutdown(scope) } }
     }
 
     fun toSpec() = Spec.Node(name, "", nodes.mapNotNull {

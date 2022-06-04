@@ -17,7 +17,7 @@
 /* Nodes */
 
 .window {
-    -fx-border-style: hidden;
+    -fx-border-color: #494949;
 
     -fx-background-color: #494949, #111;
     -fx-background-insets: -1 0 0 0, 0 1 1 1;
@@ -29,7 +29,7 @@
     -fx-fill: white;
 
     -fx-font-family: "Segoe UI";
-    -fx-font-size: 1em;
+    -fx-font-size: 0.8em;
 
     -fx-background-color: #494949, #1F1F1F;
     -fx-background-insets: 0, 1;

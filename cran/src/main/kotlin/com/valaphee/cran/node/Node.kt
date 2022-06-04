@@ -47,7 +47,7 @@ open class Node(
 
     open fun initialize(scope: Scope) = Unit
 
-    open fun shutdown(scope: Scope) = Unit
+    open suspend fun shutdown(scope: Scope) = Unit
 
     companion object {
         private val types = ClassGraph().enableClassInfo().enableAnnotationInfo().scan().use { it.getClassesWithAnnotation(com.valaphee.cran.spec.NodeType::class.java).map { Class.forName(it.name).kotlin }.associateBy { checkNotNull(it.findAnnotation<com.valaphee.cran.spec.NodeType>()).name } }

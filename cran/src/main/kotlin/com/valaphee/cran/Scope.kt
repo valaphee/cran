@@ -30,7 +30,7 @@ class Scope(
     private val controlPaths = mutableSetOf<ControlPath>()
     private val dataPaths = mutableSetOf<DataPath>()
 
-    fun subscope() = Scope(objectMapper, graphManager)
+    fun subScope() = Scope(objectMapper, graphManager)
 
     fun controlPath(controlPathId: Int) = controlPaths.find { it.id == controlPathId } ?: ControlPath(controlPathId).also { controlPaths += it }
 

@@ -40,6 +40,6 @@ class Remove(
         val inKey = scope.dataPath(inKey)
         val out = scope.dataPath(out)
 
-        out.set { `in`.getOfType<MutableMap<Any?, Any?>>().also { it.remove(inKey.get()) } }
+        out.set { `in`.getOfType<Map<Any?, Any?>>().also { it - inKey.get() } }
     }
 }

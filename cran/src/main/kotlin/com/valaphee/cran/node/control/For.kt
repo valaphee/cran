@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.cran.Scope
 import com.valaphee.cran.node.Int
 import com.valaphee.cran.node.Node
-import com.valaphee.cran.node.Num
 import com.valaphee.cran.spec.In
 import com.valaphee.cran.spec.NodeType
 import com.valaphee.cran.spec.Out
@@ -37,7 +36,7 @@ class For(
     @get:In ("Step" , Int) @get:JsonProperty("in_step"       ) val inStep      : Int,
     @get:Out("Body"      ) @get:JsonProperty("out_body"      ) val outBody     : Int,
     @get:Out("Exit"      ) @get:JsonProperty("out"           ) val out         : Int,
-    @get:Out("Index", Num) @get:JsonProperty("out_index"     ) val outIndex    : Int
+    @get:Out("Index", Int) @get:JsonProperty("out_index"     ) val outIndex    : Int
 ) : Node(type) {
     override fun initialize(scope: Scope) {
         val `in` = scope.controlPath(`in`)
