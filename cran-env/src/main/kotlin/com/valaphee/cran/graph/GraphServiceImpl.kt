@@ -30,6 +30,10 @@ import com.valaphee.cran.svc.graph.v1.GetSpecResponse
 import com.valaphee.cran.svc.graph.v1.GraphServiceGrpc.GraphServiceImplBase
 import com.valaphee.cran.svc.graph.v1.ListGraphRequest
 import com.valaphee.cran.svc.graph.v1.ListGraphResponse
+import com.valaphee.cran.svc.graph.v1.RunGraphRequest
+import com.valaphee.cran.svc.graph.v1.RunGraphResponse
+import com.valaphee.cran.svc.graph.v1.StopGraphRequest
+import com.valaphee.cran.svc.graph.v1.StopGraphResponse
 import com.valaphee.cran.svc.graph.v1.UpdateGraphRequest
 import com.valaphee.cran.svc.graph.v1.UpdateGraphResponse
 import io.github.classgraph.ClassGraph
@@ -45,37 +49,51 @@ class GraphServiceImpl @Inject constructor(
     private val objectMapper: ObjectMapper
 ) : GraphServiceImplBase(), GraphManager {
     private val spec: Spec
-    private val graphs = mutableSetOf<GraphImpl>()
-    private val scopes = mutableSetOf<Scope>()
+    private val graphs = mutableMapOf<String, GraphImpl>()
+    private val scopes = mutableMapOf<UUID, Scope>()
 
     init {
         ClassGraph().scan().use {
             spec = Spec(it.getResourcesMatchingWildcard("**.spec.json").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes.onEach { log.info("Built-in node '{}' found", it.name) } })
-            graphs += it.getResourcesMatchingWildcard("**.gph").urLs.map { objectMapper.readValue<GraphImpl>(it).also { log.info("Built-in node '{}' with graph found", it.name) } }
+            graphs += it.getResourcesMatchingWildcard("**.gph").urLs.map { objectMapper.readValue<GraphImpl>(it).also { log.info("Built-in node '{}' with graph found", it.name) } }.associateBy { it.name }
         }
     }
 
-    override fun getGraph(name: String) = graphs.find { it.name == name }
+    override fun getGraph(name: String) = graphs[name]
 
     override fun getSpec(request: GetSpecRequest, responseObserver: StreamObserver<GetSpecResponse>) {
-        responseObserver.onNext(GetSpecResponse.newBuilder().setSpec(objectMapper.writeValueAsString(Spec(spec.nodes + graphs.map { it.toSpec() }))).build())
+        responseObserver.onNext(GetSpecResponse.newBuilder().setSpec(objectMapper.writeValueAsString(spec)).build())
         responseObserver.onCompleted()
     }
 
     override fun listGraph(request: ListGraphRequest, responseObserver: StreamObserver<ListGraphResponse>) {
-        responseObserver.onNext(ListGraphResponse.newBuilder().apply { addAllGraph(graphs.map { objectMapper.writeValueAsString(it) }) }.build())
+        responseObserver.onNext(ListGraphResponse.newBuilder().apply { addAllGraphs(graphs.values.map { objectMapper.writeValueAsString(it) }) }.build())
         responseObserver.onCompleted()
     }
 
     override fun updateGraph(request: UpdateGraphRequest, responseObserver: StreamObserver<UpdateGraphResponse>) {
-        objectMapper.readValue<GraphImpl>(request.graph.toByteArray())
+        val graph = objectMapper.readValue<GraphImpl>(request.graph.toByteArray())
+        graphs[graph.name] = graph
         responseObserver.onNext(UpdateGraphResponse.getDefaultInstance())
         responseObserver.onCompleted()
     }
 
     override fun deleteGraph(request: DeleteGraphRequest, responseObserver: StreamObserver<DeleteGraphResponse>) {
-        UUID.fromString(request.graphId)
+        graphs.remove(request.graphName)
         responseObserver.onNext(DeleteGraphResponse.getDefaultInstance())
+        responseObserver.onCompleted()
+    }
+
+    override fun runGraph(request: RunGraphRequest, responseObserver: StreamObserver<RunGraphResponse>) {
+        val scopeId = UUID.randomUUID()
+        graphs[request.graphName]?.let { it -> Scope(objectMapper, this, it).also { scopes[scopeId] = it }.initialize() }
+        responseObserver.onNext(RunGraphResponse.newBuilder().setScopeId(scopeId.toString()).build())
+        responseObserver.onCompleted()
+    }
+
+    override fun stopGraph(request: StopGraphRequest, responseObserver: StreamObserver<StopGraphResponse>) {
+        scopes.remove(UUID.fromString(request.scopeId))?.shutdown()
+        responseObserver.onNext(StopGraphResponse.getDefaultInstance())
         responseObserver.onCompleted()
     }
 

@@ -58,7 +58,7 @@ fun main(arguments: Array<String>) {
         override fun <T : Any> getInstance(type: KClass<T>) = injector.getInstance(type.java)
     }
 
-    launch<CranApp>(arguments)
+    launch<MainApp>(arguments)
 
     exitProcess(0)
 }

@@ -28,7 +28,6 @@ import eu.mihosoft.vrl.workflow.FlowFactory
 import eu.mihosoft.vrl.workflow.VFlow
 import eu.mihosoft.vrl.workflow.VNode
 import javafx.beans.property.SimpleObjectProperty
-import java.util.UUID
 import kotlin.math.max
 import kotlin.math.round
 
@@ -36,7 +35,6 @@ import kotlin.math.round
  * @author Kevin Ludwig
  */
 class Graph(
-    @get:JsonProperty("id"  ) val id   : UUID                           = UUID.randomUUID(),
     @get:JsonProperty("name") var name : String                         = "New Graph",
                                   meta : Meta                           = Meta(emptyList()),
                                   nodes: List<MutableMap<String, Any?>> = emptyList()

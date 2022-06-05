@@ -36,8 +36,7 @@ class Subgraph(
 
     override fun initialize(scope: Scope) {
         val subGraph = checkNotNull(scope.graphManager.getGraph(type))
-        val subScope = scope.subScope()
-        subGraph.initialize(subScope)
+        val subScope = scope.subScope(subGraph).also { it.initialize() }
         subGraph.nodes.forEach {
             when (it) {
                 is ControlInput -> {

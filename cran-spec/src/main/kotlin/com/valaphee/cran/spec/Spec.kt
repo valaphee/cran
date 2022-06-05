@@ -45,4 +45,6 @@ class Spec(
             }
         }
     }
+
+    operator fun plus(other: Spec) = Spec(nodes + other.nodes)
 }

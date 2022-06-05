@@ -17,12 +17,11 @@
 package com.valaphee.cran.settings
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.databind.ObjectMapper
-import tornadofx.ItemViewModel
+import io.grpc.ManagedChannel
+import io.grpc.ManagedChannelBuilder
 import tornadofx.getValue
 import tornadofx.setValue
 import tornadofx.toProperty
-import java.io.File
 
 /**
  * @author Kevin Ludwig
@@ -31,24 +30,20 @@ class Settings(
     gridX: Int = 5,
     gridY: Int = 5
 ) {
-    @get:JsonIgnore internal val gridXProperty = gridX.toProperty()
-    @get:JsonIgnore internal val gridYProperty = gridY.toProperty()
+    @JsonIgnore private val gridXProperty = gridX.toProperty()
+    @JsonIgnore private val gridYProperty = gridY.toProperty()
 
     var gridX by gridXProperty
     var gridY by gridYProperty
 
-    class Model(
-        settings: Settings
-    ): ItemViewModel<Settings>(settings) {
-        private val objectMapper by di<ObjectMapper>()
+    class Environment(
+        target: String
+    ) {
+        @JsonIgnore
+        internal val targetProperty = target.toProperty()
 
-        init {
-            bind(Settings::gridXProperty)
-            bind(Settings::gridYProperty)
-        }
+        var target by targetProperty
 
-        override fun onCommit() {
-            objectMapper.writeValue(File(File(System.getProperty("user.home"), ".valaphee/cran").also(File::mkdirs), "settings.json"), item)
-        }
+        fun toChannel(): ManagedChannel = ManagedChannelBuilder.forTarget(target).usePlaintext().build()
     }
 }

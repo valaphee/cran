@@ -14,7 +14,7 @@ message GetSpecResponse {
 message ListGraphRequest {}
 
 message ListGraphResponse {
-  repeated string graph = 1;
+  repeated string graphs = 1;
 }
 
 message UpdateGraphRequest {
@@ -24,10 +24,24 @@ message UpdateGraphRequest {
 message UpdateGraphResponse {}
 
 message DeleteGraphRequest {
-  string graph_id = 1;
+  string graph_name = 1;
 }
 
 message DeleteGraphResponse {}
+
+message RunGraphRequest {
+  string graph_name = 1;
+}
+
+message RunGraphResponse {
+  string scope_id = 1;
+}
+
+message StopGraphRequest {
+  string scope_id = 1;
+}
+
+message StopGraphResponse {}
 
 service GraphService {
   rpc GetSpec (GetSpecRequest) returns (GetSpecResponse);
@@ -37,4 +51,8 @@ service GraphService {
   rpc UpdateGraph (UpdateGraphRequest) returns (UpdateGraphResponse);
 
   rpc DeleteGraph (DeleteGraphRequest) returns (DeleteGraphResponse);
+
+  rpc RunGraph (RunGraphRequest) returns (RunGraphResponse);
+
+  rpc StopGraph (StopGraphRequest) returns (StopGraphResponse);
 }

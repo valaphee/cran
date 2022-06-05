@@ -22,23 +22,23 @@ import com.google.inject.Injector
 import com.valaphee.cran.graph.Graph
 import com.valaphee.cran.graph.SkinFactory
 import com.valaphee.cran.meta.Meta
+import com.valaphee.cran.settings.Settings
 import com.valaphee.cran.settings.SettingsView
 import com.valaphee.cran.spec.Spec
 import com.valaphee.cran.svc.graph.v1.DeleteGraphRequest
 import com.valaphee.cran.svc.graph.v1.GetSpecRequest
 import com.valaphee.cran.svc.graph.v1.GraphServiceGrpc
-import com.valaphee.cran.svc.graph.v1.GraphServiceGrpc.GraphServiceBlockingStub
 import com.valaphee.cran.svc.graph.v1.ListGraphRequest
+import com.valaphee.cran.svc.graph.v1.RunGraphRequest
+import com.valaphee.cran.svc.graph.v1.StopGraphRequest
 import com.valaphee.cran.svc.graph.v1.UpdateGraphRequest
 import com.valaphee.cran.util.PathTree
 import com.valaphee.cran.util.asStyleClass
+import com.valaphee.cran.util.update
 import eu.mihosoft.vrl.workflow.VNode
 import eu.mihosoft.vrl.workflow.incubating.LayoutGeneratorSmart
-import io.grpc.ManagedChannelBuilder
 import javafx.beans.property.SimpleObjectProperty
-import javafx.collections.ObservableList
 import javafx.scene.Parent
-import javafx.scene.control.ContextMenu
 import javafx.scene.control.ListView
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuItem
@@ -60,7 +60,6 @@ import kotlinx.coroutines.withContext
 import tornadofx.FileChooserMode
 import tornadofx.View
 import tornadofx.action
-import tornadofx.bindSelected
 import tornadofx.chooseFile
 import tornadofx.contextmenu
 import tornadofx.customitem
@@ -71,6 +70,8 @@ import tornadofx.item
 import tornadofx.listview
 import tornadofx.onChange
 import tornadofx.rectangle
+import tornadofx.selectedItem
+import tornadofx.separator
 import tornadofx.setValue
 import tornadofx.textfield
 import tornadofx.toProperty
@@ -80,24 +81,32 @@ import java.util.zip.GZIPOutputStream
 /**
  * @author Kevin Ludwig
  */
-class CranView(
-    private val graphService: GraphServiceBlockingStub
-) : View("Cran"), CoroutineScope {
+class MainView(
+    environment: Settings.Environment
+) : View(), CoroutineScope {
     override val coroutineContext = Dispatchers.IO
+
+    private val channel = environment.toChannel()
+    private val graphService = GraphServiceGrpc.newBlockingStub(channel)
 
     private val objectMapper by di<ObjectMapper>()
     private val spec = objectMapper.readValue<Spec>(graphService.getSpec(GetSpecRequest.getDefaultInstance()).spec.toByteArray())
     private val injector by di<Injector>()
     private var graphProvider = injector.getProvider(Graph::class.java)
 
-    private val graphProperty = SimpleObjectProperty<Graph>()
+    private val graphProperty = SimpleObjectProperty<Graph>().apply {
+        update {
+            title = "${environment.target}${it?.let { " - ${it.name}" }}"
+        }
+    }
     private var graph by graphProperty
 
-    override val root by fxml<Parent>("/cran.fxml")
+    override val root by fxml<Parent>("/main.fxml")
     private val rootHbox by fxid<HBox>()
     private lateinit var graphsListView: ListView<Graph>
     private val graphScrollPane by fxid<ScrollPane>()
     private val graphPane by fxid<Pane>()
+    private val jsonFormat by fxid<HBox>()
     private val jsonTextArea by fxid<TextArea>()
 
     init {
@@ -110,8 +119,6 @@ class CranView(
             }
         })
         with(graphsListView) {
-            bindSelected(graphProperty)
-
             setCellFactory {
                 TextFieldListCell<Graph>().apply {
                     converter = object : StringConverter<Graph>() {
@@ -123,35 +130,27 @@ class CranView(
                         }
                     }
 
-                    setOnMouseClicked {
-                        if (isEmpty) selectionModel.clearSelection()
-
-                        it.consume()
-                    }
+                    setOnMouseClicked { if (it.clickCount == 2) graph = selectedItem }
                 }
             }
 
-            fun contextMenu(selectedComponents: ObservableList<out Graph>) = ContextMenu().apply {
-                if (selectedComponents.isEmpty()) item("New Graph") { action { this@with.items += graphProvider.get() } }
-                else {
-                    item("Delete") {
-                        action {
-                            launch {
-                                delete(selectedComponents)
-                                this@CranView.refresh()
-                            }
+            contextmenu {
+                item("New Graph") { action { this@with.items += graphProvider.get() } }
+                separator()
+                item("Delete") {
+                    action {
+                        launch {
+                            delete(selectionModel.selectedItems)
+                            this@MainView.refresh()
                         }
                     }
                 }
             }
-
-            contextMenu = contextMenu(selectionModel.selectedItems)
-            selectionModel.selectedItems.onChange { contextMenu = contextMenu(it.list) }
         }
 
         // Graph
         with(graphScrollPane) {
-            contextMenu = contextmenu {
+            contextmenu {
                 val searchProperty = "".toProperty()
 
                 customitem(hideOnClick = false) {
@@ -212,8 +211,6 @@ class CranView(
         launch { refresh() }
     }
 
-    constructor() : this(GraphServiceGrpc.newBlockingStub(ManagedChannelBuilder.forAddress("localhost", 8080).usePlaintext().build()))
-
     fun keyPressed(event: KeyEvent) {
         if (event.isControlDown) when (event.code) {
             KeyCode.A -> graph?.let { it.flow.nodes.forEach { it.requestSelection(true) } }
@@ -233,7 +230,7 @@ class CranView(
                 event.consume()
             }
             KeyCode.F5 -> {
-                launch { this@CranView.refresh() }
+                launch { this@MainView.refresh() }
                 event.consume()
             }
             else -> Unit
@@ -292,20 +289,28 @@ class CranView(
         find<AboutView>().openModal(resizable = false)
     }
 
+    fun runButtonAction() {
+        graphService.runGraph(RunGraphRequest.newBuilder().setGraphName(graph.name).build())
+    }
+
+    fun stopButtonAction() {
+        graphService.stopGraph(StopGraphRequest.newBuilder().setScopeId("").build())
+    }
+
     fun jsonTabSelectionChanged() {
         jsonTextArea.text = graph?.let { objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it) } ?: ""
     }
 
     private suspend fun refresh() {
-        val graphs = graphService.listGraph(ListGraphRequest.getDefaultInstance()).graphList.map { objectMapper.readValue<Graph>(it).apply { spec = this@CranView.spec } }
+        val graphs = graphService.listGraph(ListGraphRequest.getDefaultInstance()).graphsList.map { objectMapper.readValue<Graph>(it).apply { spec = this@MainView.spec } }
         withContext(Dispatchers.Main) {
-            val graphId = graph?.id
+            val graphName = graph?.name
             graphsListView.items.setAll(graphs)
-            graphsListView.selectionModel.select(graphs.singleOrNull { it.id == graphId })
+            graphsListView.selectionModel.select(graphs.singleOrNull { it.name == graphName })
         }
     }
 
     private fun delete(graphs: List<Graph>) {
-        graphs.forEach { graphService.deleteGraph(DeleteGraphRequest.newBuilder().setGraphId(it.id.toString()).build()) }
+        graphs.forEach { graphService.deleteGraph(DeleteGraphRequest.newBuilder().setGraphName(it.name).build()) }
     }
 }

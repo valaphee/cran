@@ -27,13 +27,11 @@ import com.valaphee.cran.node.nesting.DataInput
 import com.valaphee.cran.node.nesting.DataOutput
 import com.valaphee.cran.spec.Spec
 import kotlinx.coroutines.runBlocking
-import java.util.UUID
 
 /**
  * @author Kevin Ludwig
  */
 abstract class Graph {
-    @get:JsonProperty("id"   ) abstract val id   : UUID
     @get:JsonProperty("name" ) abstract val name : String
     @get:JsonProperty("nodes") abstract val nodes: List<Node>
 

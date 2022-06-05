@@ -16,38 +16,16 @@
 
 package com.valaphee.cran.graph
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.cran.Graph
-import com.valaphee.cran.Scope
 import com.valaphee.cran.meta.Meta
-import com.valaphee.cran.node.Entry
 import com.valaphee.cran.node.Node
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.launch
-import java.util.UUID
-import java.util.concurrent.Executors
 
 /**
  * @author Kevin Ludwig
  */
 class GraphImpl(
-                              override val id   : UUID      ,
                               override val name : String    ,
     @get:JsonProperty("meta")          val meta : Meta?     ,
                               override val nodes: List<Node>
-) : Graph(), CoroutineScope {
-    @JsonIgnore private val executor = Executors.newSingleThreadExecutor()
-    @get:JsonIgnore override val coroutineContext get() = executor.asCoroutineDispatcher()
-
-    override fun initialize(scope: Scope) {
-        super.initialize(scope)
-        nodes.forEach { if (it is Entry) launch { it(scope) } }
-    }
-
-    override fun shutdown(scope: Scope) {
-        super.shutdown(scope)
-        executor.shutdown()
-    }
-}
+) : Graph()
