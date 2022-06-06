@@ -17,7 +17,7 @@
 package com.valaphee.cran.graph.properties
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.inject.Inject
@@ -98,7 +98,7 @@ class JsonSchema(
         Type.String  -> (node as TextField).text
         else         -> try {
             objectMapper.readValue((node as TextField).text)
-        } catch (_: JsonParseException) {
+        } catch (_: JsonProcessingException) {
             null
         }
     }

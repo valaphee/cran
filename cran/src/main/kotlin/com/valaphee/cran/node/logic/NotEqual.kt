@@ -40,10 +40,6 @@ class NotEqual(
         val inB = scope.dataPath(inB)
         val out = scope.dataPath(out)
 
-        out.set {
-            val _inA = inA.get()
-            val _inB = inB.get()
-            _inA != _inB
-        }
+        out.set { inA.get() != inB.get() }
     }
 }

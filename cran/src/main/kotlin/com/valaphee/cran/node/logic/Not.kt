@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.cran.Scope
 import com.valaphee.cran.node.Bit
 import com.valaphee.cran.node.Node
-import com.valaphee.cran.path.DataPathException
 import com.valaphee.cran.spec.In
 import com.valaphee.cran.spec.NodeSpec
 import com.valaphee.cran.spec.Out
@@ -38,9 +37,6 @@ class Not(
         val `in` = scope.dataPath(`in`)
         val out = scope.dataPath(out)
 
-        out.set {
-            val _in = `in`.get()
-            if (_in is Boolean) _in.not() else DataPathException.invalidExpression("¬$_in")
-        }
+        out.set { !`in`.getOfType<Boolean>() }
     }
 }

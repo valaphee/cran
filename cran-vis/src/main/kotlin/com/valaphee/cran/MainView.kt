@@ -47,6 +47,7 @@ import javafx.scene.control.TextArea
 import javafx.scene.control.cell.TextFieldListCell
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
+import javafx.scene.input.TransferMode
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
@@ -73,6 +74,7 @@ import tornadofx.onChange
 import tornadofx.rectangle
 import tornadofx.selectedItem
 import tornadofx.separator
+import tornadofx.setContent
 import tornadofx.setValue
 import tornadofx.textfield
 import tornadofx.toProperty
@@ -120,21 +122,6 @@ class MainView(
             }
         })
         with(graphsListView) {
-            setCellFactory {
-                TextFieldListCell<Graph>().apply {
-                    converter = object : StringConverter<Graph>() {
-                        override fun toString(`object`: Graph) = `object`.name
-
-                        override fun fromString(string: String): Graph {
-                            item.name = string
-                            return item
-                        }
-                    }
-
-                    setOnMouseClicked { if (it.clickCount == 2) graph = selectedItem }
-                }
-            }
-
             contextmenu {
                 item(messages["main.graphs.new"]) { action { this@with.items += graphProvider.get() } }
                 separator()
@@ -144,6 +131,28 @@ class MainView(
                             delete(selectionModel.selectedItems)
                             this@MainView.refresh()
                         }
+                    }
+                }
+            }
+
+            setCellFactory {
+                TextFieldListCell<Graph>().apply {
+                    setOnMouseClicked { if (it.clickCount == 2) graph = selectedItem }
+
+                    setOnDragDetected {
+                        startDragAndDrop(TransferMode.COPY).apply {
+                            dragView = snapshot(null, null)
+
+                            setContent { putString(item.name) }
+                        }
+
+                        it.consume()
+                    }
+
+                    converter = object : StringConverter<Graph>() {
+                        override fun toString(`object`: Graph) = `object`.name
+
+                        override fun fromString(string: String) = item.apply { name = string }
                     }
                 }
             }
@@ -203,6 +212,18 @@ class MainView(
                 stroke = Color.rgb(255, 255, 255, 1.0)
                 fill = Color.rgb(0, 0, 0, 0.5)
             })
+
+            setOnDragOver {
+                if (it.dragboard.hasString()) it.acceptTransferModes(TransferMode.COPY)
+                it.consume()
+            }
+
+            setOnDragDropped {
+                if (it.dragboard.hasString()) {
+
+                }
+                it.consume()
+            }
         }
 
         // Json

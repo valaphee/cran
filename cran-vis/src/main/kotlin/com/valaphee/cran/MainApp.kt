@@ -18,8 +18,14 @@ package com.valaphee.cran
 
 import javafx.scene.image.Image
 import tornadofx.App
+import tornadofx.importStylesheet
 
 /**
  * @author Kevin Ludwig
  */
-class MainApp : App(Image(MainApp::class.java.getResourceAsStream("/app@48x.png")), WelcomeView::class)
+class MainApp : App(Image(MainApp::class.java.getResourceAsStream("/app@48x.png")), WelcomeView::class) {
+    override fun init() {
+        importStylesheet("/dark_theme.css")
+        importStylesheet("/graph/graph.css")
+    }
+}

@@ -55,7 +55,7 @@ class Add(
                     is Float      -> _inA                                + _inB
                     is Double     -> _inA                                + _inB
                     is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) + _inB
-                    else          -> throw DataPathException.invalidExpression("$_inA + $_inB")
+                    else          -> throw DataPathException("$_inA + $_inB")
                 }
                 is Short -> when (_inB) {
                     is Byte       -> _inA                                + _inB
@@ -66,7 +66,7 @@ class Add(
                     is Float      -> _inA                                + _inB
                     is Double     -> _inA                                + _inB
                     is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) + _inB
-                    else          -> throw DataPathException.invalidExpression("$_inA + $_inB")
+                    else          -> throw DataPathException("$_inA + $_inB")
                 }
                 is Int -> when (_inB) {
                     is Byte       -> _inA                                + _inB
@@ -77,7 +77,7 @@ class Add(
                     is Float      -> _inA                                + _inB
                     is Double     -> _inA                                + _inB
                     is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) + _inB
-                    else          -> throw DataPathException.invalidExpression("$_inA + $_inB")
+                    else          -> throw DataPathException("$_inA + $_inB")
                 }
                 is Long -> when (_inB) {
                     is Byte       -> _inA                                + _inB
@@ -88,13 +88,13 @@ class Add(
                     is Float      -> _inA                                + _inB
                     is Double     -> _inA                                + _inB
                     is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) + _inB
-                    else          -> throw DataPathException.invalidExpression("$_inA + $_inB")
+                    else          -> throw DataPathException("$_inA + $_inB")
                 }
                 is BigInteger -> when (_inB) {
                     is BigInteger -> _inA                + _inB
                     is BigDecimal -> _inA.toBigDecimal() + _inB
                     is Number     -> _inA                + BigInteger.valueOf(_inB.toLong())
-                    else          -> throw DataPathException.invalidExpression("$_inA + $_inB")
+                    else          -> throw DataPathException("$_inA + $_inB")
                 }
                 is Float -> when (_inB) {
                     is Byte       -> _inA                                + _inB
@@ -105,7 +105,7 @@ class Add(
                     is Float      -> _inA                                + _inB
                     is Double     -> _inA                                + _inB
                     is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) + _inB
-                    else          -> throw DataPathException.invalidExpression("$_inA + $_inB")
+                    else          -> throw DataPathException("$_inA + $_inB")
                 }
                 is Double -> when (_inB) {
                     is Byte       -> _inA                                + _inB
@@ -116,15 +116,15 @@ class Add(
                     is Float      -> _inA                                + _inB
                     is Double     -> _inA                                + _inB
                     is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) + _inB
-                    else          -> throw DataPathException.invalidExpression("$_inA + $_inB")
+                    else          -> throw DataPathException("$_inA + $_inB")
                 }
                 is BigDecimal -> when (_inB) {
                     is BigInteger -> _inA + _inB.toBigDecimal()
                     is BigDecimal -> _inA + _inB
                     is Number     -> _inA + BigDecimal.valueOf(_inB.toDouble())
-                    else          -> throw DataPathException.invalidExpression("$_inA + $_inB")
+                    else          -> throw DataPathException("$_inA + $_inB")
                 }
-                else -> throw DataPathException.invalidExpression("$_inA + $_inB")
+                else -> throw DataPathException("$_inA + $_inB")
             }
         }
     }

@@ -31,7 +31,5 @@ open class DataPathException : Exception {
     companion object {
         val AlreadySet = DataPathException("Data path has multiple inputs, one input is allowed.")
         val Undefined = DataPathException("Data path is undefined, one input is required.")
-
-        fun invalidExpression(expression: String) = DataPathException("Invalid expression $expression.")
     }
 }

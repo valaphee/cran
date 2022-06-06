@@ -45,7 +45,7 @@ class GreaterThan(
             val _inA = inA.get()
             val _inB = inB.get()
             val _out = Compare.compare(_inA, _inB)
-            if (_out != Int.MAX_VALUE) _out > 0 else throw DataPathException.invalidExpression("$_inA > $_inB")
+            if (_out != Int.MAX_VALUE) _out > 0 else throw DataPathException("$_inA > $_inB")
         }
     }
 }
