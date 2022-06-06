@@ -1,11 +1,4 @@
-```
- _______
-(_______)
- _        ____ _____ ____
-| |      / ___|____ |  _ \
-| |_____| |   / ___ | | | |
- \______)_|   \_____|_| |_|
-```
+# Cran
 
 ![license](https://img.shields.io/badge/License-Apache_2.0-blue.svg)
 ![version](https://img.shields.io/badge/Version-0.0.1-darkred.svg)
@@ -25,4 +18,6 @@ This project consists of 6 parts:
 * cran-svc: Flow gRPC services for development
 * cran-vis: JavaFX-based visual editor
 
-![main](https://github.com/valaphee/craan/blob/master/imgs/main.png?raw=true)
+## Screenshots
+
+![main](https://github.com/valaphee/cran/blob/master/imgs/main.png?raw=true)
