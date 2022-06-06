@@ -14,20 +14,33 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.node
+package com.valaphee.cran.node.logic
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.cran.spec.Const
+import com.valaphee.cran.graph.Scope
+import com.valaphee.cran.node.Bit
+import com.valaphee.cran.node.NodeJvm
+import com.valaphee.cran.node.Node
+import com.valaphee.cran.node.Und
+import com.valaphee.cran.spec.In
 import com.valaphee.cran.spec.NodeSpec
 import com.valaphee.cran.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@NodeSpec("Value")
-class Value(
+@NodeSpec("Logic/Equal")
+class Equal(
     type: String,
-    @get:Const("", Und) @get:JsonProperty("value") val value: Any?,
-    @get:Out  ("", Und) @get:JsonProperty("out"  ) val out  : Int ,
-    @get:JsonProperty("embed") val embed: Boolean = false
-) : Node(type)
+    @get:In ("A"    , Und) @get:JsonProperty("in_a") val inA: Int,
+    @get:In ("B"    , Und) @get:JsonProperty("in_b") val inB: Int,
+    @get:Out("A = B", Bit) @get:JsonProperty("out" ) val out: Int
+) : Node(type), NodeJvm {
+    override fun initialize(scope: Scope) {
+        val inA = scope.dataPath(inA)
+        val inB = scope.dataPath(inB)
+        val out = scope.dataPath(out)
+
+        out.set { inA.get() == inB.get() }
+    }
+}

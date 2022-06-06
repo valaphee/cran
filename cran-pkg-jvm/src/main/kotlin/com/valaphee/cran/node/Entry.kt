@@ -17,17 +17,31 @@
 package com.valaphee.cran.node
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.cran.spec.Const
+import com.valaphee.cran.graph.Scope
 import com.valaphee.cran.spec.NodeSpec
 import com.valaphee.cran.spec.Out
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * @author Kevin Ludwig
  */
-@NodeSpec("Value")
-class Value(
+@NodeSpec("Entry")
+class Entry(
     type: String,
-    @get:Const("", Und) @get:JsonProperty("value") val value: Any?,
-    @get:Out  ("", Und) @get:JsonProperty("out"  ) val out  : Int ,
-    @get:JsonProperty("embed") val embed: Boolean = false
-) : Node(type)
+    @get:Out("", "") @get:JsonProperty("out") val out: Int
+) : Node(type), NodeJvm {
+    private val jobs = mutableMapOf<Scope, Job>()
+
+    override suspend fun shutdown(scope: Scope) {
+        jobs[scope]?.cancelAndJoin()
+    }
+
+    suspend operator fun invoke(scope: Scope) {
+        val out = scope.controlPath(out)
+
+        if (!jobs.containsKey(scope)) coroutineScope { jobs[scope] = launch { out() }.also { it.invokeOnCompletion { jobs -= scope } } }
+    }
+}

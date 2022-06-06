@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.node
+package com.valaphee.cran.node.math.scalar
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.cran.spec.Const
+import com.valaphee.cran.node.NodeJvm
+import com.valaphee.cran.node.Node
+import com.valaphee.cran.node.Num
+import com.valaphee.cran.spec.In
 import com.valaphee.cran.spec.NodeSpec
 import com.valaphee.cran.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@NodeSpec("Value")
-class Value(
+@NodeSpec("Math/Scalar/Root")
+class Root(
     type: String,
-    @get:Const("", Und) @get:JsonProperty("value") val value: Any?,
-    @get:Out  ("", Und) @get:JsonProperty("out"  ) val out  : Int ,
-    @get:JsonProperty("embed") val embed: Boolean = false
-) : Node(type)
+    @get:In ("x"  , Num) @get:JsonProperty("in_x") val inX: Int,
+    @get:In ("n"  , Num) @get:JsonProperty("in_n") val inN: Int,
+    @get:Out("ⁿ√x", Num) @get:JsonProperty("out" ) val out: Int
+) : Node(type), NodeJvm

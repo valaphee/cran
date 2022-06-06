@@ -19,7 +19,7 @@ package com.valaphee.cran
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.inject.Injector
-import com.valaphee.cran.graph.Graph
+import com.valaphee.cran.graph.GraphImpl
 import com.valaphee.cran.graph.SkinFactory
 import com.valaphee.cran.meta.Meta
 import com.valaphee.cran.settings.Settings
@@ -95,9 +95,9 @@ class MainView(
     private val objectMapper by di<ObjectMapper>()
     private val spec = objectMapper.readValue<Spec>(graphService.getSpec(GetSpecRequest.getDefaultInstance()).spec.toByteArray())
     private val injector by di<Injector>()
-    private var graphProvider = injector.getProvider(Graph::class.java)
+    private var graphProvider = injector.getProvider(GraphImpl::class.java)
 
-    private val graphProperty = SimpleObjectProperty<Graph>().apply {
+    private val graphProperty = SimpleObjectProperty<GraphImpl>().apply {
         update {
             title = "${environment.target}${it?.let { " - ${it.name}" } ?: ""}"
         }
@@ -106,7 +106,7 @@ class MainView(
 
     override val root by fxml<Parent>("/main.fxml")
     private val rootHbox by fxid<HBox>()
-    private lateinit var graphsListView: ListView<Graph>
+    private lateinit var graphsListView: ListView<GraphImpl>
     private val graphScrollPane by fxid<ScrollPane>()
     private val graphPane by fxid<Pane>()
     private val jsonFormat by fxid<HBox>()
@@ -136,7 +136,7 @@ class MainView(
             }
 
             setCellFactory {
-                TextFieldListCell<Graph>().apply {
+                TextFieldListCell<GraphImpl>().apply {
                     setOnMouseClicked { if (it.clickCount == 2) graph = selectedItem }
 
                     setOnDragDetected {
@@ -149,8 +149,8 @@ class MainView(
                         it.consume()
                     }
 
-                    converter = object : StringConverter<Graph>() {
-                        override fun toString(`object`: Graph) = `object`.name
+                    converter = object : StringConverter<GraphImpl>() {
+                        override fun toString(`object`: GraphImpl) = `object`.name
 
                         override fun fromString(string: String) = item.apply { name = string }
                     }
@@ -265,7 +265,7 @@ class MainView(
 
     fun fileImportMenuItemAction() {
         chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Graph", "*.gph"), FileChooser.ExtensionFilter("All Files", "*.*"))).singleOrNull()?.let {
-            val graph = it.inputStream().use { objectMapper.readValue<Graph>(GZIPInputStream(it)).also { it.spec = spec } }
+            val graph = it.inputStream().use { objectMapper.readValue<GraphImpl>(GZIPInputStream(it)).also { it.spec = spec } }
             graphsListView.items += graph
             graphsListView.selectionModel.select(graph)
         }
@@ -324,7 +324,7 @@ class MainView(
     }
 
     private suspend fun refresh() {
-        val graphs = graphService.listGraph(ListGraphRequest.getDefaultInstance()).graphsList.map { objectMapper.readValue<Graph>(it).apply { spec = this@MainView.spec } }
+        val graphs = graphService.listGraph(ListGraphRequest.getDefaultInstance()).graphsList.map { objectMapper.readValue<GraphImpl>(it).apply { spec = this@MainView.spec } }
         withContext(Dispatchers.Main) {
             val graphName = graph?.name
             graphsListView.items.setAll(graphs)
@@ -332,7 +332,7 @@ class MainView(
         }
     }
 
-    private fun delete(graphs: List<Graph>) {
+    private fun delete(graphs: List<GraphImpl>) {
         graphs.forEach { graphService.deleteGraph(DeleteGraphRequest.newBuilder().setGraphName(it.name).build()) }
     }
 }

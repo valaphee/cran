@@ -20,8 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import com.valaphee.cran.GraphManager
-import com.valaphee.cran.Scope
 import com.valaphee.cran.node.Entry
 import com.valaphee.cran.spec.Spec
 import com.valaphee.cran.svc.graph.v1.DeleteGraphRequest

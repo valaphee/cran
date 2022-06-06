@@ -14,20 +14,31 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.node
+package com.valaphee.cran.node.list
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.cran.spec.Const
+import com.valaphee.cran.graph.Scope
+import com.valaphee.cran.node.Arr
+import com.valaphee.cran.node.NodeJvm
+import com.valaphee.cran.node.Node
+import com.valaphee.cran.node.Und
+import com.valaphee.cran.spec.In
 import com.valaphee.cran.spec.NodeSpec
 import com.valaphee.cran.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@NodeSpec("Value")
-class Value(
+@NodeSpec("List/First")
+class First(
     type: String,
-    @get:Const("", Und) @get:JsonProperty("value") val value: Any?,
-    @get:Out  ("", Und) @get:JsonProperty("out"  ) val out  : Int ,
-    @get:JsonProperty("embed") val embed: Boolean = false
-) : Node(type)
+    @get:In ("", Arr) @get:JsonProperty("in" ) val `in`: Int,
+    @get:Out("", Und) @get:JsonProperty("out") val out : Int
+) : Node(type), NodeJvm {
+    override fun initialize(scope: Scope) {
+        val `in` = scope.dataPath(`in`)
+        val out = scope.dataPath(out)
+
+        out.set { `in`.getOfType<Iterable<Any?>>().firstOrNull() }
+    }
+}

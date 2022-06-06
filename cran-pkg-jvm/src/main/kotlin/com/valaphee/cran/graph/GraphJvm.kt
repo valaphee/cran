@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-rootProject.name = "cran"
+package com.valaphee.cran.graph
 
-include("cran")
-include("cran-env")
-include("cran-meta")
-include("cran-pkg-jvm")
-include("cran-pkg-jvm-input")
-include("cran-spec")
-include("cran-svc")
-include("cran-vis")
+import com.valaphee.cran.node.NodeJvm
+import kotlinx.coroutines.runBlocking
+
+/**
+ * @author Kevin Ludwig
+ */
+abstract class GraphJvm : Graph() {
+    open fun initialize(scope: Scope) {
+        nodes.filterIsInstance<NodeJvm>().forEach { it.initialize(scope) }
+    }
+
+    open fun shutdown(scope: Scope) {
+        nodes.filterIsInstance<NodeJvm>().forEach { runBlocking { it.shutdown(scope) } }
+    }
+}

@@ -20,6 +20,8 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":cran"))
+
     implementation(project(":cran-meta"))
     implementation(project(":cran-spec"))
     implementation(project(":cran-svc"))

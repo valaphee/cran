@@ -16,14 +16,15 @@
 
 package com.valaphee.cran.node
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter
+import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.DatabindContext
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase
-import com.valaphee.cran.Scope
-import com.valaphee.cran.node.nesting.SubGraph
+import com.valaphee.cran.spec.NodeSpec
 import io.github.classgraph.ClassGraph
 import kotlin.reflect.full.findAnnotation
 
@@ -33,23 +34,27 @@ import kotlin.reflect.full.findAnnotation
 @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type", visible = true)
 @JsonTypeIdResolver(Node.TypeResolver::class)
 open class Node(
-    @get:JsonProperty("type") val type: String
-) {
+    @get:JsonProperty("type") val type: String,
+    @get:JsonAnyGetter val other: MutableMap<String, Any?> = mutableMapOf()
+)/* : MutableMap<String, Any?> by other*/ {
     class TypeResolver : TypeIdResolverBase() {
         override fun idFromValue(value: Any) = (value as Node).type
 
-        override fun idFromValueAndType(value: Any?, suggestedType: Class<*>) = value?.let { idFromValue(it) } ?: checkNotNull(suggestedType.kotlin.findAnnotation<com.valaphee.cran.spec.NodeSpec>()).name
+        override fun idFromValueAndType(value: Any?, suggestedType: Class<*>) = value?.let { idFromValue(it) } ?: checkNotNull(suggestedType.kotlin.findAnnotation<NodeSpec>()).name
 
-        override fun typeFromId(context: DatabindContext, id: String): JavaType = context.constructType(types[id]?.java ?: SubGraph::class.java)
+        override fun typeFromId(context: DatabindContext, id: String): JavaType = context.constructType(types[id]?.java ?: Node::class.java)
 
         override fun getMechanism() = JsonTypeInfo.Id.NAME
     }
 
-    open fun initialize(scope: Scope) = Unit
+    operator fun get(key: String) = other[key]
 
-    open suspend fun shutdown(scope: Scope) = Unit
+    @JsonAnySetter
+    operator fun set(key: String, value: Any?) {
+        other[key] = value
+    }
 
     companion object {
-        private val types = ClassGraph().enableClassInfo().enableAnnotationInfo().scan().use { it.getClassesWithAnnotation(com.valaphee.cran.spec.NodeSpec::class.java).map { Class.forName(it.name).kotlin }.associateBy { checkNotNull(it.findAnnotation<com.valaphee.cran.spec.NodeSpec>()).name } }
+        private val types = ClassGraph().enableClassInfo().enableAnnotationInfo().scan().use { it.getClassesWithAnnotation(NodeSpec::class.java).map { Class.forName(it.name).kotlin }.associateBy { checkNotNull(it.findAnnotation<NodeSpec>()).name } }
     }
 }

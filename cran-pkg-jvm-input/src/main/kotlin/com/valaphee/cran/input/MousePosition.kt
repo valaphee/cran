@@ -14,20 +14,32 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.node
+package com.valaphee.cran.input
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.cran.spec.Const
+import com.valaphee.cran.graph.Scope
+import com.valaphee.cran.node.NodeJvm
+import com.valaphee.cran.node.Node
+import com.valaphee.cran.node.math.vector.Vec2
 import com.valaphee.cran.spec.NodeSpec
 import com.valaphee.cran.spec.Out
+import jdk.incubator.vector.IntVector
+import java.awt.MouseInfo
 
 /**
  * @author Kevin Ludwig
  */
-@NodeSpec("Value")
-class Value(
+@NodeSpec("Input/Mouse Position")
+class MousePosition(
     type: String,
-    @get:Const("", Und) @get:JsonProperty("value") val value: Any?,
-    @get:Out  ("", Und) @get:JsonProperty("out"  ) val out  : Int ,
-    @get:JsonProperty("embed") val embed: Boolean = false
-) : Node(type)
+    @get:Out("", Vec2) @get:JsonProperty("out_position") val out: Int
+) : Node(type), NodeJvm {
+    override fun initialize(scope: Scope) {
+        val out = scope.dataPath(out)
+
+        out.set {
+            val position = MouseInfo.getPointerInfo().location
+            IntVector.fromArray(IntVector.SPECIES_64, intArrayOf(position.x, position.y), 0)
+        }
+    }
+}

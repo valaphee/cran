@@ -18,7 +18,8 @@ plugins { id("com.github.johnrengelman.shadow") }
 
 dependencies {
     implementation(project(":cran"))
-    implementation(project(":cran-pkg-input"))
+    implementation(project(":cran-pkg-jvm"))
+    implementation(project(":cran-pkg-jvm-input"))
 
     implementation(project(":cran-meta"))
     implementation(project(":cran-spec"))

@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-rootProject.name = "cran"
+package com.valaphee.cran.node
 
-include("cran")
-include("cran-env")
-include("cran-meta")
-include("cran-pkg-jvm")
-include("cran-pkg-jvm-input")
-include("cran-spec")
-include("cran-svc")
-include("cran-vis")
+import com.valaphee.cran.graph.Scope
+
+/**
+ * @author Kevin Ludwig
+ */
+interface NodeJvm {
+    fun initialize(scope: Scope) = Unit
+
+    suspend fun shutdown(scope: Scope) = Unit
+}

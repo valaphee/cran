@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-rootProject.name = "cran"
+package com.valaphee.cran.graph
 
-include("cran")
-include("cran-env")
-include("cran-meta")
-include("cran-pkg-jvm")
-include("cran-pkg-jvm-input")
-include("cran-spec")
-include("cran-svc")
-include("cran-vis")
+/**
+ * @author Kevin Ludwig
+ */
+interface GraphManager {
+    fun getGraph(name: String): GraphJvm?
+}
