@@ -17,10 +17,10 @@
 package com.valaphee.cran.graph
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.NullNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.databind.node.ObjectNode
 import com.valaphee.cran.node.Node
-import com.valaphee.cran.node.Und
 import com.valaphee.cran.node.nesting.ControlInput
 import com.valaphee.cran.node.nesting.ControlOutput
 import com.valaphee.cran.node.nesting.DataInput
@@ -34,12 +34,12 @@ abstract class Graph {
     @get:JsonProperty("name" ) abstract val name : String
     @get:JsonProperty("nodes") abstract val nodes: List<Node>
 
-    fun toSpec() = Spec.Node(name, "", nodes.mapNotNull {
+    fun toSpec() = Spec.Node(name, null, nodes.mapNotNull {
         when (it) {
-            is ControlInput  -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.InControl , NullNode.instance)
-            is ControlOutput -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.OutControl, NullNode.instance)
-            is DataInput     -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.InData    , und              )
-            is DataOutput    -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.OutData   , und              )
+            is ControlInput  -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.InControl , NullNode.instance                   )
+            is ControlOutput -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.OutControl, NullNode.instance                   )
+            is DataInput     -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.InData    , ObjectNode(JsonNodeFactory.instance))
+            is DataOutput    -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.OutData   , ObjectNode(JsonNodeFactory.instance))
             else             -> null
         }
     })
@@ -56,8 +56,4 @@ abstract class Graph {
     }
 
     override fun hashCode() = name.hashCode()
-
-    companion object {
-        private val und = jacksonObjectMapper().readTree(Und)
-    }
 }

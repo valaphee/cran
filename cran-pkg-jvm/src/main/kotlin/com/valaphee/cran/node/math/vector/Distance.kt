@@ -18,11 +18,11 @@ package com.valaphee.cran.node.math.vector
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.cran.graph.Scope
-import com.valaphee.cran.node.NodeJvm
 import com.valaphee.cran.node.Node
+import com.valaphee.cran.node.NodeJvm
 import com.valaphee.cran.node.Num
 import com.valaphee.cran.spec.In
-import com.valaphee.cran.spec.NodeSpec
+import com.valaphee.cran.spec.NodeType
 import com.valaphee.cran.spec.Out
 import jdk.incubator.vector.VectorOperators
 import kotlin.math.sqrt
@@ -30,7 +30,7 @@ import kotlin.math.sqrt
 /**
  * @author Kevin Ludwig
  */
-@NodeSpec("Math/Vector/Distance")
+@NodeType("Math/Vector/Distance")
 class Distance(
     type: String,
     @get:In ("p"      , Vec) @get:JsonProperty("in_p") val inP: Int,

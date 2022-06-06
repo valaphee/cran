@@ -23,7 +23,7 @@ import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.Num
 import com.valaphee.cran.path.DataPathException
 import com.valaphee.cran.spec.In
-import com.valaphee.cran.spec.NodeSpec
+import com.valaphee.cran.spec.NodeType
 import com.valaphee.cran.spec.Out
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -31,7 +31,7 @@ import java.math.BigInteger
 /**
  * @author Kevin Ludwig
  */
-@NodeSpec("Math/Scalar/Add")
+@NodeType("Math/Scalar/Add")
 class Add(
     type: String,
     @get:In ("A"    , Num) @get:JsonProperty("in_a") val inA: Int,

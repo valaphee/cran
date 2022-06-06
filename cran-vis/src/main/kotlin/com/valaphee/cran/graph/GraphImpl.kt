@@ -18,6 +18,8 @@ package com.valaphee.cran.graph
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.convertValue
 import com.google.inject.Inject
 import com.valaphee.cran.meta.Meta
 import com.valaphee.cran.node.Node
@@ -60,6 +62,7 @@ class GraphImpl(
             } + embed
         }
 
+    @Inject private lateinit var objectMapper: ObjectMapper
     @Inject private lateinit var settings: Settings
     @get:JsonIgnore lateinit var spec: Spec
     @get:JsonIgnore val flow: VFlow by lazy {
@@ -72,11 +75,12 @@ class GraphImpl(
                 other.forEachIndexed { i, node ->
                     val type = node.type
                     val spec = spec.nodes.single { it.name == type }
+                    val _node = objectMapper.convertValue<Map<String, Any?>>(node)
                     newNode(spec, meta.nodes.getOrNull(i), settings).apply {
-                        (valueObject as NodeValueObject).const.forEach { it.valueProperty.value = node[it.spec.json] }
+                        (valueObject as NodeValueObject).const.forEach { it.valueProperty.value = _node[it.spec.json] }
                         connectors.forEach {
                             val connectorValueObject = it.valueObject as ConnectorValueObject
-                            val connectionId = node[connectorValueObject.spec.json] as Int
+                            val connectionId = _node[connectorValueObject.spec.json] as Int
                             if (connectorValueObject.spec.type == Spec.Node.Port.Type.InData) connectorValueObject.value = _embed[connectionId]
 
                             getOrPut(connectionId) { mutableListOf() } += it
@@ -88,19 +92,6 @@ class GraphImpl(
     }
 
     fun newNode(spec: Spec.Node, meta: Meta.Node?) = flow.newNode(spec, meta, settings)
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as GraphImpl
-
-        if (name != other.name) return false
-
-        return true
-    }
-
-    override fun hashCode() = name.hashCode()
 
     companion object {
         private fun VFlow.newNode(spec: Spec.Node, meta: Meta.Node?, settings: Settings): VNode = newNode().apply {

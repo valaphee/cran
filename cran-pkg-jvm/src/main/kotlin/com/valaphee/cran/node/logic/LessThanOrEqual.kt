@@ -24,13 +24,13 @@ import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.Und
 import com.valaphee.cran.path.DataPathException
 import com.valaphee.cran.spec.In
-import com.valaphee.cran.spec.NodeSpec
+import com.valaphee.cran.spec.NodeType
 import com.valaphee.cran.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@NodeSpec("Logic/Less Than or Equal")
+@NodeType("Logic/Less Than or Equal")
 class LessThanOrEqual(
     type: String,
     @get:In ("A"    , Und) @get:JsonProperty("in_a") val inA: Int,

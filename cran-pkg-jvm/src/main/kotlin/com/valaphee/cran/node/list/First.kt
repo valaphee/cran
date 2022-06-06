@@ -23,13 +23,13 @@ import com.valaphee.cran.node.NodeJvm
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.Und
 import com.valaphee.cran.spec.In
-import com.valaphee.cran.spec.NodeSpec
+import com.valaphee.cran.spec.NodeType
 import com.valaphee.cran.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@NodeSpec("List/First")
+@NodeType("List/First")
 class First(
     type: String,
     @get:In ("", Arr) @get:JsonProperty("in" ) val `in`: Int,

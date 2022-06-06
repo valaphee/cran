@@ -21,13 +21,13 @@ import com.valaphee.cran.node.NodeJvm
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.Num
 import com.valaphee.cran.spec.In
-import com.valaphee.cran.spec.NodeSpec
+import com.valaphee.cran.spec.NodeType
 import com.valaphee.cran.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@NodeSpec("Math/Scalar/Root")
+@NodeType("Math/Scalar/Root")
 class Root(
     type: String,
     @get:In ("x"  , Num) @get:JsonProperty("in_x") val inX: Int,

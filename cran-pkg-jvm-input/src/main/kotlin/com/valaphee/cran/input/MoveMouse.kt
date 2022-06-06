@@ -22,14 +22,14 @@ import com.valaphee.cran.node.NodeJvm
 import com.valaphee.cran.node.Num
 import com.valaphee.cran.node.math.vector.Vec2
 import com.valaphee.cran.spec.In
-import com.valaphee.cran.spec.NodeSpec
+import com.valaphee.cran.spec.NodeType
 import com.valaphee.cran.spec.Out
 import jdk.incubator.vector.IntVector
 
 /**
  * @author Kevin Ludwig
  */
-@NodeSpec("Input/Move Mouse")
+@NodeType("Input/Move Mouse")
 class MoveMouse(
     type: String,
     @get:In (""                 ) @get:JsonProperty("in"            ) val `in`         : Int,

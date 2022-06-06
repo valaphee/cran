@@ -19,13 +19,13 @@ package com.valaphee.cran.input
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.cran.node.NodeJvm
 import com.valaphee.cran.node.Node
-import com.valaphee.cran.spec.NodeSpec
+import com.valaphee.cran.spec.NodeType
 import com.valaphee.cran.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@NodeSpec("Input/On Mouse Button")
+@NodeType("Input/On Mouse Button")
 class OnMouseButton(
     type: String,
     @get:Out("") @get:JsonProperty("out") val out: Int

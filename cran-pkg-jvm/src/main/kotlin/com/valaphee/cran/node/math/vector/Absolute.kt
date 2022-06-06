@@ -18,16 +18,16 @@ package com.valaphee.cran.node.math.vector
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.cran.graph.Scope
-import com.valaphee.cran.node.NodeJvm
 import com.valaphee.cran.node.Node
+import com.valaphee.cran.node.NodeJvm
 import com.valaphee.cran.spec.In
-import com.valaphee.cran.spec.NodeSpec
+import com.valaphee.cran.spec.NodeType
 import com.valaphee.cran.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@NodeSpec("Math/Vector/Absolute")
+@NodeType("Math/Vector/Absolute")
 class Absolute(
     type: String,
     @get:In ("X"  , Vec) @get:JsonProperty("in" ) val `in`: Int,

@@ -22,13 +22,13 @@ import com.valaphee.cran.node.Bit
 import com.valaphee.cran.node.NodeJvm
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.spec.In
-import com.valaphee.cran.spec.NodeSpec
+import com.valaphee.cran.spec.NodeType
 import com.valaphee.cran.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@NodeSpec("Logic/And")
+@NodeType("Logic/And")
 class And(
     type: String,
     @get:In ("A"    , Bit) @get:JsonProperty("in_a") val inA: Int,

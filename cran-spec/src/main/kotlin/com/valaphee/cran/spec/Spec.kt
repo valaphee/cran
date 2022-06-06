@@ -27,7 +27,7 @@ class Spec(
 ) {
     class Node(
         @get:JsonProperty("name" ) val name : String    ,
-        @get:JsonProperty("java" ) val java : String    ,
+        @get:JsonProperty("jvm"  ) val jvm  : String?   ,
         @get:JsonProperty("ports") val ports: List<Port>,
     ) {
         class Port(

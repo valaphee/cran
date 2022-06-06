@@ -20,13 +20,13 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.Str
 import com.valaphee.cran.spec.Const
-import com.valaphee.cran.spec.NodeSpec
+import com.valaphee.cran.spec.NodeType
 import com.valaphee.cran.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@NodeSpec("Nesting/Control Input")
+@NodeType("Nesting/Control Input")
 class ControlInput(
     type: String,
     @get:Const("Name", Str) @get:JsonProperty("name") val name: String,

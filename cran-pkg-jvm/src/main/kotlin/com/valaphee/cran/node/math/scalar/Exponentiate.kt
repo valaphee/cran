@@ -24,14 +24,14 @@ import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.Num
 import com.valaphee.cran.path.DataPathException
 import com.valaphee.cran.spec.In
-import com.valaphee.cran.spec.NodeSpec
+import com.valaphee.cran.spec.NodeType
 import com.valaphee.cran.spec.Out
 import kotlin.math.pow
 
 /**
  * @author Kevin Ludwig
  */
-@NodeSpec("Math/Scalar/Exponentiate")
+@NodeType("Math/Scalar/Exponentiate")
 class Exponentiate(
     type: String,
     @get:In ("x" , Num) @get:JsonProperty("in_x") val inX: Int,

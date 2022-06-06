@@ -23,7 +23,7 @@ import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.Num
 import com.valaphee.cran.path.DataPathException
 import com.valaphee.cran.spec.In
-import com.valaphee.cran.spec.NodeSpec
+import com.valaphee.cran.spec.NodeType
 import com.valaphee.cran.spec.Out
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -32,7 +32,7 @@ import kotlin.math.absoluteValue
 /**
  * @author Kevin Ludwig
  */
-@NodeSpec("Math/Scalar/Absolute")
+@NodeType("Math/Scalar/Absolute")
 class Absolute(
     type: String,
     @get:In ("X"  , Num) @get:JsonProperty("in" ) val `in`: Int,

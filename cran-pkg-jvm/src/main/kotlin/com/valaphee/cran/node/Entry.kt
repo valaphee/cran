@@ -18,7 +18,7 @@ package com.valaphee.cran.node
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.cran.graph.Scope
-import com.valaphee.cran.spec.NodeSpec
+import com.valaphee.cran.spec.NodeType
 import com.valaphee.cran.spec.Out
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -28,7 +28,7 @@ import kotlinx.coroutines.launch
 /**
  * @author Kevin Ludwig
  */
-@NodeSpec("Entry")
+@NodeType("Entry")
 class Entry(
     type: String,
     @get:Out("", "") @get:JsonProperty("out") val out: Int
