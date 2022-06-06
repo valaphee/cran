@@ -22,13 +22,13 @@ import com.valaphee.cran.node.Bit
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.path.DataPathException
 import com.valaphee.cran.spec.In
-import com.valaphee.cran.spec.NodeType
+import com.valaphee.cran.spec.NodeSpec
 import com.valaphee.cran.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@NodeType("Logic/And")
+@NodeSpec("Logic/And")
 class And(
     type: String,
     @get:In ("A"    , Bit) @get:JsonProperty("in_a") val inA: Int,
@@ -41,8 +41,8 @@ class And(
         val out = scope.dataPath(out)
 
         out.set {
-            val _inA = inA.get()
-            val _inB = inB.get()
+            val _inA = inA.getOfType<Boolean>()
+            val _inB = inB.getOfType<Boolean>()
             if (_inA is Boolean && _inB is Boolean) _inA and _inB else throw DataPathException.invalidExpression("$_inA ∧ $_inB")
         }
     }

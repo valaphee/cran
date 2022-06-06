@@ -22,13 +22,13 @@ import com.valaphee.cran.node.Bit
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.Und
 import com.valaphee.cran.spec.In
-import com.valaphee.cran.spec.NodeType
+import com.valaphee.cran.spec.NodeSpec
 import com.valaphee.cran.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@NodeType("Logic/Equal")
+@NodeSpec("Logic/Equal")
 class Equal(
     type: String,
     @get:In ("A"    , Und) @get:JsonProperty("in_a") val inA: Int,

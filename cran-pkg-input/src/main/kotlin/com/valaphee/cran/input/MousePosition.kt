@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.cran.Scope
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.math.vector.Vec2
-import com.valaphee.cran.spec.NodeType
+import com.valaphee.cran.spec.NodeSpec
 import com.valaphee.cran.spec.Out
 import jdk.incubator.vector.IntVector
 import java.awt.MouseInfo
@@ -28,7 +28,7 @@ import java.awt.MouseInfo
 /**
  * @author Kevin Ludwig
  */
-@NodeType("Input/Mouse Position")
+@NodeSpec("Input/Mouse Position")
 class MousePosition(
     type: String,
     @get:Out("", Vec2) @get:JsonProperty("out_position") val out: Int

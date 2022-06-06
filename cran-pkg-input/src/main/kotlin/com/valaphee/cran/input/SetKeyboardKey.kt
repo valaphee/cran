@@ -22,7 +22,7 @@ import com.valaphee.cran.node.Bit
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.Num
 import com.valaphee.cran.spec.In
-import com.valaphee.cran.spec.NodeType
+import com.valaphee.cran.spec.NodeSpec
 import com.valaphee.cran.spec.Out
 import org.hid4java.HidDevice
 import org.hid4java.HidManager
@@ -32,7 +32,7 @@ import kotlin.concurrent.thread
 /**
  * @author Kevin Ludwig
  */
-@NodeType("Input/Set Keyboard Key")
+@NodeSpec("Input/Set Keyboard Key")
 class SetKeyboardKey(
     type: String,
     @get:In (""          ) @get:JsonProperty("in"      ) val `in`   : Int,

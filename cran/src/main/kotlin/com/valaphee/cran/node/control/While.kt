@@ -21,13 +21,13 @@ import com.valaphee.cran.Scope
 import com.valaphee.cran.node.Bit
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.spec.In
-import com.valaphee.cran.spec.NodeType
+import com.valaphee.cran.spec.NodeSpec
 import com.valaphee.cran.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@NodeType("Control/While")
+@NodeSpec("Control/While")
 class While(
     type: String,
     @get:In (""         ) @get:JsonProperty("in"      ) val `in`   : Int,

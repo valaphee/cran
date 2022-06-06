@@ -22,13 +22,13 @@ import com.valaphee.cran.node.Arr
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.Und
 import com.valaphee.cran.spec.In
-import com.valaphee.cran.spec.NodeType
+import com.valaphee.cran.spec.NodeSpec
 import com.valaphee.cran.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@NodeType("List/Remove")
+@NodeSpec("List/Remove")
 class Remove(
     type: String,
     @get:In (""    , Arr) @get:JsonProperty("in"     ) val `in`  : Int,

@@ -23,13 +23,13 @@ import com.valaphee.cran.node.Int
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.Und
 import com.valaphee.cran.spec.In
-import com.valaphee.cran.spec.NodeType
+import com.valaphee.cran.spec.NodeSpec
 import com.valaphee.cran.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@NodeType("List/Get")
+@NodeSpec("List/Get")
 class Get(
     type: String,
     @get:In (""     , Arr) @get:JsonProperty("in"      ) val `in`   : Int,

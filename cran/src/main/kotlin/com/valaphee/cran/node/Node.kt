@@ -38,7 +38,7 @@ open class Node(
     class TypeResolver : TypeIdResolverBase() {
         override fun idFromValue(value: Any) = (value as Node).type
 
-        override fun idFromValueAndType(value: Any?, suggestedType: Class<*>) = value?.let { idFromValue(it) } ?: checkNotNull(suggestedType.kotlin.findAnnotation<com.valaphee.cran.spec.NodeType>()).name
+        override fun idFromValueAndType(value: Any?, suggestedType: Class<*>) = value?.let { idFromValue(it) } ?: checkNotNull(suggestedType.kotlin.findAnnotation<com.valaphee.cran.spec.NodeSpec>()).name
 
         override fun typeFromId(context: DatabindContext, id: String): JavaType = context.constructType(types[id]?.java ?: SubGraph::class.java)
 
@@ -50,6 +50,6 @@ open class Node(
     open suspend fun shutdown(scope: Scope) = Unit
 
     companion object {
-        private val types = ClassGraph().enableClassInfo().enableAnnotationInfo().scan().use { it.getClassesWithAnnotation(com.valaphee.cran.spec.NodeType::class.java).map { Class.forName(it.name).kotlin }.associateBy { checkNotNull(it.findAnnotation<com.valaphee.cran.spec.NodeType>()).name } }
+        private val types = ClassGraph().enableClassInfo().enableAnnotationInfo().scan().use { it.getClassesWithAnnotation(com.valaphee.cran.spec.NodeSpec::class.java).map { Class.forName(it.name).kotlin }.associateBy { checkNotNull(it.findAnnotation<com.valaphee.cran.spec.NodeSpec>()).name } }
     }
 }

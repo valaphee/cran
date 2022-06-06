@@ -38,16 +38,16 @@ import javax.tools.StandardLocation
  */
 @AutoService(Processor::class)
 class SpecGenerator : AbstractProcessor() {
-    override fun getSupportedAnnotationTypes() = mutableSetOf(NodeType::class.java.name)
+    override fun getSupportedAnnotationTypes() = mutableSetOf(NodeSpec::class.java.name)
 
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latest()
 
     override fun process(annotations: MutableSet<out TypeElement>?, roundEnvironment: RoundEnvironment?): Boolean {
         if (annotations?.isEmpty() == true) return false
-        roundEnvironment?.getElementsAnnotatedWith(NodeType::class.java)?.mapNotNull { `class` ->
+        roundEnvironment?.getElementsAnnotatedWith(NodeSpec::class.java)?.mapNotNull { `class` ->
             if (`class`.kind == ElementKind.CLASS && `class` is TypeElement) {
                 if (!`class`.modifiers.contains(Modifier.ABSTRACT)) {
-                    Spec.Node(`class`.getAnnotation(NodeType::class.java).name, `class`.qualifiedName.toString(), `class`.enclosedElements.mapNotNull { getter ->
+                    Spec.Node(`class`.getAnnotation(NodeSpec::class.java).name, `class`.qualifiedName.toString(), `class`.enclosedElements.mapNotNull { getter ->
                         if (getter.kind == ElementKind.METHOD && getter is ExecutableElement) {
                             val `in` = getter.getAnnotation(In::class.java)
                             val out = getter.getAnnotation(Out::class.java)

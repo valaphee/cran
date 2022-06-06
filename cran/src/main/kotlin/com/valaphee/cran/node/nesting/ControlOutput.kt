@@ -21,12 +21,12 @@ import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.Str
 import com.valaphee.cran.spec.Const
 import com.valaphee.cran.spec.In
-import com.valaphee.cran.spec.NodeType
+import com.valaphee.cran.spec.NodeSpec
 
 /**
  * @author Kevin Ludwig
  */
-@NodeType("Nesting/Control Output")
+@NodeSpec("Nesting/Control Output")
 class ControlOutput(
     type: String,
     @get:Const("Name", Str) @get:JsonProperty("name") val name: String,

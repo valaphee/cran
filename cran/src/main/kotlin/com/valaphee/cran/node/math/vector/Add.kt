@@ -20,13 +20,13 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.cran.Scope
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.spec.In
-import com.valaphee.cran.spec.NodeType
+import com.valaphee.cran.spec.NodeSpec
 import com.valaphee.cran.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@NodeType("Math/Vector/Add")
+@NodeSpec("Math/Vector/Add")
 class Add(
     type: String,
     @get:In ("A"    , Vec) @get:JsonProperty("in_a") val inA: Int,

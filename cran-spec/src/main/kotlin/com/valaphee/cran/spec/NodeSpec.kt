@@ -21,6 +21,6 @@ package com.valaphee.cran.spec
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class NodeType(
+annotation class NodeSpec(
     val name: String
 )

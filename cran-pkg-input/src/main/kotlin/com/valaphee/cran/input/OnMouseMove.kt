@@ -18,13 +18,13 @@ package com.valaphee.cran.input
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.cran.node.Node
-import com.valaphee.cran.spec.NodeType
+import com.valaphee.cran.spec.NodeSpec
 import com.valaphee.cran.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@NodeType("Input/On Mouse Move")
+@NodeSpec("Input/On Mouse Move")
 class OnMouseMove(
     type: String,
     @get:Out("") @get:JsonProperty("out") val out: Int
