@@ -24,3 +24,5 @@ This project consists of 6 parts:
 * cran-spec: Specification for nodes (required for development)
 * cran-svc: Flow gRPC services for development
 * cran-vis: JavaFX-based visual editor
+
+![main](https://github.com/valaphee/craan/blob/master/imgs/main.png?raw=true)

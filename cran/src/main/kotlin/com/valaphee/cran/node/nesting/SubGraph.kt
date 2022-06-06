@@ -24,7 +24,7 @@ import com.valaphee.cran.node.Node
 /**
  * @author Kevin Ludwig
  */
-class Subgraph(
+class SubGraph(
     type: String
 ) : Node(type) {
     @get:JsonAnyGetter val paths = mutableMapOf<String, Int>()

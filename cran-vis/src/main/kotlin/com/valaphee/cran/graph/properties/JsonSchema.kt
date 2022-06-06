@@ -46,36 +46,36 @@ class JsonSchema(
 
     @Inject private lateinit var objectMapper: ObjectMapper
 
-    fun toNode(valueProperty: ObjectProperty<Any?>, writable: Boolean): Node {
+    fun toNode(valueProperty: ObjectProperty<Any?>, readOnly: Boolean = false): Node {
         lateinit var node: Node
-        node = toNode(valueProperty.value, writable) { toValue(node)?.let { valueProperty.value = it } }
+        node = toNode(valueProperty.value, readOnly) { toValue(node)?.let { valueProperty.value = it } }
         valueProperty.onChange { updateNode(it, node) }
         return node
     }
 
-    private fun toNode(value: Any?, writable: Boolean, toValue: () -> Unit): Node = when (type) {
+    private fun toNode(value: Any?, readOnly: Boolean, toValue: () -> Unit): Node = when (type) {
         Type.Boolean -> CheckBox().apply {
             isSelected = value as Boolean? ?: false
             selectedProperty().onChange { toValue() }
-            isDisable = writable
+            isDisable = readOnly
         }
         Type.Integer -> TextField().apply {
-            isDisable = writable
+            isDisable = readOnly
             text = (value as Number?)?.toString() ?: "0"
             textProperty().onChange { toValue() }
         }
         Type.Number -> TextField().apply {
-            isDisable = writable
+            isDisable = readOnly
             text = (value as Number?)?.toString() ?: "0.0"
             textProperty().onChange { toValue() }
         }
         Type.String -> TextField().apply {
-            isDisable = writable
+            isDisable = readOnly
             text = value?.toString() ?: ""
             textProperty().onChange { toValue() }
         }
         else -> TextField().apply {
-            isDisable = writable
+            isDisable = readOnly
             text = value?.let { objectMapper.writeValueAsString(it) } ?: ""
             focusedProperty().onChange { toValue() }
         }

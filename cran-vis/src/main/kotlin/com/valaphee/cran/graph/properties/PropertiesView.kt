@@ -44,7 +44,9 @@ class PropertiesView(
 
     override val root = vbox {
         prefWidth = 400.0
+
         styleClass += "background"
+        stylesheets += "/dark_theme.css"
 
         val viewModel = ViewModel()
 
@@ -52,7 +54,7 @@ class PropertiesView(
             vgrow = Priority.ALWAYS
 
             val const = (node.valueObject as NodeValueObject).const
-            if (const.isNotEmpty()) fieldset { const.forEach { objectMapper.treeToValue<JsonSchema?>(it.spec.data)?.let { jsonSchema -> field("${it.spec.name} (${it.spec.json})") { inputContainer.add(jsonSchema.toNode(viewModel.bind { it.valueProperty }, true)) } } } }
+            if (const.isNotEmpty()) fieldset { const.forEach { objectMapper.treeToValue<JsonSchema?>(it.spec.data)?.let { jsonSchema -> field("${it.spec.name} (${it.spec.json})") { inputContainer.add(jsonSchema.toNode(viewModel.bind { it.valueProperty })) } } } }
             val connectors = node.connectors
             if (connectors.isNotEmpty()) fieldset {
                 connectors.forEach {

@@ -50,7 +50,7 @@ class WelcomeView : View("Welcome") {
     fun connectButtonAction() {
         close()
 
-        MainView(environment).openWindow(escapeClosesWindow = false, owner = null)
+        MainView(environment).openWindow(escapeClosesWindow = false, owner = null)?.isMaximized = true
     }
 
     fun exitButtonAction() {

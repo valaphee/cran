@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase
 import com.valaphee.cran.Scope
-import com.valaphee.cran.node.nesting.Subgraph
+import com.valaphee.cran.node.nesting.SubGraph
 import io.github.classgraph.ClassGraph
 import kotlin.reflect.full.findAnnotation
 
@@ -40,7 +40,7 @@ open class Node(
 
         override fun idFromValueAndType(value: Any?, suggestedType: Class<*>) = value?.let { idFromValue(it) } ?: checkNotNull(suggestedType.kotlin.findAnnotation<com.valaphee.cran.spec.NodeType>()).name
 
-        override fun typeFromId(context: DatabindContext, id: String): JavaType = context.constructType(types[id]?.java ?: Subgraph::class.java)
+        override fun typeFromId(context: DatabindContext, id: String): JavaType = context.constructType(types[id]?.java ?: SubGraph::class.java)
 
         override fun getMechanism() = JsonTypeInfo.Id.NAME
     }

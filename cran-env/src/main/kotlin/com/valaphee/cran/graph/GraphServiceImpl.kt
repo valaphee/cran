@@ -22,6 +22,7 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.valaphee.cran.GraphManager
 import com.valaphee.cran.Scope
+import com.valaphee.cran.node.Entry
 import com.valaphee.cran.spec.Spec
 import com.valaphee.cran.svc.graph.v1.DeleteGraphRequest
 import com.valaphee.cran.svc.graph.v1.DeleteGraphResponse
@@ -38,8 +39,12 @@ import com.valaphee.cran.svc.graph.v1.UpdateGraphRequest
 import com.valaphee.cran.svc.graph.v1.UpdateGraphResponse
 import io.github.classgraph.ClassGraph
 import io.grpc.stub.StreamObserver
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.launch
 import org.apache.logging.log4j.LogManager
 import java.util.UUID
+import java.util.concurrent.Executors
 
 /**
  * @author Kevin Ludwig
@@ -47,7 +52,10 @@ import java.util.UUID
 @Singleton
 class GraphServiceImpl @Inject constructor(
     private val objectMapper: ObjectMapper
-) : GraphServiceImplBase(), GraphManager {
+) : GraphServiceImplBase(), GraphManager, CoroutineScope {
+    private val executor = Executors.newSingleThreadExecutor()
+    override val coroutineContext get() = executor.asCoroutineDispatcher()
+
     private val spec: Spec
     private val graphs = mutableMapOf<String, GraphImpl>()
     private val scopes = mutableMapOf<UUID, Scope>()
@@ -86,7 +94,13 @@ class GraphServiceImpl @Inject constructor(
 
     override fun runGraph(request: RunGraphRequest, responseObserver: StreamObserver<RunGraphResponse>) {
         val scopeId = UUID.randomUUID()
-        graphs[request.graphName]?.let { it -> Scope(objectMapper, this, it).also { scopes[scopeId] = it }.initialize() }
+        graphs[request.graphName]?.let {
+            val scope = Scope(objectMapper, this, it).also {
+                scopes[scopeId] = it
+                it.initialize()
+            }
+            it.nodes.forEach { if (it is Entry) launch { it(scope) } }
+        }
         responseObserver.onNext(RunGraphResponse.newBuilder().setScopeId(scopeId.toString()).build())
         responseObserver.onCompleted()
     }

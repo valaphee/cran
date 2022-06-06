@@ -96,7 +96,7 @@ class MainView(
 
     private val graphProperty = SimpleObjectProperty<Graph>().apply {
         update {
-            title = "${environment.target}${it?.let { " - ${it.name}" }}"
+            title = "${environment.target}${it?.let { " - ${it.name}" } ?: ""}"
         }
     }
     private var graph by graphProperty

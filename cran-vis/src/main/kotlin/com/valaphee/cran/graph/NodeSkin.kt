@@ -52,7 +52,7 @@ class NodeSkin(
         isResizableWindow = false
         resizeableWindowProperty().onChange { if (it) isResizableWindow = false }
 
-        contextMenu = contextmenu {
+        contextmenu {
             item("Delete") { action { controller.remove(model) } }
             separator()
             item("Properties") { action { PropertiesView(model).openModal() } }
