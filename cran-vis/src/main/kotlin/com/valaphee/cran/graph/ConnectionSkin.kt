@@ -20,21 +20,25 @@ import eu.mihosoft.vrl.workflow.Connection
 import eu.mihosoft.vrl.workflow.VFlow
 import eu.mihosoft.vrl.workflow.VisualizationRequest
 import eu.mihosoft.vrl.workflow.fx.DefaultFXConnectionSkin
-import eu.mihosoft.vrl.workflow.fx.FXSkinFactory
 import javafx.beans.binding.DoubleBinding
 import javafx.event.EventHandler
 import javafx.scene.Node
 import javafx.scene.Parent
+import javafx.scene.control.ContextMenu
 import javafx.scene.input.ContextMenuEvent
 import javafx.scene.shape.CubicCurveTo
 import javafx.scene.shape.MoveTo
 import javafx.scene.shape.Path
+import tornadofx.action
+import tornadofx.get
+import tornadofx.item
+import tornadofx.separator
 
 /**
  * @author Kevin Ludwig
  */
 class ConnectionSkin(
-    skinFactory: FXSkinFactory,
+    skinFactory: SkinFactory,
     parent: Parent,
     connection: Connection,
     flow: VFlow,
@@ -126,5 +130,11 @@ class ConnectionSkin(
         }
         connectionPath.addEventHandler(ContextMenuEvent.CONTEXT_MENU_REQUESTED, contextMenuHandler)
         receiverUI.addEventHandler(ContextMenuEvent.CONTEXT_MENU_REQUESTED, contextMenuHandler)
+    }
+
+    override fun createContextMenu() = ContextMenu().apply {
+        item((skinFactory as SkinFactory).messages["graph.connection.probe"])
+        separator()
+        item((skinFactory as SkinFactory).messages["graph.connection.remove"]) { action { controller.getConnections(type).remove(model) } }
     }
 }

@@ -22,6 +22,7 @@ import eu.mihosoft.vrl.workflow.VNode
 import eu.mihosoft.vrl.workflow.fx.FXConnectionSkin
 import eu.mihosoft.vrl.workflow.fx.FXSkinFactory
 import javafx.scene.Parent
+import java.util.ResourceBundle
 
 /**
  * @author Kevin Ludwig
@@ -29,6 +30,7 @@ import javafx.scene.Parent
 class SkinFactory(
     parent: Parent,
     parentFactory: FXSkinFactory? = null,
+    val messages: ResourceBundle
 ) : FXSkinFactory(parent, parentFactory) {
     override fun createSkin(node: VNode, flow: VFlow) = NodeSkin(this, fxParent, node, flow)
 

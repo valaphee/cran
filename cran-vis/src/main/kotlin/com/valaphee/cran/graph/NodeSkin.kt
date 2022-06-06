@@ -28,6 +28,7 @@ import javafx.scene.Parent
 import javafx.scene.input.MouseEvent
 import tornadofx.action
 import tornadofx.contextmenu
+import tornadofx.get
 import tornadofx.item
 import tornadofx.onChange
 import tornadofx.separator
@@ -53,9 +54,9 @@ class NodeSkin(
         resizeableWindowProperty().onChange { if (it) isResizableWindow = false }
 
         contextmenu {
-            item("Delete") { action { controller.remove(model) } }
+            item((skinFactory as SkinFactory).messages["graph.node.delete"]) { action { controller.remove(model) } }
             separator()
-            item("Properties") { action { PropertiesView(model).openModal() } }
+            item((skinFactory as SkinFactory).messages["graph.node.properties"]) { action { PropertiesView(model).openModal() } }
         }
     }
 
@@ -79,7 +80,7 @@ class NodeSkin(
 
                     if (numOfExistingConnections < connector.maxNumberOfConnections) {
                         if (newConnectionSkin == null) {
-                            newConnectionSkin = NewConnectionSkin(skinFactory, parent, connector, controller, connector.type).init()
+                            newConnectionSkin = NewConnectionSkin((skinFactory as SkinFactory), parent, connector, controller, connector.type).init()
                             newConnectionSkin!!.add()
                             MouseEvent.fireEvent(newConnectionSkin!!.receiverUI, newConnectionPressEvent!!)
                         }

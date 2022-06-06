@@ -114,6 +114,8 @@ class Graph(
             heightProperty().update { if (settings.gridY > 0) height = round(it / settings.gridY) * settings.gridY }
 
             val const = mutableListOf<NodeValueObject.Const>()
+            valueObject = NodeValueObject(spec, const)
+
             spec.ports.forEach { portSpec ->
                 when (portSpec.type) {
                     Spec.Node.Port.Type.InControl -> addInput("control").apply {
@@ -137,8 +139,6 @@ class Graph(
                     Spec.Node.Port.Type.Const -> const += NodeValueObject.Const(portSpec, SimpleObjectProperty(null))
                 }
             }
-
-            valueObject = NodeValueObject(spec, const)
         }
     }
 }

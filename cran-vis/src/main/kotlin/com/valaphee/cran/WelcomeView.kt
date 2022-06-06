@@ -24,18 +24,21 @@ import tornadofx.bind
 import tornadofx.field
 import tornadofx.fieldset
 import tornadofx.form
+import tornadofx.get
 import tornadofx.textfield
 
 /**
  * @author Kevin Ludwig
  */
-class WelcomeView : View("Welcome") {
+class WelcomeView : View("%welcome") {
     override val root by fxml<Parent>("/welcome.fxml")
     private val welcomePane by fxid<Pane>()
 
     private val environment = Settings.Environment("localhost:8080")
 
     init {
+        title = messages["welcome"]
+
         with(welcomePane) {
             form {
                 fieldset {

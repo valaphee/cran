@@ -19,14 +19,13 @@ package com.valaphee.cran.graph
 import eu.mihosoft.vrl.workflow.Connector
 import eu.mihosoft.vrl.workflow.VFlow
 import eu.mihosoft.vrl.workflow.fx.FXNewConnectionSkin
-import eu.mihosoft.vrl.workflow.fx.FXSkinFactory
 import javafx.scene.Parent
 
 /**
  * @author Kevin Ludwig
  */
 class NewConnectionSkin(
-    skinFactory: FXSkinFactory,
+    skinFactory: SkinFactory,
     parent: Parent,
     sender: Connector,
     flow: VFlow,

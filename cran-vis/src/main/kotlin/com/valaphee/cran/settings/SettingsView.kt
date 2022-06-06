@@ -18,10 +18,15 @@ package com.valaphee.cran.settings
 
 import javafx.scene.Parent
 import tornadofx.View
+import tornadofx.get
 
 /**
  * @author Kevin Ludwig
  */
-class SettingsView : View("Settings") {
+class SettingsView : View("%settings") {
     override val root by fxml<Parent>("/settings.fxml")
+
+    init {
+        title = messages["settings"]
+    }
 }

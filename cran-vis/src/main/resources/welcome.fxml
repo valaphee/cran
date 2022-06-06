@@ -32,8 +32,8 @@
         </HBox>
         <ButtonBar>
             <buttons>
-                <Button mnemonicParsing="false" onAction="#connectButtonAction" text="Connect"/>
-                <Button mnemonicParsing="false" onAction="#exitButtonAction" text="Exit"/>
+                <Button mnemonicParsing="false" onAction="#connectButtonAction" text="%welcome.connect"/>
+                <Button mnemonicParsing="false" onAction="#exitButtonAction" text="%welcome.exit"/>
             </buttons>
         </ButtonBar>
     </children>

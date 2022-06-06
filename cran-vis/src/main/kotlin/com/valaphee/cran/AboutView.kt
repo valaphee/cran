@@ -18,10 +18,15 @@ package com.valaphee.cran
 
 import javafx.scene.Parent
 import tornadofx.View
+import tornadofx.get
 
 /**
  * @author Kevin Ludwig
  */
-class AboutView : View("About") {
+class AboutView : View("%about") {
     override val root by fxml<Parent>("/about.fxml")
+
+    init {
+        title = messages["about"]
+    }
 }

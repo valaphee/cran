@@ -27,6 +27,6 @@
                 <Image url="@/app@48x.png"/>
             </image>
         </ImageView>
-        <Label text="Flow&#10;Copyright (c) 2022, Valaphee." textAlignment="CENTER"/>
+        <Label text="Cran&#10;Copyright (c) 2022, Valaphee." textAlignment="CENTER"/>
     </children>
 </HBox>

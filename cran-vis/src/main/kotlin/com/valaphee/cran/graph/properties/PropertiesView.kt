@@ -31,6 +31,8 @@ import tornadofx.enableWhen
 import tornadofx.field
 import tornadofx.fieldset
 import tornadofx.form
+import tornadofx.format
+import tornadofx.get
 import tornadofx.vbox
 import tornadofx.vgrow
 
@@ -39,7 +41,7 @@ import tornadofx.vgrow
  */
 class PropertiesView(
     private val node: VNode
-) : View("Properties - ${(node.valueObject as NodeValueObject).spec.name}") {
+) : View("%graph.properties") {
     private val objectMapper by di<ObjectMapper>()
 
     override val root = vbox {
@@ -66,7 +68,7 @@ class PropertiesView(
             }
         }
         buttonbar {
-            button("Ok") {
+            button(messages["graph.properties.ok"]) {
                 isDefaultButton = true
 
                 action {
@@ -74,16 +76,20 @@ class PropertiesView(
                     close()
                 }
             }
-            button("Cancel") {
+            button(messages["graph.properties.cancel"]) {
                 isCancelButton = true
 
                 action { close() }
             }
-            button("Apply") {
+            button(messages["graph.properties.apply"]) {
                 enableWhen(viewModel.dirty)
 
                 action { viewModel.commit() }
             }
         }
+    }
+
+    init {
+        title = messages.format("graph.properties", (node.valueObject as NodeValueObject).spec.name)
     }
 }

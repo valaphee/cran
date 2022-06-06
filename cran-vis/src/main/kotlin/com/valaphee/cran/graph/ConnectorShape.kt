@@ -61,6 +61,7 @@ class ConnectorShape(
         dynamicContent(connector.valueObjectProperty()) {
             children.clear()
 
+            val nodeValueObject = (connector.node.valueObject as NodeValueObject)
             if (it is ConnectorValueObject) {
                 spacing = 4.0
 
@@ -72,8 +73,8 @@ class ConnectorShape(
                     when (connector.type) {
                         "control" -> polygon(
                             0.0, -4.0,
-                            8.0, 0.0,
-                            0.0, 4.0,
+                            8.0,  0.0,
+                            0.0,  4.0,
                             0.0, -4.0,
                         ) {
                             styleClass += "node-connector-shape-${connector.type}"
@@ -82,8 +83,8 @@ class ConnectorShape(
                         "data" -> circle(4.0, 0.0, 4.0) { styleClass += "node-connector-shape-${connector.type}" }
                         else -> error(connector.type)
                     }
-                    label(when (it.spec.name) {
-                        "Nesting/Control Output", "Nesting/Data Output" -> (connector.node.getConnector("name").valueObject as ConnectorValueObject).valueProperty().asString()
+                    label(when (nodeValueObject.spec.name) {
+                        "Nesting/Control Output", "Nesting/Data Output" -> nodeValueObject.const.single { it.spec.json == "name" }.valueProperty.asString()
                         else -> it.spec.name.toProperty()
                     }) {
                         minWidthProperty().bind(Text().let {
@@ -96,8 +97,8 @@ class ConnectorShape(
                     paddingRight = -4.0
                     alignment = Pos.CENTER_RIGHT
 
-                    label(when (it.spec.name) {
-                        "Nesting/Control Input", "Nesting/Data Input" -> (connector.node.getConnector("name").valueObject as ConnectorValueObject).valueProperty().asString()
+                    label(when (nodeValueObject.spec.name) {
+                        "Nesting/Control Input", "Nesting/Data Input" -> nodeValueObject.const.single { it.spec.json == "name" }.valueProperty.asString()
                         else -> it.spec.name.toProperty()
                     }) {
                         minWidthProperty().bind(Text().let {
@@ -109,8 +110,8 @@ class ConnectorShape(
                     when (connector.type) {
                         "control" -> polygon(
                             0.0, -4.0,
-                            8.0, 0.0,
-                            0.0, 4.0,
+                            8.0,  0.0,
+                            0.0,  4.0,
                             0.0, -4.0
                         ) {
                             styleClass += "node-connector-shape-${connector.type}"

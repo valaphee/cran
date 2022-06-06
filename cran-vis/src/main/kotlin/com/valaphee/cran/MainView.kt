@@ -65,6 +65,7 @@ import tornadofx.contextmenu
 import tornadofx.customitem
 import tornadofx.drawer
 import tornadofx.dynamicContent
+import tornadofx.get
 import tornadofx.getValue
 import tornadofx.item
 import tornadofx.listview
@@ -83,7 +84,7 @@ import java.util.zip.GZIPOutputStream
  */
 class MainView(
     environment: Settings.Environment
-) : View(), CoroutineScope {
+) : View("%main"), CoroutineScope {
     override val coroutineContext = Dispatchers.IO
 
     private val channel = environment.toChannel()
@@ -111,7 +112,7 @@ class MainView(
 
     init {
         rootHbox.children.add(0, drawer {
-            item("Graphs", null, true) {
+            item(messages["main.graphs"], null, true) {
                 minWidth = 200.0
                 maxWidth = 200.0
 
@@ -135,9 +136,9 @@ class MainView(
             }
 
             contextmenu {
-                item("New Graph") { action { this@with.items += graphProvider.get() } }
+                item(messages["main.graphs.new"]) { action { this@with.items += graphProvider.get() } }
                 separator()
-                item("Delete") {
+                item(messages["main.graphs.delete"]) {
                     action {
                         launch {
                             delete(selectionModel.selectedItems)
@@ -196,7 +197,7 @@ class MainView(
             minWidthProperty().bind(graphScrollPane.widthProperty())
             minHeightProperty().bind(graphScrollPane.heightProperty())
 
-            dynamicContent(graphProperty) { it?.flow?.setSkinFactories(SkinFactory(this)) }
+            dynamicContent(graphProperty) { it?.flow?.setSkinFactories(SkinFactory(this, null, messages)) }
 
             MouseControlUtil.addSelectionRectangleGesture(this, rectangle {
                 stroke = Color.rgb(255, 255, 255, 1.0)
@@ -278,7 +279,7 @@ class MainView(
         }.generateLayout()
     }
 
-    fun editLayoutDacMenuItemAction() {
+    fun editLayoutDagMenuItemAction() {
         LayoutGeneratorSmart().apply {
             layoutSelector = 3
             workflow = graph.flow.model

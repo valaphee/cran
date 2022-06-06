@@ -23,9 +23,9 @@
     <children>
         <ButtonBar>
             <buttons>
-                <Button mnemonicParsing="false" text="Ok"/>
-                <Button mnemonicParsing="false" text="Cancel"/>
-                <Button mnemonicParsing="false" text="Apply"/>
+                <Button mnemonicParsing="false" text="%graph.properties.ok"/>
+                <Button mnemonicParsing="false" text="%graph.properties.cancel"/>
+                <Button mnemonicParsing="false" text="%graph.properties.apply"/>
             </buttons>
         </ButtonBar>
     </children>

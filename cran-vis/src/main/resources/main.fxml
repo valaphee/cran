@@ -16,7 +16,6 @@
   ~ limitations under the License.
   -->
 
-<?import java.net.URL?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
@@ -34,31 +33,31 @@
     <children>
         <MenuBar>
             <menus>
-                <Menu mnemonicParsing="false" text="File">
+                <Menu mnemonicParsing="false" text="%main.file">
                     <items>
-                        <MenuItem mnemonicParsing="false" onAction="#fileSettingsMenuItemAction" text="Settings"/>
+                        <MenuItem mnemonicParsing="false" onAction="#fileSettingsMenuItemAction" text="%main.file.settings"/>
                         <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem mnemonicParsing="false" onAction="#fileImportMenuItemAction" text="Import"/>
-                        <MenuItem mnemonicParsing="false" onAction="#fileExportAsMenuItemAction" text="Export As..."/>
+                        <MenuItem mnemonicParsing="false" onAction="#fileImportMenuItemAction" text="%main.file.import"/>
+                        <MenuItem mnemonicParsing="false" onAction="#fileExportAsMenuItemAction" text="%main.file.export"/>
                         <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem mnemonicParsing="false" onAction="#fileExitMenuItemAction" text="Exit"/>
+                        <MenuItem mnemonicParsing="false" onAction="#fileExitMenuItemAction" text="%main.file.exit"/>
                     </items>
                 </Menu>
-                <Menu mnemonicParsing="false" text="Edit">
+                <Menu mnemonicParsing="false" text="%main.edit">
                     <items>
-                        <Menu mnemonicParsing="false" text="Layout">
+                        <Menu mnemonicParsing="false" text="%main.edit.layout">
                             <items>
-                                <MenuItem mnemonicParsing="false" onAction="#editLayoutIsomMenuItemAction" text="Interpretable Self-Organizing Maps"/>
-                                <MenuItem mnemonicParsing="false" onAction="#editLayoutFrMenuItemAction" text="Fruchterman-Reingold"/>
-                                <MenuItem mnemonicParsing="false" onAction="#editLayoutKkMenuItemAction" text="Kamada-Kawai"/>
-                                <MenuItem mnemonicParsing="false" onAction="#editLayoutDacMenuItemAction" text="Directed Acyclic Graph"/>
+                                <MenuItem mnemonicParsing="false" onAction="#editLayoutIsomMenuItemAction" text="%main.edit.layout.isom"/>
+                                <MenuItem mnemonicParsing="false" onAction="#editLayoutFrMenuItemAction" text="%main.edit.layout.fr"/>
+                                <MenuItem mnemonicParsing="false" onAction="#editLayoutKkMenuItemAction" text="%main.edit.layout.kk"/>
+                                <MenuItem mnemonicParsing="false" onAction="#editLayoutDagMenuItemAction" text="%main.edit.layout.dag"/>
                             </items>
                         </Menu>
                     </items>
                 </Menu>
-                <Menu mnemonicParsing="false" text="Help">
+                <Menu mnemonicParsing="false" text="%main.help">
                     <items>
-                        <MenuItem mnemonicParsing="false" onAction="#helpAboutMenuItemAction" text="About"/>
+                        <MenuItem mnemonicParsing="false" onAction="#helpAboutMenuItemAction" text="%main.help.about"/>
                     </items>
                 </Menu>
             </menus>
@@ -74,7 +73,7 @@
             <children>
                 <TabPane prefHeight="200.0" prefWidth="200.0" side="BOTTOM" tabClosingPolicy="UNAVAILABLE" HBox.hgrow="ALWAYS">
                     <tabs>
-                        <Tab text="Graph">
+                        <Tab text="%main.graph">
                             <content>
                                 <ScrollPane fx:id="graphScrollPane">
                                     <content>
@@ -83,7 +82,7 @@
                                 </ScrollPane>
                             </content>
                         </Tab>
-                        <Tab onSelectionChanged="#jsonTabSelectionChanged" text="JSON">
+                        <Tab onSelectionChanged="#jsonTabSelectionChanged" text="%main.json">
                             <content>
                                 <VBox>
                                     <children>
