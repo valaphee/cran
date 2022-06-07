@@ -45,6 +45,7 @@ import javafx.scene.control.MenuItem
 import javafx.scene.control.ScrollPane
 import javafx.scene.control.TextArea
 import javafx.scene.control.cell.TextFieldListCell
+import javafx.scene.input.DataFormat
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.TransferMode
@@ -123,7 +124,7 @@ class MainView(
         })
         with(graphsListView) {
             setOnKeyPressed {
-                when (it.code) {
+                if (it.isControlDown) when (it.code) {
                     KeyCode.ENTER -> {
                         graph = selectedItem
                         it.consume()
@@ -154,6 +155,7 @@ class MainView(
                         }
                     }
                 }
+                item(messages["main.graphs.rename"])
             }
 
             setCellFactory {
@@ -168,8 +170,7 @@ class MainView(
                     setOnDragDetected {
                         startDragAndDrop(TransferMode.COPY).apply {
                             dragView = snapshot(null, null)
-
-                            setContent { putString(item.name) }
+                            setContent { this[nodeSpecDataFormat] = objectMapper.writeValueAsString(item.toSpec()) }
                         }
                         it.consume()
                     }
@@ -185,6 +186,26 @@ class MainView(
 
         // Graph
         with(graphScrollPane) {
+            setOnKeyPressed {
+                if (it.isControlDown) when (it.code) {
+                    KeyCode.A -> {
+                        graph?.let { it.flow.nodes.forEach { it.requestSelection(true) } }
+                        it.consume()
+                    }
+                    KeyCode.S -> {
+                        graph?.let { graph -> launch { graphService.updateGraph(UpdateGraphRequest.newBuilder().setGraph(objectMapper.writeValueAsString(graph)).build()) } }
+                        it.consume()
+                    }
+                    else -> Unit
+                } else when (it.code) {
+                    KeyCode.DELETE -> {
+                        graph?.let { it.flow.nodes.filter(VNode::isSelected).forEach(it.flow::remove) }
+                        it.consume()
+                    }
+                    else -> Unit
+                }
+            }
+
             contextmenu {
                 val searchProperty = "".toProperty()
 
@@ -237,6 +258,20 @@ class MainView(
                 stroke = Color.rgb(255, 255, 255, 1.0)
                 fill = Color.rgb(0, 0, 0, 0.5)
             })
+
+            setOnDragOver {
+                if (it.dragboard.hasContent(nodeSpecDataFormat)) {
+                    it.acceptTransferModes(TransferMode.COPY)
+                    it.consume()
+                }
+            }
+
+            setOnDragDropped {
+                if (it.dragboard.hasContent(nodeSpecDataFormat)) {
+                    graph?.newNode(objectMapper.readValue(it.dragboard.getContent(nodeSpecDataFormat) as String), Meta.Node(it.x, it.y))
+                    it.consume()
+                }
+            }
         }
 
         // Json
@@ -247,18 +282,7 @@ class MainView(
     }
 
     fun keyPressed(event: KeyEvent) {
-        if (event.isControlDown) when (event.code) {
-            KeyCode.A -> graph?.let { it.flow.nodes.forEach { it.requestSelection(true) } }
-            KeyCode.S -> {
-                graph?.let { graph -> launch { graphService.updateGraph(UpdateGraphRequest.newBuilder().setGraph(objectMapper.writeValueAsString(graph)).build()) } }
-                event.consume()
-            }
-            else -> Unit
-        } else when (event.code) {
-            KeyCode.DELETE -> {
-                graph?.let { it.flow.nodes.filter(VNode::isSelected).forEach(it.flow::remove) }
-                event.consume()
-            }
+        if (!event.isControlDown) when (event.code) {
             KeyCode.F5 -> {
                 launch { this@MainView._refresh() }
                 event.consume()
@@ -345,5 +369,9 @@ class MainView(
 
     private fun delete(graph: GraphImpl) {
         graphService.deleteGraph(DeleteGraphRequest.newBuilder().setGraphName(graph.name).build())
+    }
+
+    companion object {
+        private val nodeSpecDataFormat = DataFormat(Spec.Node.MediaType)
     }
 }

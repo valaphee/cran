@@ -58,7 +58,7 @@ fun main(arguments: Array<String>) {
     val argumentParser = ArgParser("cran-env")
     val host by argumentParser.option(ArgType.String, "host", "H", "Host").default("localhost")
     val port by argumentParser.option(ArgType.Int, "port", "p", "Port").default(8080)
-    val serverCer by argumentParser.option(ArgType.String, "server-cer", description = "Server Certificate Chain").default("tls/server_cer.pem")
+    val serverCer by argumentParser.option(ArgType.String, "server-cer", description = "Server Certificate").default("tls/server_cer.pem")
     val serverKey by argumentParser.option(ArgType.String, "server-key", description = "Server Private Key").default("tls/server_key.pem")
     val clientCer by argumentParser.option(ArgType.String, "client-cer", description = "Client Certificate").default("tls/client_cer.pem")
     argumentParser.subcommands(TlsSubcommand)

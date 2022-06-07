@@ -49,16 +49,16 @@ class GraphImpl(
         get() {
             val connections = mutableListOf<MutableList<Connector>>().apply { flow.allConnections.forEach { it.value.connections.forEach { connection -> find { it.contains(connection.sender) }?.add(connection.receiver) ?: find { it.contains(connection.receiver) }?.add(connection.sender) ?: run { this += mutableListOf(connection.sender, connection.receiver) } } } }.withIndex()
             var index = connections.lastOrNull()?.index?.let { it + 1 } ?: 0
-            val embed = mutableListOf<Node>()
+            val embed = mutableListOf<Value>()
             return flow.nodes.map { node ->
                 val nodeValueObject = node.valueObject as NodeValueObject
-                Node(nodeValueObject.spec.name, (nodeValueObject.const.associate { it.spec.json to it.valueProperty.value } + node.inputs.associate { input ->
+                objectMapper.convertValue<Node>(mapOf<String, Any?>("type" to nodeValueObject.spec.name) + nodeValueObject.const.associate { it.spec.json to it.valueProperty.value } + node.inputs.associate { input ->
                     val connectorValueObject = input.valueObject as ConnectorValueObject
                     connectorValueObject.spec.json to (connections.find { it.value.contains(input) }?.index ?: connectorValueObject.value?.let {
                         embed += Value("Value", it, index, true)
                         index++
                     } ?: index++)
-                } + node.outputs.associate { output -> output.localId to (connections.find { it.value.contains(output) }?.index ?: index++) }).toMutableMap())
+                } + node.outputs.associate { output -> output.localId to (connections.find { it.value.contains(output) }?.index ?: index++) })
             } + embed
         }
 

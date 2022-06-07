@@ -44,6 +44,10 @@ class Spec(
                 @JsonProperty("const"      ) Const
             }
         }
+
+        companion object {
+            const val MediaType = "application/x-cran-node-spec"
+        }
     }
 
     operator fun plus(other: Spec) = Spec(nodes + other.nodes)

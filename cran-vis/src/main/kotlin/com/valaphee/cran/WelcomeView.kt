@@ -46,12 +46,12 @@ class WelcomeView : View("%welcome") {
             form {
                 fieldset { field("Target") { textfield(settings.environment.targetProperty) } }
                 fieldset("TLS") {
-                    field("Client Certificate Chain") {
+                    field("Client Certificate") {
                         textfield(settings.environment.clientCerProperty)
                         button("...") {
                             action {
                                 val parentPath = if (settings.environment.clientCer.isEmpty()) null else File(settings.environment.clientCer).parentFile
-                                chooseFile("Select Client Certificate Chain", emptyArray(), if (parentPath?.isDirectory == true) parentPath else null).firstOrNull()?.let { settings.environment.clientCer = it.absolutePath }
+                                chooseFile("Select Client Certificate", emptyArray(), if (parentPath?.isDirectory == true) parentPath else null).firstOrNull()?.let { settings.environment.clientCer = it.absolutePath }
                             }
                         }
                     }
@@ -60,7 +60,7 @@ class WelcomeView : View("%welcome") {
                         button("...") {
                             action {
                                 val parentPath = if (settings.environment.clientKey.isEmpty()) null else File(settings.environment.clientKey).parentFile
-                                chooseFile("Select Client Certificate Chain", emptyArray(), if (parentPath?.isDirectory == true) parentPath else null).firstOrNull()?.let { settings.environment.clientKey = it.absolutePath }
+                                chooseFile("Select Client Private Key", emptyArray(), if (parentPath?.isDirectory == true) parentPath else null).firstOrNull()?.let { settings.environment.clientKey = it.absolutePath }
                             }
                         }
                     }
@@ -69,7 +69,7 @@ class WelcomeView : View("%welcome") {
                         button("...") {
                             action {
                                 val parentPath = if (settings.environment.serverCer.isEmpty()) null else File(settings.environment.serverCer).parentFile
-                                chooseFile("Select Client Certificate Chain", emptyArray(), if (parentPath?.isDirectory == true) parentPath else null).firstOrNull()?.let { settings.environment.serverCer = it.absolutePath }
+                                chooseFile("Select Server Certificate", emptyArray(), if (parentPath?.isDirectory == true) parentPath else null).firstOrNull()?.let { settings.environment.serverCer = it.absolutePath }
                             }
                         }
                     }

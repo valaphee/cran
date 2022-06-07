@@ -32,36 +32,37 @@ abstract class GraphJvm : Graph() {
             when (it) {
                 is NodeJvm -> it.initialize(scope)
                 else -> {
-                    val subGraph = checkNotNull(scope.graphManager.getGraph(it.type))
-                    val subScope = scope.subScope(subGraph).also { it.initialize() }
-                    subGraph.nodes.forEach { subNode ->
-                        when (subNode) {
-                            is ControlInput -> {
-                                val out = subScope.controlPath(subNode.out)
-                                (it[subNode.json] as? Int)?.let {
-                                    val `in` = scope.controlPath(it)
-                                    out.function?.let(`in`::declare)
+                    scope.graphManager.getGraph(it.type)?.let { subGraph ->
+                        val subScope = scope.subScope(subGraph).also { it.initialize() }
+                        subGraph.nodes.forEach { subNode ->
+                            when (subNode) {
+                                is ControlInput -> {
+                                    val out = subScope.controlPath(subNode.out)
+                                    (it[subNode.json] as? Int)?.let {
+                                        val `in` = scope.controlPath(it)
+                                        out.function?.let(`in`::declare)
+                                    }
                                 }
-                            }
-                            is ControlOutput -> {
-                                val `in` = subScope.controlPath(subNode.`in`)
-                                (it[subNode.json] as? Int)?.let {
-                                    val out = scope.controlPath(it)
-                                    out.function?.let(`in`::declare)
+                                is ControlOutput -> {
+                                    val `in` = subScope.controlPath(subNode.`in`)
+                                    (it[subNode.json] as? Int)?.let {
+                                        val out = scope.controlPath(it)
+                                        out.function?.let(`in`::declare)
+                                    }
                                 }
-                            }
-                            is DataInput -> {
-                                val out = subScope.dataPath(subNode.out)
-                                (it[subNode.json] as? Int)?.let {
-                                    val `in` = scope.dataPath(it)
-                                    `in`.valueFunction?.let(out::set) ?: out.set { `in`.get() }
+                                is DataInput -> {
+                                    val out = subScope.dataPath(subNode.out)
+                                    (it[subNode.json] as? Int)?.let {
+                                        val `in` = scope.dataPath(it)
+                                        `in`.valueFunction?.let(out::set) ?: out.set { `in`.get() }
+                                    }
                                 }
-                            }
-                            is DataOutput -> {
-                                val `in` = subScope.dataPath(subNode.`in`)
-                                (it[subNode.json] as? Int)?.let {
-                                    val out = scope.dataPath(it)
-                                    `in`.valueFunction?.let(out::set) ?: out.set { `in`.get() }
+                                is DataOutput -> {
+                                    val `in` = subScope.dataPath(subNode.`in`)
+                                    (it[subNode.json] as? Int)?.let {
+                                        val out = scope.dataPath(it)
+                                        `in`.valueFunction?.let(out::set) ?: out.set { `in`.get() }
+                                    }
                                 }
                             }
                         }

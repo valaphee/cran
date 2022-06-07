@@ -35,7 +35,7 @@ dependencies {
     api("javax.annotation:javax.annotation-api:1.3.2")
 }
 
-java.sourceSets.getByName("main").java.srcDir("build/generated/source/proto/main/java")
+java.sourceSets.getByName("main").java.srcDirs("build/generated/source/proto/main/java", "build/generated/source/proto/main/grpc")
 
 java {
     withJavadocJar()
