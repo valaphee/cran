@@ -54,9 +54,9 @@ class NodeSkin(
         resizeableWindowProperty().onChange { if (it) isResizableWindow = false }
 
         contextmenu {
-            item((skinFactory as SkinFactory).messages["graph.node.delete"]) { action { controller.remove(model) } }
+            item((skinFactory as SkinFactory).uiComponent.messages["graph.node.delete"]) { action { controller.remove(model) } }
             separator()
-            item((skinFactory as SkinFactory).messages["graph.node.properties"]) { action { PropertiesView(model).openModal() } }
+            item((skinFactory as SkinFactory).uiComponent.messages["graph.node.properties"]) { action { (skinFactory as SkinFactory).uiComponent.openInternalWindow(PropertiesView(model)) } }
         }
     }
 
@@ -84,8 +84,6 @@ class NodeSkin(
                             newConnectionSkin!!.add()
                             MouseEvent.fireEvent(newConnectionSkin!!.receiverUI, newConnectionPressEvent!!)
                         }
-                        it.consume()
-                        MouseEvent.fireEvent(newConnectionSkin!!.receiverUI, it)
                         it.consume()
                         MouseEvent.fireEvent(newConnectionSkin!!.receiverUI, it)
                     }

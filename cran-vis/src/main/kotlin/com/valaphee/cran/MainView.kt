@@ -31,11 +31,9 @@ import com.valaphee.cran.svc.graph.v1.GraphServiceGrpc
 import com.valaphee.cran.svc.graph.v1.ListGraphRequest
 import com.valaphee.cran.svc.graph.v1.RunGraphRequest
 import com.valaphee.cran.svc.graph.v1.StopGraphRequest
-import com.valaphee.cran.svc.graph.v1.UpdateGraphRequest
 import com.valaphee.cran.util.PathTree
 import com.valaphee.cran.util.asStyleClass
 import com.valaphee.cran.util.update
-import eu.mihosoft.vrl.workflow.VNode
 import eu.mihosoft.vrl.workflow.incubating.LayoutGeneratorSmart
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.Parent
@@ -46,7 +44,6 @@ import javafx.scene.control.ScrollPane
 import javafx.scene.control.TextArea
 import javafx.scene.control.cell.TextFieldListCell
 import javafx.scene.input.KeyCode
-import javafx.scene.input.KeyEvent
 import javafx.scene.input.TransferMode
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
@@ -122,14 +119,35 @@ class MainView(
             }
         })
         with(graphsListView) {
+            setOnKeyPressed {
+                when (it.code) {
+                    KeyCode.ENTER -> {
+                        graph = selectedItem
+                        it.consume()
+                    }
+                    KeyCode.DELETE -> {
+                        selectedItem?.let {
+                            launch {
+                                delete(it)
+                                _refresh()
+                            }
+                        }
+                        it.consume()
+                    }
+                    else -> Unit
+                }
+            }
+
             contextmenu {
                 item(messages["main.graphs.new"]) { action { this@with.items += graphProvider.get() } }
                 separator()
                 item(messages["main.graphs.delete"]) {
                     action {
-                        launch {
-                            delete(selectionModel.selectedItems)
-                            this@MainView.refresh()
+                        selectedItem?.let {
+                            launch {
+                                delete(it)
+                                _refresh()
+                            }
                         }
                     }
                 }
@@ -137,7 +155,12 @@ class MainView(
 
             setCellFactory {
                 TextFieldListCell<GraphImpl>().apply {
-                    setOnMouseClicked { if (it.clickCount == 2) graph = selectedItem }
+                    setOnMouseClicked {
+                        if (it.clickCount == 2) {
+                            item?.let { graph = it }
+                            it.consume()
+                        }
+                    }
 
                     setOnDragDetected {
                         startDragAndDrop(TransferMode.COPY).apply {
@@ -145,7 +168,6 @@ class MainView(
 
                             setContent { putString(item.name) }
                         }
-
                         it.consume()
                     }
 
@@ -206,61 +228,23 @@ class MainView(
             minWidthProperty().bind(graphScrollPane.widthProperty())
             minHeightProperty().bind(graphScrollPane.heightProperty())
 
-            dynamicContent(graphProperty) { it?.flow?.setSkinFactories(SkinFactory(this, null, messages)) }
+            dynamicContent(graphProperty) { it?.flow?.setSkinFactories(SkinFactory(this, null, this@MainView)) }
 
             MouseControlUtil.addSelectionRectangleGesture(this, rectangle {
                 stroke = Color.rgb(255, 255, 255, 1.0)
                 fill = Color.rgb(0, 0, 0, 0.5)
             })
-
-            setOnDragOver {
-                if (it.dragboard.hasString()) it.acceptTransferModes(TransferMode.COPY)
-                it.consume()
-            }
-
-            setOnDragDropped {
-                if (it.dragboard.hasString()) {
-
-                }
-                it.consume()
-            }
         }
 
         // Json
         with(jsonTextArea) { graphProperty.onChange { text = it?.let { objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it) } ?: "" } }
 
         // Initialization
-        launch { refresh() }
-    }
-
-    fun keyPressed(event: KeyEvent) {
-        if (event.isControlDown) when (event.code) {
-            KeyCode.A -> graph?.let { it.flow.nodes.forEach { it.requestSelection(true) } }
-            /*KeyCode.C -> {
-                graph?.let { graph -> graph.cran.nodes.filter(VNode::isSelected) }
-                event.consume()
-            }*/
-            KeyCode.S -> {
-                graph?.let { graph -> launch { graphService.updateGraph(UpdateGraphRequest.newBuilder().setGraph(objectMapper.writeValueAsString(graph)).build()) } }
-                event.consume()
-            }
-            /*KeyCode.V -> Unit*/
-            else -> Unit
-        } else when (event.code) {
-            KeyCode.DELETE -> {
-                graph?.let { it.flow.nodes.filter(VNode::isSelected).forEach(it.flow::remove) }
-                event.consume()
-            }
-            KeyCode.F5 -> {
-                launch { this@MainView.refresh() }
-                event.consume()
-            }
-            else -> Unit
-        }
+        launch { _refresh() }
     }
 
     fun fileSettingsMenuItemAction() {
-        find<SettingsView>().openModal()
+        openInternalWindow<SettingsView>()
     }
 
     fun fileImportMenuItemAction() {
@@ -308,7 +292,7 @@ class MainView(
     }
 
     fun helpAboutMenuItemAction() {
-        find<AboutView>().openModal(resizable = false)
+        openInternalWindow<AboutView>()
     }
 
     fun runButtonAction() {
@@ -323,7 +307,7 @@ class MainView(
         jsonTextArea.text = graph?.let { objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it) } ?: ""
     }
 
-    private suspend fun refresh() {
+    private suspend fun _refresh() {
         val graphs = graphService.listGraph(ListGraphRequest.getDefaultInstance()).graphsList.map { objectMapper.readValue<GraphImpl>(it).apply { spec = this@MainView.spec } }
         withContext(Dispatchers.Main) {
             val graphName = graph?.name
@@ -332,7 +316,7 @@ class MainView(
         }
     }
 
-    private fun delete(graphs: List<GraphImpl>) {
-        graphs.forEach { graphService.deleteGraph(DeleteGraphRequest.newBuilder().setGraphName(it.name).build()) }
+    private fun delete(graph: GraphImpl) {
+        graphService.deleteGraph(DeleteGraphRequest.newBuilder().setGraphName(graph.name).build())
     }
 }

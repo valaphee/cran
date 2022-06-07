@@ -18,8 +18,8 @@ plugins { id("com.github.johnrengelman.shadow") }
 
 dependencies {
     implementation(project(":cran"))
-    implementation(project(":cran-pkg-jvm"))
-    implementation(project(":cran-pkg-jvm-input"))
+    implementation(project(":cran-jvm"))
+    implementation(project(":cran-jvm-input"))
 
     implementation(project(":cran-meta"))
     implementation(project(":cran-spec"))
@@ -36,6 +36,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-iostreams:2.17.2")
     implementation("org.apache.logging.log4j:log4j-jul:2.17.2")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.17.2")
+    implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
     implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.4")
 }
 

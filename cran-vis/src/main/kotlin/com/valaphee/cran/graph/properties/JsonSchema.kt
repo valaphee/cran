@@ -31,7 +31,7 @@ import tornadofx.onChange
  * @author Kevin Ludwig
  */
 class JsonSchema(
-    @get:JsonProperty("type"    ) val type    : Type?    ,
+    @get:JsonProperty("type"    ) val type    : Type?      ,
     @get:JsonProperty("items"   ) val items   : JsonSchema?,
     @get:JsonProperty("minItems") val minItems: Int?       ,
     @get:JsonProperty("maxItems") val maxItems: Int?
@@ -53,7 +53,7 @@ class JsonSchema(
         return node
     }
 
-    private fun toNode(value: Any?, readOnly: Boolean, toValue: () -> Unit): Node = when (type) {
+    private fun toNode(value: Any?, readOnly: Boolean, toValue: () -> Unit) = when (type) {
         Type.Boolean -> CheckBox().apply {
             isSelected = value as Boolean? ?: false
             selectedProperty().onChange { toValue() }
@@ -91,7 +91,7 @@ class JsonSchema(
         }
     }
 
-    private fun toValue(node: Node): Any? = when (type) {
+    private fun toValue(node: Node) = when (type) {
         Type.Boolean -> (node as CheckBox).isSelected
         Type.Integer -> (node as TextField).text?.toIntOrNull()
         Type.Number  -> (node as TextField).text?.toDoubleOrNull()

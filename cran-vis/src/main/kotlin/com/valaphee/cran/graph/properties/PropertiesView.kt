@@ -56,13 +56,13 @@ class PropertiesView(
             vgrow = Priority.ALWAYS
 
             val const = (node.valueObject as NodeValueObject).const
-            if (const.isNotEmpty()) fieldset { const.forEach { objectMapper.treeToValue<JsonSchema?>(it.spec.data)?.let { jsonSchema -> field("${it.spec.name} (${it.spec.json})") { inputContainer.add(jsonSchema.toNode(viewModel.bind { it.valueProperty })) } } } }
+            if (const.isNotEmpty()) fieldset { const.forEach { const -> objectMapper.treeToValue<JsonSchema?>(const.spec.data)?.let { jsonSchema -> field("${const.spec.name} (${const.spec.json})") { inputContainer.add(jsonSchema.toNode(viewModel.bind { const.valueProperty })) } } } }
             val connectors = node.connectors
             if (connectors.isNotEmpty()) fieldset {
-                connectors.forEach {
-                    if (it.isInput) {
-                        val valueObject = it.valueObject as ConnectorValueObject
-                        objectMapper.treeToValue<JsonSchema?>(valueObject.spec.data)?.let { jsonSchema -> field("${valueObject.spec.name} (${valueObject.spec.json})") { inputContainer.add(jsonSchema.toNode(viewModel.bind { valueObject.valueProperty() }, node.flow.getConnections(it.type).isInputConnected(it))) } }
+                connectors.forEach { connector ->
+                    if (connector.isInput) {
+                        val valueObject = connector.valueObject as ConnectorValueObject
+                        objectMapper.treeToValue<JsonSchema?>(valueObject.spec.data)?.let { jsonSchema -> field("${valueObject.spec.name} (${valueObject.spec.json})") { inputContainer.add(jsonSchema.toNode(viewModel.bind { valueObject.valueProperty() }, node.flow.getConnections(connector.type).isInputConnected(connector))) } }
                     }
                 }
             }

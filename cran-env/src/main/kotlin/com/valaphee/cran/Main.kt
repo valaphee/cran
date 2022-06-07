@@ -29,12 +29,16 @@ import com.google.inject.Injector
 import com.google.inject.Provides
 import com.google.inject.Singleton
 import com.valaphee.cran.graph.GraphServiceImpl
-import com.valaphee.cran.node.math.vector.DoubleVectorDeserializer
-import com.valaphee.cran.node.math.vector.DoubleVectorSerializer
-import com.valaphee.cran.node.math.vector.IntVectorDeserializer
-import com.valaphee.cran.node.math.vector.IntVectorSerializer
+import com.valaphee.cran.math.vector.DoubleVectorDeserializer
+import com.valaphee.cran.math.vector.DoubleVectorSerializer
+import com.valaphee.cran.math.vector.IntVectorDeserializer
+import com.valaphee.cran.math.vector.IntVectorSerializer
 import com.valaphee.cran.svc.graph.v1.GraphServiceGrpc.GraphServiceImplBase
-import io.grpc.ServerBuilder
+import com.valaphee.cran.util.TlsUtil
+import io.grpc.netty.GrpcSslContexts
+import io.grpc.netty.NettyServerBuilder
+import io.netty.handler.ssl.ClientAuth
+import io.netty.handler.ssl.SslContextBuilder
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.IntVector
 import kotlinx.cli.ArgParser
@@ -43,10 +47,19 @@ import kotlinx.cli.default
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.io.IoBuilder
+import java.io.File
+import java.net.InetSocketAddress
 
 fun main(arguments: Array<String>) {
+    TlsUtil.generate()
+
     val argumentParser = ArgParser("cran-env")
+    val host by argumentParser.option(ArgType.String, "host", "H", "Host").default("localhost")
     val port by argumentParser.option(ArgType.Int, "port", "p", "Port").default(8080)
+    val serverCer by argumentParser.option(ArgType.String, "server-cer", description = "TLS Server Certificate Chain").default("tls/server_cer.pem")
+    val serverKey by argumentParser.option(ArgType.String, "server-key", description = "TLS Server Key").default("tls/server_key.pem")
+    val clientCer by argumentParser.option(ArgType.String, "client-cer", description = "TLS Client Certificates").default("tls/client_cer.pem")
+
     argumentParser.parse(arguments)
 
     System.setIn(null)
@@ -71,9 +84,10 @@ fun main(arguments: Array<String>) {
         }
     })
 
-    val server = ServerBuilder
-        .forPort(port)
+    val server = NettyServerBuilder
+        .forAddress(InetSocketAddress(host, port))
         .addService(injector.getInstance(GraphServiceImplBase::class.java))
+        .sslContext(GrpcSslContexts.configure(SslContextBuilder.forServer(File(serverCer), File(serverKey)).trustManager(File(clientCer)).clientAuth(ClientAuth.REQUIRE)).build())
         .build()
         .start()
     LogManager.getLogger("Main").info("Listening on $port")

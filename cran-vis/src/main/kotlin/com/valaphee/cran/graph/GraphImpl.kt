@@ -40,7 +40,7 @@ import kotlin.math.round
  */
 class GraphImpl(
     @get:JsonProperty("name") override var name : String     = "New Graph"      ,
-                                           meta : Meta       = Meta(emptyList()),
+                                           meta : Meta = Meta(emptyList()),
                                            nodes: List<Node> = emptyList()
 ) : Graph() {
     @get:JsonProperty("meta") val meta = meta

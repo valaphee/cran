@@ -20,7 +20,6 @@ import com.valaphee.cran.settings.Settings
 import javafx.scene.Parent
 import javafx.scene.layout.Pane
 import tornadofx.View
-import tornadofx.bind
 import tornadofx.field
 import tornadofx.fieldset
 import tornadofx.form
@@ -34,7 +33,7 @@ class WelcomeView : View("%welcome") {
     override val root by fxml<Parent>("/welcome.fxml")
     private val welcomePane by fxid<Pane>()
 
-    private val environment = Settings.Environment("localhost:8080")
+    private val environment = Settings.Environment("localhost:8080", "tls/client_cer.pem", "tls/client_key.pem", "tls/server_cer.pem")
 
     init {
         title = messages["welcome"]
@@ -42,9 +41,10 @@ class WelcomeView : View("%welcome") {
         with(welcomePane) {
             form {
                 fieldset {
-                    field("Target") {
-                        textfield("localhost:8080").bind(environment.targetProperty)
-                    }
+                    field("Target") { textfield(environment.targetProperty) }
+                    field("TLS Client Certificate Chain") { textfield(environment.clientCerProperty) }
+                    field("TLS Client Key") { textfield(environment.clientKeyProperty) }
+                    field("TLS Server Certificates") { textfield(environment.serverCerProperty) }
                 }
             }
         }
@@ -53,7 +53,7 @@ class WelcomeView : View("%welcome") {
     fun connectButtonAction() {
         close()
 
-        MainView(environment).openWindow(escapeClosesWindow = false, owner = null)?.isMaximized = true
+        MainView(environment).openWindow(escapeClosesWindow = false, owner = null)?.isFullScreen = true
     }
 
     fun exitButtonAction() {
