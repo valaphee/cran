@@ -1,3 +1,8 @@
+import com.google.protobuf.gradle.generateProtoTasks
+import com.google.protobuf.gradle.plugins
+import com.google.protobuf.gradle.protobuf
+import com.google.protobuf.gradle.protoc
+
 /*
  * Copyright (c) 2022, Valaphee.
  *
@@ -14,7 +19,10 @@
  * limitations under the License.
  */
 
-plugins { `maven-publish` }
+plugins {
+    id("com.google.protobuf")
+    `maven-publish`
+}
 
 dependencies {
     runtimeOnly("io.netty:netty-tcnative:2.0.52.Final")
@@ -32,6 +40,12 @@ java.sourceSets.getByName("main").java.srcDir("build/generated/source/proto/main
 java {
     withJavadocJar()
     withSourcesJar()
+}
+
+protobuf {
+    protoc { artifact = "com.google.protobuf:protoc:3.20.0" }
+    plugins { create("grpc") { artifact = "io.grpc:protoc-gen-grpc-java:1.46.0" } }
+    generateProtoTasks { all().forEach { it.plugins.create("grpc") } }
 }
 
 signing { sign(publishing.publications) }
