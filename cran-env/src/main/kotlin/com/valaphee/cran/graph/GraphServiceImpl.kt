@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import com.valaphee.cran.node.Entry
 import com.valaphee.cran.spec.Spec
 import com.valaphee.cran.svc.graph.v1.DeleteGraphRequest
 import com.valaphee.cran.svc.graph.v1.DeleteGraphResponse
@@ -97,7 +96,7 @@ class GraphServiceImpl @Inject constructor(
                 scopes[scopeId] = it
                 it.initialize()
             }
-            it.nodes.forEach { if (it is Entry) launch { it(scope) } }
+            it.nodes.forEach { if (it is com.valaphee.cran.node.Entry) launch { it(scope) } }
         }
         responseObserver.onNext(RunGraphResponse.newBuilder().setScopeId(scopeId.toString()).build())
         responseObserver.onCompleted()

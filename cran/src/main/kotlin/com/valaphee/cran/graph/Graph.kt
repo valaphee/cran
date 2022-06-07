@@ -20,11 +20,11 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.valaphee.cran.nesting.ControlInput
-import com.valaphee.cran.nesting.ControlOutput
-import com.valaphee.cran.nesting.DataInput
-import com.valaphee.cran.nesting.DataOutput
 import com.valaphee.cran.node.Node
+import com.valaphee.cran.node.nesting.ControlInput
+import com.valaphee.cran.node.nesting.ControlOutput
+import com.valaphee.cran.node.nesting.DataInput
+import com.valaphee.cran.node.nesting.DataOutput
 import com.valaphee.cran.spec.Spec
 
 /**

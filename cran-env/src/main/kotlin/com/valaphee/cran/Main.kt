@@ -29,12 +29,12 @@ import com.google.inject.Injector
 import com.google.inject.Provides
 import com.google.inject.Singleton
 import com.valaphee.cran.graph.GraphServiceImpl
-import com.valaphee.cran.math.vector.DoubleVectorDeserializer
-import com.valaphee.cran.math.vector.DoubleVectorSerializer
-import com.valaphee.cran.math.vector.IntVectorDeserializer
-import com.valaphee.cran.math.vector.IntVectorSerializer
+import com.valaphee.cran.node.math.vector.DoubleVectorDeserializer
+import com.valaphee.cran.node.math.vector.DoubleVectorSerializer
+import com.valaphee.cran.node.math.vector.IntVectorDeserializer
+import com.valaphee.cran.node.math.vector.IntVectorSerializer
+import com.valaphee.cran.security.TlsSubcommand
 import com.valaphee.cran.svc.graph.v1.GraphServiceGrpc.GraphServiceImplBase
-import com.valaphee.cran.util.TlsUtil
 import io.grpc.netty.GrpcSslContexts
 import io.grpc.netty.NettyServerBuilder
 import io.netty.handler.ssl.ClientAuth
@@ -47,19 +47,21 @@ import kotlinx.cli.default
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.io.IoBuilder
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.io.File
 import java.net.InetSocketAddress
+import java.security.Security
 
 fun main(arguments: Array<String>) {
-    TlsUtil.generate()
+    Security.addProvider(BouncyCastleProvider())
 
     val argumentParser = ArgParser("cran-env")
     val host by argumentParser.option(ArgType.String, "host", "H", "Host").default("localhost")
     val port by argumentParser.option(ArgType.Int, "port", "p", "Port").default(8080)
-    val serverCer by argumentParser.option(ArgType.String, "server-cer", description = "TLS Server Certificate Chain").default("tls/server_cer.pem")
-    val serverKey by argumentParser.option(ArgType.String, "server-key", description = "TLS Server Key").default("tls/server_key.pem")
-    val clientCer by argumentParser.option(ArgType.String, "client-cer", description = "TLS Client Certificates").default("tls/client_cer.pem")
-
+    val serverCer by argumentParser.option(ArgType.String, "server-cer", description = "Server Certificate Chain").default("tls/server_cer.pem")
+    val serverKey by argumentParser.option(ArgType.String, "server-key", description = "Server Private Key").default("tls/server_key.pem")
+    val clientCer by argumentParser.option(ArgType.String, "client-cer", description = "Client Certificate").default("tls/client_cer.pem")
+    argumentParser.subcommands(TlsSubcommand)
     argumentParser.parse(arguments)
 
     System.setIn(null)

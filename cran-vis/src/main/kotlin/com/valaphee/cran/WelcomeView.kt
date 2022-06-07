@@ -20,11 +20,15 @@ import com.valaphee.cran.settings.Settings
 import javafx.scene.Parent
 import javafx.scene.layout.Pane
 import tornadofx.View
+import tornadofx.action
+import tornadofx.button
+import tornadofx.chooseFile
 import tornadofx.field
 import tornadofx.fieldset
 import tornadofx.form
 import tornadofx.get
 import tornadofx.textfield
+import java.io.File
 
 /**
  * @author Kevin Ludwig
@@ -33,27 +37,50 @@ class WelcomeView : View("%welcome") {
     override val root by fxml<Parent>("/welcome.fxml")
     private val welcomePane by fxid<Pane>()
 
-    private val environment = Settings.Environment("localhost:8080", "tls/client_cer.pem", "tls/client_key.pem", "tls/server_cer.pem")
+    private val settings by di<Settings>()
 
     init {
         title = messages["welcome"]
 
         with(welcomePane) {
             form {
-                fieldset {
-                    field("Target") { textfield(environment.targetProperty) }
-                    field("TLS Client Certificate Chain") { textfield(environment.clientCerProperty) }
-                    field("TLS Client Key") { textfield(environment.clientKeyProperty) }
-                    field("TLS Server Certificates") { textfield(environment.serverCerProperty) }
+                fieldset { field("Target") { textfield(settings.environment.targetProperty) } }
+                fieldset("TLS") {
+                    field("Client Certificate Chain") {
+                        textfield(settings.environment.clientCerProperty)
+                        button("...") {
+                            action {
+                                val parentPath = if (settings.environment.clientCer.isEmpty()) null else File(settings.environment.clientCer).parentFile
+                                chooseFile("Select Client Certificate Chain", emptyArray(), if (parentPath?.isDirectory == true) parentPath else null).firstOrNull()?.let { settings.environment.clientCer = it.absolutePath }
+                            }
+                        }
+                    }
+                    field("Client Private Key") {
+                        textfield(settings.environment.clientKeyProperty)
+                        button("...") {
+                            action {
+                                val parentPath = if (settings.environment.clientKey.isEmpty()) null else File(settings.environment.clientKey).parentFile
+                                chooseFile("Select Client Certificate Chain", emptyArray(), if (parentPath?.isDirectory == true) parentPath else null).firstOrNull()?.let { settings.environment.clientKey = it.absolutePath }
+                            }
+                        }
+                    }
+                    field("Server Certificate") {
+                        textfield(settings.environment.serverCerProperty)
+                        button("...") {
+                            action {
+                                val parentPath = if (settings.environment.serverCer.isEmpty()) null else File(settings.environment.serverCer).parentFile
+                                chooseFile("Select Client Certificate Chain", emptyArray(), if (parentPath?.isDirectory == true) parentPath else null).firstOrNull()?.let { settings.environment.serverCer = it.absolutePath }
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 
     fun connectButtonAction() {
-        close()
-
-        MainView(environment).openWindow(escapeClosesWindow = false, owner = null)?.isFullScreen = true
+        replaceWith(MainView(settings.environment), null, true, true)
+        primaryStage.isMaximized = true
     }
 
     fun exitButtonAction() {

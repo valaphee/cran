@@ -11,11 +11,12 @@ The language itself should be intuitive, or simply not allow specific behavior w
 mutable structures, without willingly activating it. (See list nodes, which are by default immutable and can be toggled to be mutable.)
 
 This project consists of 6 parts:
-* cran: Actual implementation (contains all common nodes)
-* cran-env: Flow environment with gRPC services (with all extensions)
-* cran-meta: Metadata for additional details of graphs (required for development)
-* cran-spec: Specification for nodes (required for development)
-* cran-svc: Flow gRPC services for development
+* cran: Graph Specification
+* cran-env: Environment
+* cran-pkg-*: Specifications/implementations
+* cran-meta: Node Metadata
+* cran-spec: Node Specification
+* cran-svc: gRPC services (Environment <> Visual Editor)
 * cran-vis: JavaFX-based visual editor
 
 ## Screenshots

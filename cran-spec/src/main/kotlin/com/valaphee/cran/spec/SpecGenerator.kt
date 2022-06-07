@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.auto.service.AutoService
-import com.valaphee.cran.util.toHexString
+import com.valaphee.cran.spec.util.toHexString
 import java.security.MessageDigest
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Processor

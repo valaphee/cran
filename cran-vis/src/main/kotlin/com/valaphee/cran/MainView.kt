@@ -31,9 +31,11 @@ import com.valaphee.cran.svc.graph.v1.GraphServiceGrpc
 import com.valaphee.cran.svc.graph.v1.ListGraphRequest
 import com.valaphee.cran.svc.graph.v1.RunGraphRequest
 import com.valaphee.cran.svc.graph.v1.StopGraphRequest
+import com.valaphee.cran.svc.graph.v1.UpdateGraphRequest
 import com.valaphee.cran.util.PathTree
 import com.valaphee.cran.util.asStyleClass
 import com.valaphee.cran.util.update
+import eu.mihosoft.vrl.workflow.VNode
 import eu.mihosoft.vrl.workflow.incubating.LayoutGeneratorSmart
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.Parent
@@ -44,6 +46,7 @@ import javafx.scene.control.ScrollPane
 import javafx.scene.control.TextArea
 import javafx.scene.control.cell.TextFieldListCell
 import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyEvent
 import javafx.scene.input.TransferMode
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
@@ -241,6 +244,30 @@ class MainView(
 
         // Initialization
         launch { _refresh() }
+    }
+
+    fun keyPressed(event: KeyEvent) {
+        if (event.isControlDown) when (event.code) {
+            KeyCode.A -> graph?.let { it.flow.nodes.forEach { it.requestSelection(true) } }
+            KeyCode.S -> {
+                graph?.let { graph -> launch { graphService.updateGraph(UpdateGraphRequest.newBuilder().setGraph(objectMapper.writeValueAsString(graph)).build()) } }
+                event.consume()
+            }
+            else -> Unit
+        } else when (event.code) {
+            KeyCode.DELETE -> {
+                graph?.let { it.flow.nodes.filter(VNode::isSelected).forEach(it.flow::remove) }
+                event.consume()
+            }
+            KeyCode.F5 -> {
+                launch { this@MainView._refresh() }
+                event.consume()
+            }
+            KeyCode.F11 -> {
+                primaryStage.isFullScreen = !primaryStage.isFullScreen
+            }
+            else -> Unit
+        }
     }
 
     fun fileSettingsMenuItemAction() {

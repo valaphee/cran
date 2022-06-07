@@ -36,7 +36,8 @@ import javax.net.ssl.X509TrustManager
  */
 class Settings(
     gridX: Int = 5,
-    gridY: Int = 5
+    gridY: Int = 5,
+    val environment: Environment = Environment("localhost:8080", "tls/client_cer.pem", "tls/client_key.pem", "tls/server_cer.pem")
 ) {
     @JsonIgnore private val gridXProperty = gridX.toProperty()
     @JsonIgnore private val gridYProperty = gridY.toProperty()
