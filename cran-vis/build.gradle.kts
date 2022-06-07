@@ -34,6 +34,8 @@ dependencies {
 }
 
 tasks {
+    build { dependsOn(shadowJar) }
+
     jar { manifest { attributes(mapOf("Main-Class" to "com.valaphee.cran.MainKt")) } }
 
     shadowJar { archiveName = "cran-vis.jar" }
