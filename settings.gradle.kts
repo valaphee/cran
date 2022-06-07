@@ -24,3 +24,12 @@ include("cran-pkg-input")
 include("cran-spec")
 include("cran-svc")
 include("cran-vis")
+
+enableFeaturePreview("VERSION_CATALOGS")
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("libs") {
+            from(files("libs.versions.toml"))
+        }
+    }
+}

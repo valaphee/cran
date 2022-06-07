@@ -21,11 +21,12 @@ plugins {
 
 dependencies {
     api(project(":cran"))
-
     implementation(project(":cran-spec"))
     kapt(project(":cran-spec"))
 
-    implementation("com.google.guava:guava:31.1-jre")
+    implementation(libs.guava)
+
+    api(libs.kotlinx.coroutines)
 }
 
 java {

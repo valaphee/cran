@@ -23,10 +23,9 @@ dependencies {
     implementation(project(":cran-spec"))
     kapt(project(":cran-spec"))
 
-    implementation("io.github.classgraph:classgraph:4.8.146")
+    implementation(libs.classgraph)
 
-    api("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.1-native-mt")
+    api(libs.fasterxml.kotlin)
 }
 
 java {

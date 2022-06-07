@@ -17,9 +17,13 @@
 plugins { `maven-publish` }
 
 dependencies {
-    api("io.grpc:grpc-netty:1.46.0")
-    api("io.grpc:grpc-protobuf:1.46.0")
-    api("io.grpc:grpc-stub:1.46.0")
+    runtimeOnly("io.netty:netty-tcnative:2.0.52.Final")
+    runtimeOnly("io.netty:netty-tcnative-boringssl-static:2.0.52.Final")
+    runtimeOnly("io.netty:netty-tcnative-boringssl-static:2.0.52.Final:windows-x86_64")
+
+    api(libs.grpc.netty)
+    api(libs.grpc.protobuf)
+    api(libs.grpc.stub)
     api("javax.annotation:javax.annotation-api:1.3.2")
 }
 

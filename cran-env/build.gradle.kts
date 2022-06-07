@@ -18,24 +18,21 @@ plugins { id("com.github.johnrengelman.shadow") }
 
 dependencies {
     implementation(project(":cran"))
-    implementation(project(":cran-pkg-base"))
-    implementation(project(":cran-pkg-input"))
-
     implementation(project(":cran-meta"))
     implementation(project(":cran-spec"))
     implementation(project(":cran-svc"))
 
-    implementation("com.fasterxml.jackson.module:jackson-module-guice:2.13.3")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
-    implementation("com.google.inject:guice:5.1.0")
-    implementation("io.github.classgraph:classgraph:4.8.146")
-    implementation("io.netty:netty-tcnative:2.0.52.Final")
-    implementation("io.netty:netty-tcnative-boringssl-static:2.0.52.Final")
-    implementation("io.netty:netty-tcnative-boringssl-static:2.0.52.Final:windows-x86_64")
-    implementation("org.apache.logging.log4j:log4j-core:2.17.2")
-    implementation("org.apache.logging.log4j:log4j-iostreams:2.17.2")
-    implementation("org.apache.logging.log4j:log4j-jul:2.17.2")
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.17.2")
+    implementation(project(":cran-pkg-base"))
+    implementation(project(":cran-pkg-input"))
+
+    implementation(libs.classgraph)
+    implementation(libs.fasterxml.guice)
+    implementation(libs.fasterxml.kotlin)
+    implementation(libs.guice)
+    implementation(libs.log4j.core)
+    implementation(libs.log4j.iostreams)
+    implementation(libs.log4j.jul)
+    implementation(libs.log4j.slf4j.impl)
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
     implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.4")
 }
