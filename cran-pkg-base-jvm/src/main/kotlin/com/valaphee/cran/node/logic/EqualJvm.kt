@@ -16,20 +16,25 @@
 
 package com.valaphee.cran.node.logic
 
-import com.valaphee.cran.graph.Scope
+import com.valaphee.cran.graph.jvm.Scope
+import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeDef
+import com.valaphee.cran.spec.NodeProc
 
 /**
  * @author Kevin Ludwig
  */
-@NodeDef("jvm", Equal::class)
-object EqualJvm : NodeJvm<Equal> {
-    override fun initialize(node: Equal, scope: Scope) {
-        val inA = scope.dataPath(node.inA)
-        val inB = scope.dataPath(node.inB)
-        val out = scope.dataPath(node.out)
+@NodeProc("jvm")
+object EqualJvm : NodeJvm {
+    override fun process(nodes: List<Node>, scope: Scope) {
+        nodes.forEach {
+            if (it is Equal) {
+                val inA = scope.dataPath(it.inA)
+                val inB = scope.dataPath(it.inB)
+                val out = scope.dataPath(it.out)
 
-        out.set { inA.get() == inB.get() }
+                out.set { inA.get() == inB.get() }
+            }
+        }
     }
 }

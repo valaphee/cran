@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.path
+package com.valaphee.cran.graph.jvm
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlin.reflect.KClass

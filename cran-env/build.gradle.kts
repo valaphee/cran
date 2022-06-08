@@ -23,6 +23,7 @@ dependencies {
 
     implementation(project(":cran-pkg-base"))
     implementation(project(":cran-pkg-base-jvm"))
+    implementation(project(":cran-pkg-input"))
     implementation(project(":cran-pkg-input-jvm"))
 
     implementation(libs.classgraph)

@@ -16,19 +16,24 @@
 
 package com.valaphee.cran.node.math.vector
 
-import com.valaphee.cran.graph.Scope
+import com.valaphee.cran.graph.jvm.Scope
+import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeDef
+import com.valaphee.cran.spec.NodeProc
 
 /**
  * @author Kevin Ludwig
  */
-@NodeDef("jvm", Absolute::class)
-object AbsoluteJvm : NodeJvm<Absolute> {
-    override fun initialize(node: Absolute, scope: Scope) {
-        val `in` = scope.dataPath(node.`in`)
-        val out = scope.dataPath(node.out)
+@NodeProc("jvm")
+object AbsoluteJvm : NodeJvm {
+    override fun process(nodes: List<Node>, scope: Scope) {
+        nodes.forEach {
+            if (it is Absolute) {
+                val `in` = scope.dataPath(it.`in`)
+                val out = scope.dataPath(it.out)
 
-        out.set { vectorOp(`in`.get(), { it.abs() }, { it.abs() }, { it.abs() }, scope.objectMapper) }
+                out.set { vectorOp(`in`.get(), { it.abs() }, { it.abs() }, { it.abs() }, scope.objectMapper) }
+            }
+        }
     }
 }

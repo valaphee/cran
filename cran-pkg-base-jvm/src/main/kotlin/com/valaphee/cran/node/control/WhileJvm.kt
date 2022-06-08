@@ -16,24 +16,29 @@
 
 package com.valaphee.cran.node.control
 
-import com.valaphee.cran.graph.Scope
+import com.valaphee.cran.graph.jvm.Scope
+import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeDef
+import com.valaphee.cran.spec.NodeProc
 
 /**
  * @author Kevin Ludwig
  */
-@NodeDef("jvm", While::class)
-object WhileJvm : NodeJvm<While> {
-    override fun initialize(node: While, scope: Scope) {
-        val `in` = scope.controlPath(node.`in`)
-        val inValue = scope.dataPath(node.inValue)
-        val outBody = scope.controlPath(node.outBody)
-        val out = scope.controlPath(node.out)
+@NodeProc("jvm")
+object WhileJvm : NodeJvm {
+    override fun process(nodes: List<Node>, scope: Scope) {
+        nodes.forEach {
+            if (it is While) {
+                val `in` = scope.controlPath(it.`in`)
+                val inValue = scope.dataPath(it.inValue)
+                val outBody = scope.controlPath(it.outBody)
+                val out = scope.controlPath(it.out)
 
-        `in`.declare {
-            while (inValue.getOfType()) outBody()
-            out()
+                `in`.declare {
+                    while (inValue.getOfType()) outBody()
+                    out()
+                }
+            }
         }
     }
 }

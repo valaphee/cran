@@ -16,15 +16,11 @@
 
 package com.valaphee.cran.node
 
-import com.valaphee.cran.graph.Scope
+import com.valaphee.cran.graph.jvm.Scope
 
 /**
  * @author Kevin Ludwig
  */
-interface NodeJvm<T : Node> {
-    fun initialize(scope: Scope): Unit = TODO()
-
-    fun initialize(node: T, scope: Scope) = initialize(scope)
-
-    suspend fun shutdown(scope: Scope) = Unit
+interface NodeJvm {
+    fun process(nodes: List<Node>, scope: Scope)
 }

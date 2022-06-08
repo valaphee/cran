@@ -38,42 +38,46 @@ import javax.tools.StandardLocation
  */
 @AutoService(Processor::class)
 class SpecGenerator : AbstractProcessor() {
-    override fun getSupportedAnnotationTypes() = mutableSetOf(NodeDecl::class.java.name, NodeDef::class.java.name)
+    override fun getSupportedAnnotationTypes() = mutableSetOf(NodeDecl::class.java.name, NodeProc::class.java.name)
 
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latest()
 
     override fun process(annotations: MutableSet<out TypeElement>?, roundEnvironment: RoundEnvironment?): Boolean {
         if (annotations?.isEmpty() == true) return false
-        roundEnvironment?.getElementsAnnotatedWith(NodeDecl::class.java)?.mapNotNull {
-            if (it.kind == ElementKind.CLASS && it is TypeElement) {
-                if (!it.modifiers.contains(Modifier.ABSTRACT)) {
-                    Spec.Node(it.getAnnotation(NodeDecl::class.java).name, it.enclosedElements.mapNotNull {
-                        if (it.kind == ElementKind.METHOD && it is ExecutableElement) {
-                            val `in` = it.getAnnotation(In::class.java)
-                            val out = it.getAnnotation(Out::class.java)
-                            val const = it.getAnnotation(Const::class.java)
-                            val json = it.getAnnotation(JsonProperty::class.java)
-                            if (`in` != null)
-                                if (out != null) {
-                                    processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @In or @Out is allowed, not both.")
-                                    return true
-                                } else if (const != null) {
-                                    processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @In or @Const is allowed, not both.")
-                                    return true
-                                } else `in`.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }?.let { Spec.Node.Port(`in`.name, json.value, Spec.Node.Port.Type.InData, it) } ?: Spec.Node.Port(`in`.name, json.value, Spec.Node.Port.Type.InControl, NullNode.instance)
-                            else if (out != null)
-                                if (const != null) {
-                                    processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @Out or @Const is allowed, not both.")
-                                    return true
-                                } else out.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }?.let { Spec.Node.Port(out.name, json.value, Spec.Node.Port.Type.OutData, it) } ?: Spec.Node.Port(out.name, json.value, Spec.Node.Port.Type.OutControl, NullNode.instance)
-                            else if (const != null) const.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }?.let { Spec.Node.Port(const.name, json.value, Spec.Node.Port.Type.Const, it) } ?: return true
-                            else null
-                        } else null
-                    })
+        roundEnvironment?.let {
+            val nodes = it.getElementsAnnotatedWith(NodeDecl::class.java)?.mapNotNull {
+                if (it.kind == ElementKind.CLASS && it is TypeElement) {
+                    if (!it.modifiers.contains(Modifier.ABSTRACT)) {
+                        Spec.Node(it.getAnnotation(NodeDecl::class.java).name, it.enclosedElements.mapNotNull {
+                            if (it.kind == ElementKind.METHOD && it is ExecutableElement) {
+                                val `in` = it.getAnnotation(In::class.java)
+                                val out = it.getAnnotation(Out::class.java)
+                                val const = it.getAnnotation(Const::class.java)
+                                val json = it.getAnnotation(JsonProperty::class.java)
+                                if (`in` != null)
+                                    if (out != null) {
+                                        processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @In or @Out is allowed, not both.")
+                                        return true
+                                    } else if (const != null) {
+                                        processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @In or @Const is allowed, not both.")
+                                        return true
+                                    } else `in`.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }?.let { Spec.Node.Port(`in`.name, json.value, Spec.Node.Port.Type.InData, it) } ?: Spec.Node.Port(`in`.name, json.value, Spec.Node.Port.Type.InControl, NullNode.instance)
+                                else if (out != null)
+                                    if (const != null) {
+                                        processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @Out or @Const is allowed, not both.")
+                                        return true
+                                    } else out.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }?.let { Spec.Node.Port(out.name, json.value, Spec.Node.Port.Type.OutData, it) } ?: Spec.Node.Port(out.name, json.value, Spec.Node.Port.Type.OutControl, NullNode.instance)
+                                else if (const != null) const.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }?.let { Spec.Node.Port(const.name, json.value, Spec.Node.Port.Type.Const, it) } ?: return true
+                                else null
+                            } else null
+                        })
+                    } else null
                 } else null
-            } else null
-        }?.let {
-            val bytes = objectMapper.writeValueAsBytes(Spec(it, emptyMap()))
+            } ?: emptyList()
+            val nodeProcs = mutableMapOf<String, MutableSet<String>>()
+            it.getElementsAnnotatedWith(NodeProc::class.java)?.forEach { if (it.kind == ElementKind.CLASS && it is TypeElement) nodeProcs.getOrPut(it.getAnnotation(NodeProc::class.java).name) { mutableSetOf() } += it.qualifiedName.toString() }
+
+            val bytes = objectMapper.writeValueAsBytes(Spec(nodes, nodeProcs))
             processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", "${MessageDigest.getInstance("MD5").digest(bytes).toHexString()}.spec.json").openOutputStream().use { it.write(bytes) }
         }
         return true

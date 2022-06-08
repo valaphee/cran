@@ -16,30 +16,35 @@
 
 package com.valaphee.cran.node.control
 
-import com.valaphee.cran.graph.Scope
+import com.valaphee.cran.graph.jvm.Scope
+import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeDef
+import com.valaphee.cran.spec.NodeProc
 
 /**
  * @author Kevin Ludwig
  */
-@NodeDef("jvm", For::class)
-object ForJvm : NodeJvm<For> {
-    override fun initialize(node: For, scope: Scope) {
-        val `in` = scope.controlPath(node.`in`)
-        val inRangeStart = scope.dataPath(node.inRangeStart)
-        val inRangeEnd = scope.dataPath(node.inRangeEnd)
-        val inStep = scope.dataPath(node.inStep)
-        val outBody = scope.controlPath(node.outBody)
-        val out = scope.controlPath(node.out)
-        val outIndex = scope.dataPath(node.outIndex)
+@NodeProc("jvm")
+object ForJvm : NodeJvm {
+    override fun process(nodes: List<Node>, scope: Scope) {
+        nodes.forEach {
+            if (it is For) {
+                val `in` = scope.controlPath(it.`in`)
+                val inRangeStart = scope.dataPath(it.inRangeStart)
+                val inRangeEnd = scope.dataPath(it.inRangeEnd)
+                val inStep = scope.dataPath(it.inStep)
+                val outBody = scope.controlPath(it.outBody)
+                val out = scope.controlPath(it.out)
+                val outIndex = scope.dataPath(it.outIndex)
 
-        `in`.declare {
-            IntProgression.fromClosedRange(inRangeStart.getOfType(), inRangeEnd.getOfType(), inStep.getOfType()).forEach {
-                outIndex.set(it)
-                outBody()
+                `in`.declare {
+                    IntProgression.fromClosedRange(inRangeStart.getOfType(), inRangeEnd.getOfType(), inStep.getOfType()).forEach {
+                        outIndex.set(it)
+                        outBody()
+                    }
+                    out()
+                }
             }
-            out()
         }
     }
 }

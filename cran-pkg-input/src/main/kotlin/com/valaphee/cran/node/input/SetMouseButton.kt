@@ -14,34 +14,23 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.node
+package com.valaphee.cran.node.input
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.cran.graph.Scope
+import com.valaphee.cran.node.Bit
+import com.valaphee.cran.node.Num
+import com.valaphee.cran.spec.In
 import com.valaphee.cran.spec.NodeDecl
 import com.valaphee.cran.spec.Out
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 
 /**
  * @author Kevin Ludwig
  */
-@NodeDecl("Entry")
-class Entry(
+@NodeDecl("Input/Set Mouse Button")
+class SetMouseButton(
     type: String,
-    @get:Out("", "") @get:JsonProperty("out") val out: Int
-) : Node(type), NodeJvm {
-    private val jobs = mutableMapOf<Scope, Job>()
-
-    override suspend fun shutdown(scope: Scope) {
-        jobs[scope]?.cancelAndJoin()
-    }
-
-    suspend operator fun invoke(scope: Scope) {
-        val out = scope.controlPath(out)
-
-        if (!jobs.containsKey(scope)) coroutineScope { jobs[scope] = launch { out() }.also { it.invokeOnCompletion { jobs -= scope } } }
-    }
-}
+    @get:In (""          ) @get:JsonProperty("in"       ) val `in`    : Int,
+    @get:In ("Key"  , Num) @get:JsonProperty("in_button") val inButton: Int,
+    @get:In ("State", Bit) @get:JsonProperty("in_state" ) val inState : Int,
+    @get:Out(""          ) @get:JsonProperty("out"      ) val out     : Int
+) : Mouse(type)

@@ -34,7 +34,7 @@ abstract class Graph {
     @get:JsonProperty("name" ) abstract val name : String
     @get:JsonProperty("nodes") abstract val nodes: List<Node>
 
-    fun toSpec() = Spec.Node(name, null, nodes.mapNotNull {
+    fun toSpec() = Spec.Node(name, nodes.mapNotNull {
         when (it) {
             is ControlInput  -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.InControl , NullNode.instance                   )
             is ControlOutput -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.OutControl, NullNode.instance                   )

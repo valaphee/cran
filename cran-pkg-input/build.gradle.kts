@@ -23,9 +23,6 @@ dependencies {
     api(project(":cran-pkg-base"))
     implementation(project(":cran-spec"))
     kapt(project(":cran-spec"))
-
-    api(libs.kotlinx.coroutines)
-    implementation(libs.guava)
 }
 
 java {
@@ -39,7 +36,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             pom.apply {
-                name.set("Cran: Base (Jvm)")
+                name.set("Cran: Input")
                 description.set("Flow-based programming \"language\"")
                 url.set("https://valaphee.com")
                 scm {

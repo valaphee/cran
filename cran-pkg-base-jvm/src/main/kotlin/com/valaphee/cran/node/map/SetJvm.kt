@@ -16,21 +16,26 @@
 
 package com.valaphee.cran.node.map
 
-import com.valaphee.cran.graph.Scope
+import com.valaphee.cran.graph.jvm.Scope
+import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeDef
+import com.valaphee.cran.spec.NodeProc
 
 /**
  * @author Kevin Ludwig
  */
-@NodeDef("jvm", Set::class)
-object SetJvm : NodeJvm<Set> {
-    override fun initialize(node: Set, scope: Scope) {
-        val `in` = scope.dataPath(node.`in`)
-        val inKey = scope.dataPath(node.inKey)
-        val inValue = scope.dataPath(node.inValue)
-        val out = scope.dataPath(node.out)
+@NodeProc("jvm")
+object SetJvm : NodeJvm {
+    override fun process(nodes: List<Node>, scope: Scope) {
+        nodes.forEach {
+            if (it is Set) {
+                val `in` = scope.dataPath(it.`in`)
+                val inKey = scope.dataPath(it.inKey)
+                val inValue = scope.dataPath(it.inValue)
+                val out = scope.dataPath(it.out)
 
-        out.set { `in`.getOfType<Map<Any?, Any?>>().also { it + (inKey.get() to inValue.get()) } }
+                out.set { `in`.getOfType<Map<Any?, Any?>>().also { it + (inKey.get() to inValue.get()) } }
+            }
+        }
     }
 }

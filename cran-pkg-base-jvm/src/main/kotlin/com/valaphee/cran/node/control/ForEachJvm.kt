@@ -16,28 +16,33 @@
 
 package com.valaphee.cran.node.control
 
-import com.valaphee.cran.graph.Scope
+import com.valaphee.cran.graph.jvm.Scope
+import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeDef
+import com.valaphee.cran.spec.NodeProc
 
 /**
  * @author Kevin Ludwig
  */
-@NodeDef("jvm", ForEach::class)
-object ForEachJvm : NodeJvm<ForEach> {
-    override fun initialize(node: ForEach, scope: Scope) {
-        val `in` = scope.controlPath(node.`in`)
-        val inValue = scope.dataPath(node.inValue)
-        val outBody = scope.controlPath(node.outBody)
-        val out = scope.controlPath(node.out)
-        val outValue = scope.dataPath(node.outValue)
+@NodeProc("jvm")
+object ForEachJvm : NodeJvm {
+    override fun process(nodes: List<Node>, scope: Scope) {
+        nodes.forEach {
+            if (it is ForEach) {
+                val `in` = scope.controlPath(it.`in`)
+                val inValue = scope.dataPath(it.inValue)
+                val outBody = scope.controlPath(it.outBody)
+                val out = scope.controlPath(it.out)
+                val outValue = scope.dataPath(it.outValue)
 
-        `in`.declare {
-            inValue.getOfType<Iterable<*>>().forEach {
-                outValue.set(it)
-                outBody()
+                `in`.declare {
+                    inValue.getOfType<Iterable<*>>().forEach {
+                        outValue.set(it)
+                        outBody()
+                    }
+                    out()
+                }
             }
-            out()
         }
     }
 }

@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.spec
-
-import kotlin.reflect.KClass
+package com.valaphee.cran.graph.jvm
 
 /**
  * @author Kevin Ludwig
  */
-@Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class NodeDef(
-    val name: String,
-    val decl: KClass<*>
-)
+open class DataPathException : Exception {
+    constructor() : super()
+
+    constructor(message: String) : super(message)
+
+    constructor(message: String, cause: Throwable?) : super(message, cause)
+
+    constructor(cause: Throwable?) : super(cause)
+
+    companion object {
+        val AlreadySet = DataPathException("Data path has multiple inputs, one input is allowed.")
+        val Undefined = DataPathException("Data path is undefined, one input is required.")
+    }
+}

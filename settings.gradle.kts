@@ -22,6 +22,7 @@ include("cran-svc")
 
 include("cran-pkg-base")
 include("cran-pkg-base-jvm")
+include("cran-pkg-input")
 include("cran-pkg-input-jvm")
 
 include("cran-env")

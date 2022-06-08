@@ -14,27 +14,15 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.node.list
+package com.valaphee.cran.graph.jvm
 
-import com.valaphee.cran.graph.jvm.Scope
-import com.valaphee.cran.node.Node
-import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeProc
+import com.valaphee.cran.graph.Graph
 
 /**
  * @author Kevin Ludwig
  */
-@NodeProc("jvm")
-object GetJvm : NodeJvm {
-    override fun process(nodes: List<Node>, scope: Scope) {
-        nodes.forEach {
-            if (it is Get) {
-                val `in` = scope.dataPath(it.`in`)
-                val inIndex = scope.dataPath(it.inIndex)
-                val out = scope.dataPath(it.out)
-
-                out.set { `in`.getOfType<List<Any?>>()[inIndex.getOfType()] }
-            }
-        }
+abstract class GraphJvm : Graph() {
+    open fun process(scope: Scope) {
+        scope.procs.forEach { it.process(nodes, scope) }
     }
 }

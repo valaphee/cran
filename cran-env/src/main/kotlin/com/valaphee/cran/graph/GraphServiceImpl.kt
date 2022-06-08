@@ -20,7 +20,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.valaphee.cran.graph.jvm.GraphJvmLookup
+import com.valaphee.cran.graph.jvm.Scope
 import com.valaphee.cran.node.Entry
+import com.valaphee.cran.node.NodeJvm
 import com.valaphee.cran.spec.Spec
 import com.valaphee.cran.svc.graph.v1.DeleteGraphRequest
 import com.valaphee.cran.svc.graph.v1.DeleteGraphResponse
@@ -56,7 +59,7 @@ import java.util.zip.GZIPOutputStream
 @Singleton
 class GraphServiceImpl @Inject constructor(
     private val objectMapper: ObjectMapper
-) : GraphServiceImplBase(), GraphLookup, CoroutineScope {
+) : GraphServiceImplBase(), GraphJvmLookup, CoroutineScope {
     private val executor = Executors.newSingleThreadExecutor()
     override val coroutineContext get() = executor.asCoroutineDispatcher()
 
@@ -68,7 +71,7 @@ class GraphServiceImpl @Inject constructor(
 
     init {
         ClassGraph().scan().use {
-            spec = Spec(it.getResourcesMatchingWildcard("**.spec.json").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes.onEach { log.info("Built-in node '{}' found", it.name) } })
+            spec = it.getResourcesMatchingWildcard("**.spec.json").urLs.map { objectMapper.readValue<Spec>(it).also { it.nodes.onEach { log.info("Built-in node '{}' found", it.name) } } }.reduce { acc, spec -> acc + spec }
             graphs += it.getResourcesMatchingWildcard("**.gph").urLs.map { objectMapper.readValue<GraphImpl>(it).also { log.info("Built-in graph '{}' found", it.name) } }.associateBy { it.name }
         }
         dataPath.walk().forEach {
@@ -82,7 +85,7 @@ class GraphServiceImpl @Inject constructor(
         }
     }
 
-    override fun getGraph(name: String) = graphs[name]
+    override fun getGraphJvm(name: String) = graphs[name]
 
     override fun getSpec(request: GetSpecRequest, responseObserver: StreamObserver<GetSpecResponse>) {
         responseObserver.onNext(GetSpecResponse.newBuilder().setSpec(objectMapper.writeValueAsString(spec)).build())
@@ -113,11 +116,11 @@ class GraphServiceImpl @Inject constructor(
     override fun runGraph(request: RunGraphRequest, responseObserver: StreamObserver<RunGraphResponse>) {
         val scopeId = UUID.randomUUID()
         graphs[request.graphName]?.let {
-            val scope = Scope(objectMapper, this, it).also {
+            val scope = Scope(objectMapper, checkNotNull(spec.nodeProcs["jvm"]).mapNotNull { Class.forName(it).kotlin.objectInstance as NodeJvm? }.toSet(), this, it).also {
                 scopes[scopeId] = it
-                it.initialize()
+                it.process()
             }
-            it.nodes.forEach { if (it is Entry) launch { it(scope) } }
+            it.nodes.forEach { if (it is Entry) launch { scope.controlPath(it.out)() } }
         }
 
         responseObserver.onNext(RunGraphResponse.newBuilder().setScopeId(scopeId.toString()).build())
@@ -125,7 +128,7 @@ class GraphServiceImpl @Inject constructor(
     }
 
     override fun stopGraph(request: StopGraphRequest, responseObserver: StreamObserver<StopGraphResponse>) {
-        scopes.remove(UUID.fromString(request.scopeId))?.shutdown()
+        scopes.remove(UUID.fromString(request.scopeId))
 
         responseObserver.onNext(StopGraphResponse.getDefaultInstance())
         responseObserver.onCompleted()

@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.path
+package com.valaphee.cran.spec
 
 /**
  * @author Kevin Ludwig
  */
-open class ControlPathException : Exception {
-    constructor() : super()
-
-    constructor(message: String) : super(message)
-
-    constructor(message: String, cause: Throwable?) : super(message, cause)
-
-    constructor(cause: Throwable?) : super(cause)
-
-    companion object {
-        val AlreadyDeclared = ControlPathException("Control path has multiple outputs, only one output is allowed.")
-    }
-}
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class NodeProc(
+    val name: String
+)

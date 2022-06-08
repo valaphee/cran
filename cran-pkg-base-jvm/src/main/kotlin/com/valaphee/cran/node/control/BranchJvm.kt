@@ -16,21 +16,26 @@
 
 package com.valaphee.cran.node.control
 
-import com.valaphee.cran.graph.Scope
+import com.valaphee.cran.graph.jvm.Scope
+import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeDef
+import com.valaphee.cran.spec.NodeProc
 
 /**
  * @author Kevin Ludwig
  */
-@NodeDef("jvm", Branch::class)
-object BranchJvm : NodeJvm<Branch> {
-    override fun initialize(node: Branch, scope: Scope) {
-        val `in` = scope.controlPath(node.`in`)
-        val inValue = scope.dataPath(node.inValue)
-        val out = node.out.mapValues { scope.controlPath(it.value) }
-        val outDefault = scope.controlPath(node.outDefault)
+@NodeProc("jvm")
+object BranchJvm : NodeJvm {
+    override fun process(nodes: List<Node>, scope: Scope) {
+        nodes.forEach {
+            if (it is Branch) {
+                val `in` = scope.controlPath(it.`in`)
+                val inValue = scope.dataPath(it.inValue)
+                val out = it.out.mapValues { scope.controlPath(it.value) }
+                val outDefault = scope.controlPath(it.outDefault)
 
-        `in`.declare { (out[inValue.get()] ?: outDefault)() }
+                `in`.declare { (out[inValue.get()] ?: outDefault)() }
+            }
+        }
     }
 }

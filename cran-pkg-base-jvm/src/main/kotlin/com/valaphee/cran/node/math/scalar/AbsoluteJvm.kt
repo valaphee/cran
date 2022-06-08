@@ -16,10 +16,11 @@
 
 package com.valaphee.cran.node.math.scalar
 
-import com.valaphee.cran.graph.Scope
+import com.valaphee.cran.graph.jvm.DataPathException
+import com.valaphee.cran.graph.jvm.Scope
+import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.path.DataPathException
-import com.valaphee.cran.spec.NodeDef
+import com.valaphee.cran.spec.NodeProc
 import java.math.BigDecimal
 import java.math.BigInteger
 import kotlin.math.absoluteValue
@@ -27,24 +28,28 @@ import kotlin.math.absoluteValue
 /**
  * @author Kevin Ludwig
  */
-@NodeDef("jvm", Absolute::class)
-object AbsoluteJvm : NodeJvm<Absolute> {
-    override fun initialize(node: Absolute, scope: Scope) {
-        val `in` = scope.dataPath(node.`in`)
-        val out = scope.dataPath(node.out)
+@NodeProc("jvm")
+object AbsoluteJvm : NodeJvm {
+    override fun process(nodes: List<Node>, scope: Scope) {
+        nodes.forEach {
+            if (it is Absolute) {
+                val `in` = scope.dataPath(it.`in`)
+                val out = scope.dataPath(it.out)
 
-        out.set {
-            val _in = `in`.get()
-            when (_in) {
-                is Byte       -> _in.toInt().absoluteValue.toByte()
-                is Short      -> _in.toInt().absoluteValue.toShort()
-                is Int        -> _in        .absoluteValue
-                is Long       -> _in        .absoluteValue
-                is BigInteger -> _in        .abs()
-                is Float      -> _in        .absoluteValue
-                is Double     -> _in        .absoluteValue
-                is BigDecimal -> _in        .abs()
-                else          -> throw DataPathException("|$_in|")
+                out.set {
+                    val _in = `in`.get()
+                    when (_in) {
+                        is Byte       -> _in.toInt().absoluteValue.toByte()
+                        is Short      -> _in.toInt().absoluteValue.toShort()
+                        is Int        -> _in        .absoluteValue
+                        is Long       -> _in        .absoluteValue
+                        is BigInteger -> _in        .abs()
+                        is Float      -> _in        .absoluteValue
+                        is Double     -> _in        .absoluteValue
+                        is BigDecimal -> _in        .abs()
+                        else          -> throw DataPathException("|$_in|")
+                    }
+                }
             }
         }
     }

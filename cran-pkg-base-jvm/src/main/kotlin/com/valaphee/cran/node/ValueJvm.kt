@@ -14,11 +14,23 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.graph
+package com.valaphee.cran.node
+
+import com.valaphee.cran.graph.jvm.Scope
+import com.valaphee.cran.spec.NodeProc
 
 /**
  * @author Kevin Ludwig
  */
-interface GraphLookup {
-    fun getGraph(name: String): GraphJvm?
+@NodeProc("jvm")
+object ValueJvm : NodeJvm {
+    override fun process(nodes: List<Node>, scope: Scope) {
+        nodes.forEach {
+            if (it is Value) {
+                val out = scope.dataPath(it.out)
+
+                out.set(it.value)
+            }
+        }
+    }
 }

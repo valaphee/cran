@@ -16,106 +16,112 @@
 
 package com.valaphee.cran.node.math.scalar
 
-import com.valaphee.cran.graph.Scope
+import com.valaphee.cran.graph.jvm.DataPathException
+import com.valaphee.cran.graph.jvm.Scope
+import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.path.DataPathException
-import com.valaphee.cran.spec.NodeDef
+import com.valaphee.cran.node.math.scalar.Divide
+import com.valaphee.cran.spec.NodeProc
 import java.math.BigDecimal
 import java.math.BigInteger
 
 /**
  * @author Kevin Ludwig
  */
-@NodeDef("jvm", Divide::class)
-object DivideJvm : NodeJvm<Divide> {
-    override fun initialize(node: Divide, scope: Scope) {
-        val inA = scope.dataPath(node.inA)
-        val inB = scope.dataPath(node.inB)
-        val out = scope.dataPath(node.out)
+@NodeProc("jvm")
+object DivideJvm : NodeJvm {
+    override fun process(nodes: List<Node>, scope: Scope) {
+        nodes.forEach {
+            if (it is Divide) {
+                val inA = scope.dataPath(it.inA)
+                val inB = scope.dataPath(it.inB)
+                val out = scope.dataPath(it.out)
 
-        out.set {
-            val _inA = inA.get()
-            val _inB = inB.get()
-            when (_inA) {
-                is Byte -> when (_inB) {
-                    is Byte       -> _inA                                / _inB
-                    is Short      -> _inA                                / _inB
-                    is Int        -> _inA                                / _inB
-                    is Long       -> _inA                                / _inB
-                    is BigInteger -> BigInteger.valueOf(_inA.toLong())   / _inB
-                    is Float      -> _inA                                / _inB
-                    is Double     -> _inA                                / _inB
-                    is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) / _inB
-                    else          -> throw DataPathException("$_inA ÷ $_inB")
+                out.set {
+                    val _inA = inA.get()
+                    val _inB = inB.get()
+                    when (_inA) {
+                        is Byte -> when (_inB) {
+                            is Byte       -> _inA                                / _inB
+                            is Short      -> _inA                                / _inB
+                            is Int        -> _inA                                / _inB
+                            is Long       -> _inA                                / _inB
+                            is BigInteger -> BigInteger.valueOf(_inA.toLong())   / _inB
+                            is Float      -> _inA                                / _inB
+                            is Double     -> _inA                                / _inB
+                            is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) / _inB
+                            else          -> throw DataPathException("$_inA ÷ $_inB")
+                        }
+                        is Short -> when (_inB) {
+                            is Byte       -> _inA                                / _inB
+                            is Short      -> _inA                                / _inB
+                            is Int        -> _inA                                / _inB
+                            is Long       -> _inA                                / _inB
+                            is BigInteger -> BigInteger.valueOf(_inA.toLong())   / _inB
+                            is Float      -> _inA                                / _inB
+                            is Double     -> _inA                                / _inB
+                            is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) / _inB
+                            else          -> throw DataPathException("$_inA ÷ $_inB")
+                        }
+                        is Int -> when (_inB) {
+                            is Byte       -> _inA                                / _inB
+                            is Short      -> _inA                                / _inB
+                            is Int        -> _inA                                / _inB
+                            is Long       -> _inA                                / _inB
+                            is BigInteger -> BigInteger.valueOf(_inA.toLong())   / _inB
+                            is Float      -> _inA                                / _inB
+                            is Double     -> _inA                                / _inB
+                            is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) / _inB
+                            else          -> throw DataPathException("$_inA ÷ $_inB")
+                        }
+                        is Long -> when (_inB) {
+                            is Byte       -> _inA                                / _inB
+                            is Short      -> _inA                                / _inB
+                            is Int        -> _inA                                / _inB
+                            is Long       -> _inA                                / _inB
+                            is BigInteger -> BigInteger.valueOf(_inA.toLong())   / _inB
+                            is Float      -> _inA                                / _inB
+                            is Double     -> _inA                                / _inB
+                            is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) / _inB
+                            else          -> throw DataPathException("$_inA ÷ $_inB")
+                        }
+                        is BigInteger -> when (_inB) {
+                            is BigInteger -> _inA                / _inB
+                            is BigDecimal -> _inA.toBigDecimal() / _inB
+                            is Number     -> _inA                / BigInteger.valueOf(_inB.toLong())
+                            else          -> throw DataPathException("$_inA ÷ $_inB")
+                        }
+                        is Float -> when (_inB) {
+                            is Byte       -> _inA                                / _inB
+                            is Short      -> _inA                                / _inB
+                            is Int        -> _inA                                / _inB
+                            is Long       -> _inA                                / _inB
+                            is BigInteger -> BigInteger.valueOf(_inA.toLong())   / _inB
+                            is Float      -> _inA                                / _inB
+                            is Double     -> _inA                                / _inB
+                            is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) / _inB
+                            else          -> throw DataPathException("$_inA ÷ $_inB")
+                        }
+                        is Double -> when (_inB) {
+                            is Byte       -> _inA                                / _inB
+                            is Short      -> _inA                                / _inB
+                            is Int        -> _inA                                / _inB
+                            is Long       -> _inA                                / _inB
+                            is BigInteger -> BigInteger.valueOf(_inA.toLong())   / _inB
+                            is Float      -> _inA                                / _inB
+                            is Double     -> _inA                                / _inB
+                            is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) / _inB
+                            else          -> throw DataPathException("$_inA ÷ $_inB")
+                        }
+                        is BigDecimal -> when (_inB) {
+                            is BigInteger -> _inA / _inB.toBigDecimal()
+                            is BigDecimal -> _inA / _inB
+                            is Number     -> _inA / BigDecimal.valueOf(_inB.toDouble())
+                            else          -> throw DataPathException("$_inA ÷ $_inB")
+                        }
+                        else -> throw DataPathException("$_inA ÷ $_inB")
+                    }
                 }
-                is Short -> when (_inB) {
-                    is Byte       -> _inA                                / _inB
-                    is Short      -> _inA                                / _inB
-                    is Int        -> _inA                                / _inB
-                    is Long       -> _inA                                / _inB
-                    is BigInteger -> BigInteger.valueOf(_inA.toLong())   / _inB
-                    is Float      -> _inA                                / _inB
-                    is Double     -> _inA                                / _inB
-                    is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) / _inB
-                    else          -> throw DataPathException("$_inA ÷ $_inB")
-                }
-                is Int -> when (_inB) {
-                    is Byte       -> _inA                                / _inB
-                    is Short      -> _inA                                / _inB
-                    is Int        -> _inA                                / _inB
-                    is Long       -> _inA                                / _inB
-                    is BigInteger -> BigInteger.valueOf(_inA.toLong())   / _inB
-                    is Float      -> _inA                                / _inB
-                    is Double     -> _inA                                / _inB
-                    is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) / _inB
-                    else          -> throw DataPathException("$_inA ÷ $_inB")
-                }
-                is Long -> when (_inB) {
-                    is Byte       -> _inA                                / _inB
-                    is Short      -> _inA                                / _inB
-                    is Int        -> _inA                                / _inB
-                    is Long       -> _inA                                / _inB
-                    is BigInteger -> BigInteger.valueOf(_inA.toLong())   / _inB
-                    is Float      -> _inA                                / _inB
-                    is Double     -> _inA                                / _inB
-                    is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) / _inB
-                    else          -> throw DataPathException("$_inA ÷ $_inB")
-                }
-                is BigInteger -> when (_inB) {
-                    is BigInteger -> _inA                / _inB
-                    is BigDecimal -> _inA.toBigDecimal() / _inB
-                    is Number     -> _inA                / BigInteger.valueOf(_inB.toLong())
-                    else          -> throw DataPathException("$_inA ÷ $_inB")
-                }
-                is Float -> when (_inB) {
-                    is Byte       -> _inA                                / _inB
-                    is Short      -> _inA                                / _inB
-                    is Int        -> _inA                                / _inB
-                    is Long       -> _inA                                / _inB
-                    is BigInteger -> BigInteger.valueOf(_inA.toLong())   / _inB
-                    is Float      -> _inA                                / _inB
-                    is Double     -> _inA                                / _inB
-                    is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) / _inB
-                    else          -> throw DataPathException("$_inA ÷ $_inB")
-                }
-                is Double -> when (_inB) {
-                    is Byte       -> _inA                                / _inB
-                    is Short      -> _inA                                / _inB
-                    is Int        -> _inA                                / _inB
-                    is Long       -> _inA                                / _inB
-                    is BigInteger -> BigInteger.valueOf(_inA.toLong())   / _inB
-                    is Float      -> _inA                                / _inB
-                    is Double     -> _inA                                / _inB
-                    is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) / _inB
-                    else          -> throw DataPathException("$_inA ÷ $_inB")
-                }
-                is BigDecimal -> when (_inB) {
-                    is BigInteger -> _inA / _inB.toBigDecimal()
-                    is BigDecimal -> _inA / _inB
-                    is Number     -> _inA / BigDecimal.valueOf(_inB.toDouble())
-                    else          -> throw DataPathException("$_inA ÷ $_inB")
-                }
-                else -> throw DataPathException("$_inA ÷ $_inB")
             }
         }
     }

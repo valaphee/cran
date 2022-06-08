@@ -16,20 +16,25 @@
 
 package com.valaphee.cran.node.list
 
-import com.valaphee.cran.graph.Scope
+import com.valaphee.cran.graph.jvm.Scope
+import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeDef
+import com.valaphee.cran.spec.NodeProc
 
 /**
  * @author Kevin Ludwig
  */
-@NodeDef("jvm", Add::class)
-object AddJvm : NodeJvm<Add> {
-    override fun initialize(node: Add, scope: Scope) {
-        val `in` = scope.dataPath(node.`in`)
-        val inItem = scope.dataPath(node.inItem)
-        val out = scope.dataPath(node.out)
+@NodeProc("jvm")
+object AddJvm : NodeJvm {
+    override fun process(nodes: List<Node>, scope: Scope) {
+        nodes.forEach {
+            if (it is Add) {
+                val `in` = scope.dataPath(it.`in`)
+                val inItem = scope.dataPath(it.inItem)
+                val out = scope.dataPath(it.out)
 
-        out.set { `in`.getOfType<Iterable<Any?>>() + inItem.get() }
+                out.set { `in`.getOfType<Iterable<Any?>>() + inItem.get() }
+            }
+        }
     }
 }

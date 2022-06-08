@@ -14,34 +14,30 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.graph
+package com.valaphee.cran.graph.jvm
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.valaphee.cran.path.ControlPath
-import com.valaphee.cran.path.DataPath
+import com.valaphee.cran.node.NodeJvm
 
 /**
  * @author Kevin Ludwig
  */
 class Scope(
     val objectMapper: ObjectMapper,
-    val graphLookup: GraphLookup,
-    val graph: GraphJvm
+    val procs: Set<NodeJvm>,
+    val graphLookup: GraphJvmLookup,
+    val graph: GraphJvm,
 ) {
     private val controlPaths = mutableSetOf<ControlPath>()
     private val dataPaths = mutableSetOf<DataPath>()
 
-    fun subScope(graph: GraphJvm) = Scope(objectMapper, graphLookup, graph)
+    fun subScope(graph: GraphJvm) = Scope(objectMapper, procs, graphLookup, graph)
 
     fun controlPath(controlPathId: Int) = controlPaths.find { it.id == controlPathId } ?: ControlPath(controlPathId).also { controlPaths += it }
 
     fun dataPath(dataPathId: Int) = dataPaths.find { it.id == dataPathId } ?: DataPath(dataPathId, objectMapper).also { dataPaths += it }
 
-    fun initialize() {
-        graph.initialize(this)
-    }
-
-    fun shutdown() {
-        graph.shutdown(this)
+    fun process() {
+        graph.process(this)
     }
 }

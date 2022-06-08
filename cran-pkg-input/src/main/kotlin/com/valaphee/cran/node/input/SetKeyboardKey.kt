@@ -17,29 +17,21 @@
 package com.valaphee.cran.node.input
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.cran.graph.Scope
+import com.valaphee.cran.node.Bit
 import com.valaphee.cran.node.Node
-import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.node.math.vector.Vec2
+import com.valaphee.cran.node.Num
+import com.valaphee.cran.spec.In
 import com.valaphee.cran.spec.NodeDecl
 import com.valaphee.cran.spec.Out
-import jdk.incubator.vector.IntVector
-import java.awt.MouseInfo
 
 /**
  * @author Kevin Ludwig
  */
-@NodeDecl("Input/Mouse Position")
-class MousePosition(
+@NodeDecl("Input/Set Keyboard Key")
+class SetKeyboardKey(
     type: String,
-    @get:Out("", Vec2) @get:JsonProperty("out_position") val out: Int
-) : Node(type), NodeJvm<MousePosition> {
-    override fun initialize(scope: Scope) {
-        val out = scope.dataPath(out)
-
-        out.set {
-            val position = MouseInfo.getPointerInfo().location
-            IntVector.fromArray(IntVector.SPECIES_64, intArrayOf(position.x, position.y), 0)
-        }
-    }
-}
+    @get:In (""          ) @get:JsonProperty("in"      ) val `in`   : Int,
+    @get:In ("Key"  , Num) @get:JsonProperty("in_key"  ) val inKey  : Int,
+    @get:In ("State", Bit) @get:JsonProperty("in_state") val inState: Int,
+    @get:Out(""          ) @get:JsonProperty("out"     ) val out    : Int
+) : Node(type)

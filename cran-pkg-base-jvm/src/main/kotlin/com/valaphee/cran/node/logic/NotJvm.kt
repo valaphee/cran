@@ -16,19 +16,24 @@
 
 package com.valaphee.cran.node.logic
 
-import com.valaphee.cran.graph.Scope
+import com.valaphee.cran.graph.jvm.Scope
+import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeDef
+import com.valaphee.cran.spec.NodeProc
 
 /**
  * @author Kevin Ludwig
  */
-@NodeDef("jvm", Not::class)
-object NotJvm : NodeJvm<Not> {
-    override fun initialize(node: Not, scope: Scope) {
-        val `in` = scope.dataPath(node.`in`)
-        val out = scope.dataPath(node.out)
+@NodeProc("jvm")
+object NotJvm : NodeJvm {
+    override fun process(nodes: List<Node>, scope: Scope) {
+        nodes.forEach {
+            if (it is Not) {
+                val `in` = scope.dataPath(it.`in`)
+                val out = scope.dataPath(it.out)
 
-        out.set { !`in`.getOfType<Boolean>() }
+                out.set { !`in`.getOfType<Boolean>() }
+            }
+        }
     }
 }

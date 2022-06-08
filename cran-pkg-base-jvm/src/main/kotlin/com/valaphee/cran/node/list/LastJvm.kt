@@ -16,19 +16,24 @@
 
 package com.valaphee.cran.node.list
 
-import com.valaphee.cran.graph.Scope
+import com.valaphee.cran.graph.jvm.Scope
+import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeDef
+import com.valaphee.cran.spec.NodeProc
 
 /**
  * @author Kevin Ludwig
  */
-@NodeDef("jvm", Last::class)
-object LastJvm : NodeJvm<Last> {
-    override fun initialize(node: Last, scope: Scope) {
-        val `in` = scope.dataPath(node.`in`)
-        val out = scope.dataPath(node.out)
+@NodeProc("jvm")
+object LastJvm : NodeJvm {
+    override fun process(nodes: List<Node>, scope: Scope) {
+        nodes.forEach {
+            if (it is Last) {
+                val `in` = scope.dataPath(it.`in`)
+                val out = scope.dataPath(it.out)
 
-        out.set { `in`.getOfType<Iterable<Any?>>().lastOrNull() }
+                out.set { `in`.getOfType<Iterable<Any?>>().lastOrNull() }
+            }
+        }
     }
 }

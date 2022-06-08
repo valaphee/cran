@@ -17,6 +17,7 @@
 package com.valaphee.cran.graph
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.cran.graph.jvm.GraphJvm
 import com.valaphee.cran.meta.Meta
 import com.valaphee.cran.node.Node
 

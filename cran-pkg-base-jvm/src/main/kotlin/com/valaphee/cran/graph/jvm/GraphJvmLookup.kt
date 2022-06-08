@@ -14,27 +14,11 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.node
-
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.cran.graph.Scope
-import com.valaphee.cran.spec.Const
-import com.valaphee.cran.spec.NodeDecl
-import com.valaphee.cran.spec.Out
+package com.valaphee.cran.graph.jvm
 
 /**
  * @author Kevin Ludwig
  */
-@NodeDecl("Value")
-class Value(
-    type: String,
-    @get:Const("", Und) @get:JsonProperty("value") val value: Any?,
-    @get:Out  ("", Und) @get:JsonProperty("out"  ) val out  : Int ,
-    @get:JsonProperty("embed") val embed: Boolean = false
-) : Node(type), NodeJvm {
-    override fun initialize(scope: Scope) {
-        val out = scope.dataPath(out)
-
-        out.set(value)
-    }
+interface GraphJvmLookup {
+    fun getGraphJvm(name: String): GraphJvm?
 }
