@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.DatabindContext
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase
-import com.valaphee.cran.spec.NodeType
+import com.valaphee.cran.spec.NodeDecl
 import io.github.classgraph.ClassGraph
 import kotlin.reflect.full.findAnnotation
 
@@ -38,11 +38,11 @@ open class Node(
     @get:JsonAnyGetter val extra: MutableMap<String, Any?> = mutableMapOf()
 )/* : MutableMap<String, Any?> by other*/ {
     object TypeResolver : TypeIdResolverBase() {
-        private val types = ClassGraph().enableClassInfo().enableAnnotationInfo().scan().use { it.getClassesWithAnnotation(NodeType::class.java).map { Class.forName(it.name).kotlin }.associateBy { checkNotNull(it.findAnnotation<NodeType>()).name } }.toMutableMap()
+        private val types = ClassGraph().enableClassInfo().enableAnnotationInfo().scan().use { it.getClassesWithAnnotation(NodeDecl::class.java).map { Class.forName(it.name).kotlin }.associateBy { checkNotNull(it.findAnnotation<NodeDecl>()).name } }.toMutableMap()
 
         override fun idFromValue(value: Any) = (value as Node).type
 
-        override fun idFromValueAndType(value: Any?, suggestedType: Class<*>) = value?.let { idFromValue(it) } ?: checkNotNull(suggestedType.kotlin.findAnnotation<NodeType>()).name
+        override fun idFromValueAndType(value: Any?, suggestedType: Class<*>) = value?.let { idFromValue(it) } ?: checkNotNull(suggestedType.kotlin.findAnnotation<NodeDecl>()).name
 
         override fun typeFromId(context: DatabindContext, id: String): JavaType = context.constructType(types[id]?.java ?: Node::class.java)
 

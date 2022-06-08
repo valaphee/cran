@@ -21,7 +21,6 @@ import com.valaphee.cran.node.nesting.ControlInput
 import com.valaphee.cran.node.nesting.ControlOutput
 import com.valaphee.cran.node.nesting.DataInput
 import com.valaphee.cran.node.nesting.DataOutput
-import kotlinx.coroutines.runBlocking
 
 /**
  * @author Kevin Ludwig
@@ -30,7 +29,7 @@ abstract class GraphJvm : Graph() {
     open fun initialize(scope: Scope) {
         nodes.forEach {
             when (it) {
-                is NodeJvm -> it.initialize(scope)
+                is NodeJvm<*> -> it.initialize(scope)
                 else -> {
                     scope.graphLookup.getGraph(it.type)?.let { subGraph ->
                         val subScope = scope.subScope(subGraph).also { it.initialize() }
@@ -73,6 +72,6 @@ abstract class GraphJvm : Graph() {
     }
 
     open fun shutdown(scope: Scope) {
-        nodes.filterIsInstance<NodeJvm>().forEach { runBlocking { it.shutdown(scope) } }
+        //nodes.filterIsInstance<NodeJvm>().forEach { runBlocking { it.shutdown(scope) } }
     }
 }

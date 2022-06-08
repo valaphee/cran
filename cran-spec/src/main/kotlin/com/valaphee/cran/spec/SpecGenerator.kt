@@ -38,16 +38,16 @@ import javax.tools.StandardLocation
  */
 @AutoService(Processor::class)
 class SpecGenerator : AbstractProcessor() {
-    override fun getSupportedAnnotationTypes() = mutableSetOf(NodeType::class.java.name)
+    override fun getSupportedAnnotationTypes() = mutableSetOf(NodeDecl::class.java.name, NodeDef::class.java.name)
 
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latest()
 
     override fun process(annotations: MutableSet<out TypeElement>?, roundEnvironment: RoundEnvironment?): Boolean {
         if (annotations?.isEmpty() == true) return false
-        roundEnvironment?.getElementsAnnotatedWith(NodeType::class.java)?.mapNotNull {
+        roundEnvironment?.getElementsAnnotatedWith(NodeDecl::class.java)?.mapNotNull {
             if (it.kind == ElementKind.CLASS && it is TypeElement) {
                 if (!it.modifiers.contains(Modifier.ABSTRACT)) {
-                    Spec.Node(it.getAnnotation(NodeType::class.java).name, it.qualifiedName.toString(), it.enclosedElements.mapNotNull {
+                    Spec.Node(it.getAnnotation(NodeDecl::class.java).name, it.enclosedElements.mapNotNull {
                         if (it.kind == ElementKind.METHOD && it is ExecutableElement) {
                             val `in` = it.getAnnotation(In::class.java)
                             val out = it.getAnnotation(Out::class.java)
@@ -73,7 +73,7 @@ class SpecGenerator : AbstractProcessor() {
                 } else null
             } else null
         }?.let {
-            val bytes = objectMapper.writeValueAsBytes(Spec(it))
+            val bytes = objectMapper.writeValueAsBytes(Spec(it, emptyMap()))
             processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", "${MessageDigest.getInstance("MD5").digest(bytes).toHexString()}.spec.json").openOutputStream().use { it.write(bytes) }
         }
         return true

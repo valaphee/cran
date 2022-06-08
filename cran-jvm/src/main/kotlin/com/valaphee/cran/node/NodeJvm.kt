@@ -21,8 +21,10 @@ import com.valaphee.cran.graph.Scope
 /**
  * @author Kevin Ludwig
  */
-interface NodeJvm {
-    fun initialize(scope: Scope) = Unit
+interface NodeJvm<T : Node> {
+    fun initialize(scope: Scope): Unit = TODO()
+
+    fun initialize(node: T, scope: Scope) = initialize(scope)
 
     suspend fun shutdown(scope: Scope) = Unit
 }

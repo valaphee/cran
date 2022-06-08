@@ -18,13 +18,13 @@ package com.valaphee.cran.node
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.cran.spec.Const
-import com.valaphee.cran.spec.NodeType
+import com.valaphee.cran.spec.NodeDecl
 import com.valaphee.cran.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@NodeType("Value")
+@NodeDecl("Value")
 class Value(
     type: String,
     @get:Const("", Und) @get:JsonProperty("value") val value: Any?,

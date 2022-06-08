@@ -16,15 +16,15 @@
 
 rootProject.name = "cran"
 
-include("cran")
-include("cran-env")
 include("cran-meta")
-include("cran-jvm")
-include("cran-jvm-base")
-include("cran-jvm-cv")
-include("cran-jvm-input")
 include("cran-spec")
 include("cran-svc")
+
+include("cran")
+include("cran-jvm")
+include("cran-input-jvm")
+
+include("cran-env")
 include("cran-vis")
 
 enableFeaturePreview("VERSION_CATALOGS")
