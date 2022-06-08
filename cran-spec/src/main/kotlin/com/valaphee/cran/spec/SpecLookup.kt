@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.graph
+package com.valaphee.cran.spec
 
 /**
  * @author Kevin Ludwig
  */
-interface GraphManager {
-    fun getGraph(name: String): GraphJvm?
+interface SpecLookup {
+    fun getNodeSpec(name: String): Spec.Node?
 }

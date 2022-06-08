@@ -25,13 +25,13 @@ import com.valaphee.cran.path.DataPath
  */
 class Scope(
     val objectMapper: ObjectMapper,
-    val graphManager: GraphManager,
+    val graphLookup: GraphLookup,
     val graph: GraphJvm
 ) {
     private val controlPaths = mutableSetOf<ControlPath>()
     private val dataPaths = mutableSetOf<DataPath>()
 
-    fun subScope(graph: GraphJvm) = Scope(objectMapper, graphManager, graph)
+    fun subScope(graph: GraphJvm) = Scope(objectMapper, graphLookup, graph)
 
     fun controlPath(controlPathId: Int) = controlPaths.find { it.id == controlPathId } ?: ControlPath(controlPathId).also { controlPaths += it }
 

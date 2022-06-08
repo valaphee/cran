@@ -32,7 +32,7 @@ abstract class GraphJvm : Graph() {
             when (it) {
                 is NodeJvm -> it.initialize(scope)
                 else -> {
-                    scope.graphManager.getGraph(it.type)?.let { subGraph ->
+                    scope.graphLookup.getGraph(it.type)?.let { subGraph ->
                         val subScope = scope.subScope(subGraph).also { it.initialize() }
                         subGraph.nodes.forEach { subNode ->
                             when (subNode) {

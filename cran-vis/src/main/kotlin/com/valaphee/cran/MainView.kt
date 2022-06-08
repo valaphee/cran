@@ -25,6 +25,7 @@ import com.valaphee.cran.meta.Meta
 import com.valaphee.cran.settings.Settings
 import com.valaphee.cran.settings.SettingsView
 import com.valaphee.cran.spec.Spec
+import com.valaphee.cran.spec.SpecLookup
 import com.valaphee.cran.svc.graph.v1.DeleteGraphRequest
 import com.valaphee.cran.svc.graph.v1.GetSpecRequest
 import com.valaphee.cran.svc.graph.v1.GraphServiceGrpc
@@ -33,18 +34,20 @@ import com.valaphee.cran.svc.graph.v1.RunGraphRequest
 import com.valaphee.cran.svc.graph.v1.StopGraphRequest
 import com.valaphee.cran.svc.graph.v1.UpdateGraphRequest
 import com.valaphee.cran.util.PathTree
+import com.valaphee.cran.util.PathTree.Companion.get
 import com.valaphee.cran.util.asStyleClass
 import com.valaphee.cran.util.update
 import eu.mihosoft.vrl.workflow.VNode
 import eu.mihosoft.vrl.workflow.incubating.LayoutGeneratorSmart
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.Parent
-import javafx.scene.control.ListView
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuItem
 import javafx.scene.control.ScrollPane
 import javafx.scene.control.TextArea
-import javafx.scene.control.cell.TextFieldListCell
+import javafx.scene.control.TreeItem
+import javafx.scene.control.TreeView
+import javafx.scene.control.cell.TextFieldTreeCell
 import javafx.scene.input.DataFormat
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
@@ -70,15 +73,15 @@ import tornadofx.dynamicContent
 import tornadofx.get
 import tornadofx.getValue
 import tornadofx.item
-import tornadofx.listview
 import tornadofx.onChange
 import tornadofx.rectangle
-import tornadofx.selectedItem
+import tornadofx.selectedValue
 import tornadofx.separator
 import tornadofx.setContent
 import tornadofx.setValue
 import tornadofx.textfield
 import tornadofx.toProperty
+import tornadofx.treeview
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
@@ -87,7 +90,7 @@ import java.util.zip.GZIPOutputStream
  */
 class MainView(
     environment: Settings.Environment
-) : View("%main"), CoroutineScope {
+) : View("%main"), CoroutineScope, SpecLookup {
     override val coroutineContext = Dispatchers.IO
 
     private val channel = environment.toChannel()
@@ -107,7 +110,7 @@ class MainView(
 
     override val root by fxml<Parent>("/main.fxml")
     private val rootHbox by fxid<HBox>()
-    private lateinit var graphsListView: ListView<GraphImpl>
+    private lateinit var graphsTreeView: TreeView<PathTree<GraphImpl>>
     private val graphScrollPane by fxid<ScrollPane>()
     private val graphPane by fxid<Pane>()
     private val jsonFormat by fxid<HBox>()
@@ -119,18 +122,22 @@ class MainView(
                 minWidth = 200.0
                 maxWidth = 200.0
 
-                graphsListView = listview()
+                graphsTreeView = treeview()
             }
         })
-        with(graphsListView) {
+
+        with(graphsTreeView) {
+            root = TreeItem(PathTree())
+            isShowRoot = false
+
             setOnKeyPressed {
                 if (it.isControlDown) when (it.code) {
                     KeyCode.ENTER -> {
-                        graph = selectedItem
+                        selectedValue?.value?.let { graph = it }
                         it.consume()
                     }
                     KeyCode.DELETE -> {
-                        selectedItem?.let {
+                        selectedValue?.value?.let {
                             launch {
                                 delete(it)
                                 _refresh()
@@ -143,11 +150,11 @@ class MainView(
             }
 
             contextmenu {
-                item(messages["main.graphs.new"]) { action { this@with.items += graphProvider.get() } }
+                item(messages["main.graphs.new"]) { action { graphsTreeMerge(listOf(graphProvider.get())) } }
                 separator()
                 item(messages["main.graphs.delete"]) {
                     action {
-                        selectedItem?.let {
+                        selectedValue?.value?.let {
                             launch {
                                 delete(it)
                                 _refresh()
@@ -159,10 +166,10 @@ class MainView(
             }
 
             setCellFactory {
-                TextFieldListCell<GraphImpl>().apply {
+                TextFieldTreeCell<PathTree<GraphImpl>>().apply {
                     setOnMouseClicked {
                         if (it.clickCount == 2) {
-                            item?.let { graph = it }
+                            item.value?.let { graph = it }
                             it.consume()
                         }
                     }
@@ -170,15 +177,15 @@ class MainView(
                     setOnDragDetected {
                         startDragAndDrop(TransferMode.COPY).apply {
                             dragView = snapshot(null, null)
-                            setContent { this[nodeSpecDataFormat] = objectMapper.writeValueAsString(item.toSpec()) }
+                            item.value?.let { setContent { this[nodeSpecDataFormat] = objectMapper.writeValueAsString(it.toSpec()) } }
                         }
                         it.consume()
                     }
 
-                    converter = object : StringConverter<GraphImpl>() {
-                        override fun toString(`object`: GraphImpl) = `object`.name
+                    converter = object : StringConverter<PathTree<GraphImpl>>() {
+                        override fun toString(`object`: PathTree<GraphImpl>) = `object`.name
 
-                        override fun fromString(string: String) = item.apply { name = string }
+                        override fun fromString(string: String) = TODO()
                     }
                 }
             }
@@ -186,26 +193,6 @@ class MainView(
 
         // Graph
         with(graphScrollPane) {
-            setOnKeyPressed {
-                if (it.isControlDown) when (it.code) {
-                    KeyCode.A -> {
-                        graph?.let { it.flow.nodes.forEach { it.requestSelection(true) } }
-                        it.consume()
-                    }
-                    KeyCode.S -> {
-                        graph?.let { graph -> launch { graphService.updateGraph(UpdateGraphRequest.newBuilder().setGraph(objectMapper.writeValueAsString(graph)).build()) } }
-                        it.consume()
-                    }
-                    else -> Unit
-                } else when (it.code) {
-                    KeyCode.DELETE -> {
-                        graph?.let { it.flow.nodes.filter(VNode::isSelected).forEach(it.flow::remove) }
-                        it.consume()
-                    }
-                    else -> Unit
-                }
-            }
-
             contextmenu {
                 val searchProperty = "".toProperty()
 
@@ -219,12 +206,12 @@ class MainView(
                 }
 
                 val nodeItems = mutableMapOf<String, MenuItem>()
-                val treeItems = (PathTree(spec.nodes) { it.name }.convert<MenuItem> { parent, current ->
-                    val _styleClass = current.path.asStyleClass()
-                    current.value?.let {
-                        MenuItem(current.name).apply {
+                val treeItems = (PathTree(spec.nodes) { it.name }.convert<MenuItem> { parent, tree ->
+                    val _styleClass = tree.path.asStyleClass()
+                    tree.value?.let {
+                        MenuItem(tree.name).apply {
                             (parent as Menu?)?.let { it.items += this }
-                            nodeItems[current.path] = this
+                            nodeItems[tree.path] = this
 
                             styleClass += _styleClass
 
@@ -233,7 +220,7 @@ class MainView(
                                 graph?.newNode(it, Meta.Node(if (local.x.isNaN()) 0.0 else local.x, if (local.y.isNaN()) 0.0 else local.y))
                             }
                         }
-                    } ?: Menu(current.name).apply {
+                    } ?: Menu(tree.name).apply {
                         (parent as Menu?)?.let { it.items += this }
 
                         styleClass += _styleClass
@@ -281,14 +268,31 @@ class MainView(
         launch { _refresh() }
     }
 
+    override fun getNodeSpec(name: String) = spec.nodes.find { it.name == name } ?: graphsTreeView.root?.get(name)?.toSpec()
+
     fun keyPressed(event: KeyEvent) {
-        if (!event.isControlDown) when (event.code) {
+        if (event.isControlDown) when (event.code) {
+            KeyCode.A -> {
+                graph?.let { it.flow.nodes.forEach { it.requestSelection(true) } }
+                event.consume()
+            }
+            KeyCode.S -> {
+                graph?.let { graph -> launch { graphService.updateGraph(UpdateGraphRequest.newBuilder().setGraph(objectMapper.writeValueAsString(graph)).build()) } }
+                event.consume()
+            }
+            else -> Unit
+        } else when (event.code) {
+            KeyCode.DELETE -> {
+                graph?.let { it.flow.nodes.filter(VNode::isSelected).forEach(it.flow::remove) }
+                event.consume()
+            }
             KeyCode.F5 -> {
                 launch { this@MainView._refresh() }
                 event.consume()
             }
             KeyCode.F11 -> {
                 primaryStage.isFullScreen = !primaryStage.isFullScreen
+                event.consume()
             }
             else -> Unit
         }
@@ -299,11 +303,7 @@ class MainView(
     }
 
     fun fileImportMenuItemAction() {
-        chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Graph", "*.gph"), FileChooser.ExtensionFilter("All Files", "*.*"))).singleOrNull()?.let {
-            val graph = it.inputStream().use { objectMapper.readValue<GraphImpl>(GZIPInputStream(it)).also { it.spec = spec } }
-            graphsListView.items += graph
-            graphsListView.selectionModel.select(graph)
-        }
+        chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Graph", "*.gph"), FileChooser.ExtensionFilter("All Files", "*.*"))).singleOrNull()?.let { graphsTreeMerge(listOf(it.inputStream().use { objectMapper.readValue<GraphImpl>(GZIPInputStream(it)).also { it.specLookup = this } })) }
     }
 
     fun fileExportAsMenuItemAction() {
@@ -358,13 +358,13 @@ class MainView(
         jsonTextArea.text = graph?.let { objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it) } ?: ""
     }
 
+    private fun graphsTreeMerge(graphs: List<GraphImpl>, replace: Boolean = false) {
+         PathTree(graphs) { it.name }.convert<TreeItem<PathTree<GraphImpl>>>(graphsTreeView.root, { parent, tree -> parent?.children?.find { it.value.path == tree.path }?.also { it.value = tree } ?: TreeItem(tree) }) { parent, children -> if (replace) parent?.children?.setAll(children) else parent?.children?.addAll(children) }
+    }
+
     private suspend fun _refresh() {
-        val graphs = graphService.listGraph(ListGraphRequest.getDefaultInstance()).graphsList.map { objectMapper.readValue<GraphImpl>(it).apply { spec = this@MainView.spec } }
-        withContext(Dispatchers.Main) {
-            val graphName = graph?.name
-            graphsListView.items.setAll(graphs)
-            graphsListView.selectionModel.select(graphs.singleOrNull { it.name == graphName })
-        }
+        val graphs = graphService.listGraph(ListGraphRequest.getDefaultInstance()).graphsList.map { objectMapper.readValue<GraphImpl>(it).apply { specLookup = this@MainView } }
+        withContext(Dispatchers.Main) { graphsTreeMerge(graphs, true) }
     }
 
     private fun delete(graph: GraphImpl) {

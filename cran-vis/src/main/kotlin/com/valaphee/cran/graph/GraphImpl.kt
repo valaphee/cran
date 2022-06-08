@@ -26,6 +26,7 @@ import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.Value
 import com.valaphee.cran.settings.Settings
 import com.valaphee.cran.spec.Spec
+import com.valaphee.cran.spec.SpecLookup
 import com.valaphee.cran.util.update
 import eu.mihosoft.vrl.workflow.Connector
 import eu.mihosoft.vrl.workflow.FlowFactory
@@ -64,7 +65,7 @@ class GraphImpl(
 
     @Inject private lateinit var objectMapper: ObjectMapper
     @Inject private lateinit var settings: Settings
-    @get:JsonIgnore lateinit var spec: Spec
+    @get:JsonIgnore lateinit var specLookup: SpecLookup
     @get:JsonIgnore val flow: VFlow by lazy {
         FlowFactory.newFlow().apply {
             isVisible = true
@@ -73,8 +74,7 @@ class GraphImpl(
             val _embed = embed.associate { (it as Value).out to it.value }
             mutableMapOf<Int, MutableList<Connector>>().apply {
                 other.forEachIndexed { i, node ->
-                    val type = node.type
-                    val spec = spec.nodes.single { it.name == type }
+                    val spec = checkNotNull(specLookup.getNodeSpec(node.type))
                     val _node = objectMapper.convertValue<Map<String, Any?>>(node)
                     newNode(spec, meta.nodes.getOrNull(i), settings).apply {
                         (valueObject as NodeValueObject).const.forEach { it.valueProperty.value = _node[it.spec.json] }

@@ -40,6 +40,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import org.apache.logging.log4j.LogManager
+import java.io.File
 import java.util.UUID
 import java.util.concurrent.Executors
 
@@ -49,9 +50,11 @@ import java.util.concurrent.Executors
 @Singleton
 class GraphServiceImpl @Inject constructor(
     private val objectMapper: ObjectMapper
-) : GraphServiceImplBase(), GraphManager, CoroutineScope {
+) : GraphServiceImplBase(), GraphLookup, CoroutineScope {
     private val executor = Executors.newSingleThreadExecutor()
     override val coroutineContext get() = executor.asCoroutineDispatcher()
+
+    private val dataPath = File("data")
 
     private val spec: Spec
     private val graphs = mutableMapOf<String, GraphImpl>()
@@ -60,7 +63,14 @@ class GraphServiceImpl @Inject constructor(
     init {
         ClassGraph().scan().use {
             spec = Spec(it.getResourcesMatchingWildcard("**.spec.json").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes.onEach { log.info("Built-in node '{}' found", it.name) } })
-            graphs += it.getResourcesMatchingWildcard("**.gph").urLs.map { objectMapper.readValue<GraphImpl>(it).also { log.info("Built-in node '{}' with graph found", it.name) } }.associateBy { it.name }
+            graphs += it.getResourcesMatchingWildcard("**.gph").urLs.map { objectMapper.readValue<GraphImpl>(it).also { log.info("Built-in graph '{}' found", it.name) } }.associateBy { it.name }
+        }
+
+        dataPath.walk().forEach {
+            if (it.isFile && it.extension == "gph") objectMapper.readValue<GraphImpl>(it).also {
+                log.info("Graph '{}' found", it.name)
+                graphs[it.name] = it
+            }
         }
     }
 

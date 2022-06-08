@@ -16,6 +16,8 @@
 
 package com.valaphee.cran.util
 
+import javafx.scene.control.TreeItem
+
 /**
  * @author Kevin Ludwig
  */
@@ -24,22 +26,31 @@ class PathTree<T> private constructor(
     val name: String? = null,
     val value: T? = null
 ) {
-    private val children = mutableMapOf<String, PathTree<T>>()
+    internal val children = mutableMapOf<String, PathTree<T>>()
+
+    constructor() : this("")
 
     constructor(list: List<T>, getPath: (T) -> String) : this("") {
-        list.forEach { value ->
-            val pathSplit = getPath(value).split('/')
+        list.forEach {
+            val pathSplit = getPath(it).split('/')
             val path = StringBuilder()
             var child = this
             pathSplit.forEachIndexed { i, name ->
                 if (path.isNotEmpty()) path.append('/')
                 path.append(name)
-                child = child.children.getOrPut(name) { PathTree(path.toString(), name, if (i == pathSplit.lastIndex) value else null) }
+                child = child.children.getOrPut(name) { PathTree(path.toString(), name, if (i == pathSplit.lastIndex) it else null) }
             }
         }
     }
 
-    fun <U> convert(converter: (U?, PathTree<T>) -> U): U {
+    operator fun get(path: String): T? {
+        val pathSplit = path.split('/')
+        var child: PathTree<T>? = this
+        pathSplit.forEach { child = child?.children?.get(it) }
+        return child?.value
+    }
+
+    fun <U> convert(converter: (parent: U?, tree: PathTree<T>) -> U): U {
         val parent = converter(null, this)
 
         fun PathTree<T>.traverse(parent: U?) {
@@ -49,5 +60,29 @@ class PathTree<T> private constructor(
         traverse(parent)
 
         return parent
+    }
+
+    fun <U> convert(parent: U, converter: (parent: U?, tree: PathTree<T>) -> U, finalizer: (parent: U?, children: List<U>) -> Unit): U {
+        fun PathTree<T>.traverse(parent: U?) {
+            finalizer(parent, children.values.sortedBy { it.name }.map { converter(parent, it).also { child -> it.traverse(child) } })
+        }
+
+        traverse(parent)
+
+        return parent
+    }
+
+    companion object {
+        /**
+         * Uses the tree item structure instead of the path tree structure, which might be incomplete
+         * as this PathTree is currently only used for conversion with merging, and therefore the structure itself
+         * is not updated, because of redundancy and complexity
+         */
+        operator fun <T> TreeItem<PathTree<T>>.get(path: String): T? {
+            val pathSplit = path.split('/')
+            var child: TreeItem<PathTree<T>>? = this
+            pathSplit.forEach { name -> child = child?.children?.find { it.value.name == name } }
+            return child?.value?.value
+        }
     }
 }
