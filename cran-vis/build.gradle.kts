@@ -20,10 +20,11 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":cran"))
     implementation(project(":cran-meta"))
     implementation(project(":cran-spec"))
     implementation(project(":cran-svc"))
+
+    implementation(project(":cran-pkg-base"))
 
     implementation(libs.fasterxml.guice)
     implementation(libs.fasterxml.kotlin)

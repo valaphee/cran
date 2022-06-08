@@ -20,9 +20,9 @@ include("cran-meta")
 include("cran-spec")
 include("cran-svc")
 
-include("cran")
-include("cran-jvm")
-include("cran-input-jvm")
+include("cran-pkg-base")
+include("cran-pkg-base-jvm")
+include("cran-pkg-input-jvm")
 
 include("cran-env")
 include("cran-vis")

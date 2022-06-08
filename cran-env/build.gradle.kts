@@ -17,14 +17,13 @@
 plugins { id("com.github.johnrengelman.shadow") }
 
 dependencies {
-    implementation(project(":cran"))
     implementation(project(":cran-meta"))
     implementation(project(":cran-spec"))
     implementation(project(":cran-svc"))
 
-    implementation(project(":cran"))
-    implementation(project(":cran-jvm"))
-    implementation(project(":cran-input-jvm"))
+    implementation(project(":cran-pkg-base"))
+    implementation(project(":cran-pkg-base-jvm"))
+    implementation(project(":cran-pkg-input-jvm"))
 
     implementation(libs.classgraph)
     implementation(libs.fasterxml.guice)
