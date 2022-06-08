@@ -20,7 +20,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":cran-pkg-base-jvm"))
+    api(project(":cran-pkg-base"))
     implementation(project(":cran-spec"))
     kapt(project(":cran-spec"))
 
