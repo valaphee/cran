@@ -41,8 +41,11 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import org.apache.logging.log4j.LogManager
 import java.io.File
+import java.util.Base64
 import java.util.UUID
 import java.util.concurrent.Executors
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 
 /**
  * @author Kevin Ludwig
@@ -54,7 +57,7 @@ class GraphServiceImpl @Inject constructor(
     private val executor = Executors.newSingleThreadExecutor()
     override val coroutineContext get() = executor.asCoroutineDispatcher()
 
-    private val dataPath = File("data")
+    private val dataPath = File("data").also { it.mkdirs() }
 
     private val spec: Spec
     private val graphs = mutableMapOf<String, GraphImpl>()
@@ -65,11 +68,13 @@ class GraphServiceImpl @Inject constructor(
             spec = Spec(it.getResourcesMatchingWildcard("**.spec.json").urLs.flatMap { objectMapper.readValue<Spec>(it).nodes.onEach { log.info("Built-in node '{}' found", it.name) } })
             graphs += it.getResourcesMatchingWildcard("**.gph").urLs.map { objectMapper.readValue<GraphImpl>(it).also { log.info("Built-in graph '{}' found", it.name) } }.associateBy { it.name }
         }
-
         dataPath.walk().forEach {
-            if (it.isFile && it.extension == "gph") objectMapper.readValue<GraphImpl>(it).also {
-                log.info("Graph '{}' found", it.name)
-                graphs[it.name] = it
+            if (it.isFile && it.extension == "gph") it.inputStream().use {
+                objectMapper.readValue<GraphImpl>(GZIPInputStream(it)).also {
+                    graphs[it.name] = it
+
+                    log.info("Graph '{}' found", it.name)
+                }
             }
         }
     }
@@ -89,12 +94,15 @@ class GraphServiceImpl @Inject constructor(
     override fun updateGraph(request: UpdateGraphRequest, responseObserver: StreamObserver<UpdateGraphResponse>) {
         val graph = objectMapper.readValue<GraphImpl>(request.graph.toByteArray())
         graphs[graph.name] = graph
+        File(dataPath, graph.toFile()).outputStream().use { objectMapper.writeValue(GZIPOutputStream(it), graph) }
+
         responseObserver.onNext(UpdateGraphResponse.getDefaultInstance())
         responseObserver.onCompleted()
     }
 
     override fun deleteGraph(request: DeleteGraphRequest, responseObserver: StreamObserver<DeleteGraphResponse>) {
-        graphs.remove(request.graphName)
+        graphs.remove(request.graphName)?.let { File(dataPath, it.toFile()).delete() }
+
         responseObserver.onNext(DeleteGraphResponse.getDefaultInstance())
         responseObserver.onCompleted()
     }
@@ -108,17 +116,21 @@ class GraphServiceImpl @Inject constructor(
             }
             it.nodes.forEach { if (it is com.valaphee.cran.node.Entry) launch { it(scope) } }
         }
+
         responseObserver.onNext(RunGraphResponse.newBuilder().setScopeId(scopeId.toString()).build())
         responseObserver.onCompleted()
     }
 
     override fun stopGraph(request: StopGraphRequest, responseObserver: StreamObserver<StopGraphResponse>) {
         scopes.remove(UUID.fromString(request.scopeId))?.shutdown()
+
         responseObserver.onNext(StopGraphResponse.getDefaultInstance())
         responseObserver.onCompleted()
     }
 
     companion object {
         private val log = LogManager.getLogger(GraphServiceImpl::class.java)
+
+        private fun Graph.toFile() = "${Base64.getUrlEncoder().encodeToString(name.lowercase().toByteArray())}.gph"
     }
 }

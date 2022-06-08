@@ -50,10 +50,10 @@ abstract class Graph {
 
         other as Graph
 
-        if (name != other.name) return false
+        if (name.lowercase() != other.name.lowercase()) return false
 
         return true
     }
 
-    override fun hashCode() = name.hashCode()
+    override fun hashCode() = name.lowercase().hashCode()
 }

@@ -47,7 +47,7 @@ object TlsSubcommand : Subcommand("tls", "Transport Layer Security") {
     override fun execute() {
         val tlsPath = File("tls")
         if (!tlsPath.exists()) {
-            tlsPath.mkdir()
+            tlsPath.mkdirs()
 
             val ca = generateCa("CN=Cran")
 
