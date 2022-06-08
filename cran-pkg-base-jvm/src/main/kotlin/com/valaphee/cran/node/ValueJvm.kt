@@ -24,13 +24,11 @@ import com.valaphee.cran.spec.NodeProc
  */
 @NodeProc("jvm")
 object ValueJvm : NodeJvm {
-    override fun process(nodes: List<Node>, scope: Scope) {
-        nodes.forEach {
-            if (it is Value) {
-                val out = scope.dataPath(it.out)
+    override fun process(node: Node, scope: Scope) = if (node is Value) {
+        val out = scope.dataPath(node.out)
 
-                out.set(it.value)
-            }
-        }
-    }
+        out.set(node.value)
+
+        true
+    } else false
 }

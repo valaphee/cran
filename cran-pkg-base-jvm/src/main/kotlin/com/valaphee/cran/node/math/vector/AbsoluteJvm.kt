@@ -26,14 +26,12 @@ import com.valaphee.cran.spec.NodeProc
  */
 @NodeProc("jvm")
 object AbsoluteJvm : NodeJvm {
-    override fun process(nodes: List<Node>, scope: Scope) {
-        nodes.forEach {
-            if (it is Absolute) {
-                val `in` = scope.dataPath(it.`in`)
-                val out = scope.dataPath(it.out)
+    override fun process(node: Node, scope: Scope) = if (node is Absolute) {
+        val `in` = scope.dataPath(node.`in`)
+        val out = scope.dataPath(node.out)
 
-                out.set { vectorOp(`in`.get(), { it.abs() }, { it.abs() }, { it.abs() }, scope.objectMapper) }
-            }
-        }
-    }
+        out.set { vectorOp(`in`.get(), { it.abs() }, { it.abs() }, { it.abs() }, scope.objectMapper) }
+
+        true
+    } else false
 }

@@ -14,23 +14,34 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.node.list
+package com.valaphee.cran.node.input
 
 import com.valaphee.cran.graph.jvm.Scope
 import com.valaphee.cran.node.Node
-import com.valaphee.cran.node.NodeJvm
 import com.valaphee.cran.spec.NodeProc
 
 /**
  * @author Kevin Ludwig
  */
 @NodeProc("jvm")
-object LastJvm : NodeJvm {
-    override fun process(node: Node, scope: Scope) = if (node is Last) {
-        val `in` = scope.dataPath(node.`in`)
-        val out = scope.dataPath(node.out)
+object SetMouseButtonJvm : MouseNodeJvm() {
+    override fun process(node: Node, scope: Scope) = if (node is SetMouseButton) {
+        val `in` = scope.controlPath(node.`in`)
+        val inButton = scope.dataPath(node.inButton)
+        val inState = scope.dataPath(node.inState)
+        val out = scope.controlPath(node.out)
 
-        out.set { `in`.getOfType<Iterable<Any?>>().lastOrNull() }
+        `in`.declare {
+            val button = inButton.getOfType<Int>()
+            if (inState.getOfType()) {
+                buttons.set(button)
+                write()
+            } else {
+                buttons.clear(button)
+                write()
+            }
+            out()
+        }
 
         true
     } else false

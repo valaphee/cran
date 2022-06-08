@@ -26,14 +26,12 @@ import com.valaphee.cran.spec.NodeProc
  */
 @NodeProc("jvm")
 object NotJvm : NodeJvm {
-    override fun process(nodes: List<Node>, scope: Scope) {
-        nodes.forEach {
-            if (it is Not) {
-                val `in` = scope.dataPath(it.`in`)
-                val out = scope.dataPath(it.out)
+    override fun process(node: Node, scope: Scope) = if (node is Not) {
+        val `in` = scope.dataPath(node.`in`)
+        val out = scope.dataPath(node.out)
 
-                out.set { !`in`.getOfType<Boolean>() }
-            }
-        }
-    }
+        out.set { !`in`.getOfType<Boolean>() }
+
+        true
+    } else false
 }

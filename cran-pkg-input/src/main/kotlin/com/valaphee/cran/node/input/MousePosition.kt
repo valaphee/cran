@@ -14,24 +14,19 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.node.list
+package com.valaphee.cran.node.input
 
-import com.valaphee.cran.graph.jvm.Scope
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.cran.node.Node
-import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeProc
+import com.valaphee.cran.node.math.vector.Vec2
+import com.valaphee.cran.spec.NodeDecl
+import com.valaphee.cran.spec.Out
 
 /**
  * @author Kevin Ludwig
  */
-@NodeProc("jvm")
-object LastJvm : NodeJvm {
-    override fun process(node: Node, scope: Scope) = if (node is Last) {
-        val `in` = scope.dataPath(node.`in`)
-        val out = scope.dataPath(node.out)
-
-        out.set { `in`.getOfType<Iterable<Any?>>().lastOrNull() }
-
-        true
-    } else false
-}
+@NodeDecl("Input/Mouse Position")
+class MousePosition(
+    type: String,
+    @get:Out("", Vec2) @get:JsonProperty("out_position") val out: Int
+) : Node(type)

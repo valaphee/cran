@@ -26,15 +26,13 @@ import com.valaphee.cran.spec.NodeProc
  */
 @NodeProc("jvm")
 object EqualJvm : NodeJvm {
-    override fun process(nodes: List<Node>, scope: Scope) {
-        nodes.forEach {
-            if (it is Equal) {
-                val inA = scope.dataPath(it.inA)
-                val inB = scope.dataPath(it.inB)
-                val out = scope.dataPath(it.out)
+    override fun process(node: Node, scope: Scope) = if (node is Equal) {
+        val inA = scope.dataPath(node.inA)
+        val inB = scope.dataPath(node.inB)
+        val out = scope.dataPath(node.out)
 
-                out.set { inA.get() == inB.get() }
-            }
-        }
-    }
+        out.set { inA.get() == inB.get() }
+
+        true
+    } else false
 }

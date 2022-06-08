@@ -26,16 +26,14 @@ import com.valaphee.cran.spec.NodeProc
  */
 @NodeProc("jvm")
 object BranchJvm : NodeJvm {
-    override fun process(nodes: List<Node>, scope: Scope) {
-        nodes.forEach {
-            if (it is Branch) {
-                val `in` = scope.controlPath(it.`in`)
-                val inValue = scope.dataPath(it.inValue)
-                val out = it.out.mapValues { scope.controlPath(it.value) }
-                val outDefault = scope.controlPath(it.outDefault)
+    override fun process(node: Node, scope: Scope) = if (node is Branch) {
+        val `in` = scope.controlPath(node.`in`)
+        val inValue = scope.dataPath(node.inValue)
+        val out = node.out.mapValues { scope.controlPath(it.value) }
+        val outDefault = scope.controlPath(node.outDefault)
 
-                `in`.declare { (out[inValue.get()] ?: outDefault)() }
-            }
-        }
-    }
+        `in`.declare { (out[inValue.get()] ?: outDefault)() }
+
+        true
+    } else false
 }

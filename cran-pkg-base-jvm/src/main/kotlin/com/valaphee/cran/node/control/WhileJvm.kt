@@ -26,19 +26,17 @@ import com.valaphee.cran.spec.NodeProc
  */
 @NodeProc("jvm")
 object WhileJvm : NodeJvm {
-    override fun process(nodes: List<Node>, scope: Scope) {
-        nodes.forEach {
-            if (it is While) {
-                val `in` = scope.controlPath(it.`in`)
-                val inValue = scope.dataPath(it.inValue)
-                val outBody = scope.controlPath(it.outBody)
-                val out = scope.controlPath(it.out)
+    override fun process(node: Node, scope: Scope) = if (node is While) {
+        val `in` = scope.controlPath(node.`in`)
+        val inValue = scope.dataPath(node.inValue)
+        val outBody = scope.controlPath(node.outBody)
+        val out = scope.controlPath(node.out)
 
-                `in`.declare {
-                    while (inValue.getOfType()) outBody()
-                    out()
-                }
-            }
+        `in`.declare {
+            while (inValue.getOfType()) outBody()
+            out()
         }
-    }
+
+        true
+    } else false
 }

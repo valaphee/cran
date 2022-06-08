@@ -26,16 +26,14 @@ import com.valaphee.cran.spec.NodeProc
  */
 @NodeProc("jvm")
 object SelectJvm : NodeJvm {
-    override fun process(nodes: List<Node>, scope: Scope) {
-        nodes.forEach {
-            if (it is Select) {
-                val `in` = scope.dataPath(it.`in`)
-                val inValue = it.inValue.mapValues { scope.dataPath(it.value) }
-                val inDefault = scope.dataPath(it.inDefault)
-                val out = scope.dataPath(it.out)
+    override fun process(node: Node, scope: Scope) = if (node is Select) {
+        val `in` = scope.dataPath(node.`in`)
+        val inValue = node.inValue.mapValues { scope.dataPath(it.value) }
+        val inDefault = scope.dataPath(node.inDefault)
+        val out = scope.dataPath(node.out)
 
-                out.set { (inValue[`in`.get()] ?: inDefault).get() }
-            }
-        }
-    }
+        out.set { (inValue[`in`.get()] ?: inDefault).get() }
+
+        true
+    } else false
 }

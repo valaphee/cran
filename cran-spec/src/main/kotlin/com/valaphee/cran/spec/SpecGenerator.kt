@@ -45,7 +45,7 @@ class SpecGenerator : AbstractProcessor() {
     override fun process(annotations: MutableSet<out TypeElement>?, roundEnvironment: RoundEnvironment?): Boolean {
         if (annotations?.isEmpty() == true) return false
         roundEnvironment?.let {
-            val nodes = it.getElementsAnnotatedWith(NodeDecl::class.java)?.mapNotNull {
+            val bytes = objectMapper.writeValueAsBytes(Spec(it.getElementsAnnotatedWith(NodeDecl::class.java)?.mapNotNull {
                 if (it.kind == ElementKind.CLASS && it is TypeElement) {
                     if (!it.modifiers.contains(Modifier.ABSTRACT)) {
                         Spec.Node(it.getAnnotation(NodeDecl::class.java).name, it.enclosedElements.mapNotNull {
@@ -73,11 +73,7 @@ class SpecGenerator : AbstractProcessor() {
                         })
                     } else null
                 } else null
-            } ?: emptyList()
-            val nodeProcs = mutableMapOf<String, MutableSet<String>>()
-            it.getElementsAnnotatedWith(NodeProc::class.java)?.forEach { if (it.kind == ElementKind.CLASS && it is TypeElement) nodeProcs.getOrPut(it.getAnnotation(NodeProc::class.java).name) { mutableSetOf() } += it.qualifiedName.toString() }
-
-            val bytes = objectMapper.writeValueAsBytes(Spec(nodes, nodeProcs))
+            } ?: emptyList(), mutableMapOf<String, MutableList<String>>().apply { it.getElementsAnnotatedWith(NodeProc::class.java)?.forEach { if (it.kind == ElementKind.CLASS && it is TypeElement) getOrPut(it.getAnnotation(NodeProc::class.java).name) { mutableListOf() } += it.qualifiedName.toString() } }))
             processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", "${MessageDigest.getInstance("MD5").digest(bytes).toHexString()}.spec.json").openOutputStream().use { it.write(bytes) }
         }
         return true

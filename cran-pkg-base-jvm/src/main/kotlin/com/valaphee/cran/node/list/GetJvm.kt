@@ -26,15 +26,13 @@ import com.valaphee.cran.spec.NodeProc
  */
 @NodeProc("jvm")
 object GetJvm : NodeJvm {
-    override fun process(nodes: List<Node>, scope: Scope) {
-        nodes.forEach {
-            if (it is Get) {
-                val `in` = scope.dataPath(it.`in`)
-                val inIndex = scope.dataPath(it.inIndex)
-                val out = scope.dataPath(it.out)
+    override fun process(node: Node, scope: Scope) = if (node is Get) {
+        val `in` = scope.dataPath(node.`in`)
+        val inIndex = scope.dataPath(node.inIndex)
+        val out = scope.dataPath(node.out)
 
-                out.set { `in`.getOfType<List<Any?>>()[inIndex.getOfType()] }
-            }
-        }
-    }
+        out.set { `in`.getOfType<List<Any?>>()[inIndex.getOfType()] }
+
+        true
+    } else false
 }

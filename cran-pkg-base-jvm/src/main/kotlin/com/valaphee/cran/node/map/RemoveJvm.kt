@@ -26,15 +26,13 @@ import com.valaphee.cran.spec.NodeProc
  */
 @NodeProc("jvm")
 object RemoveJvm : NodeJvm {
-    override fun process(nodes: List<Node>, scope: Scope) {
-        nodes.forEach {
-            if (it is Remove) {
-                val `in` = scope.dataPath(it.`in`)
-                val inKey = scope.dataPath(it.inKey)
-                val out = scope.dataPath(it.out)
+    override fun process(node: Node, scope: Scope) = if (node is Remove) {
+        val `in` = scope.dataPath(node.`in`)
+        val inKey = scope.dataPath(node.inKey)
+        val out = scope.dataPath(node.out)
 
-                out.set { `in`.getOfType<Map<Any?, Any?>>().also { it - inKey.get() } }
-            }
-        }
-    }
+        out.set { `in`.getOfType<Map<Any?, Any?>>().also { it - inKey.get() } }
+
+        true
+    } else false
 }

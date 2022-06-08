@@ -16,7 +16,7 @@
 
 package com.valaphee.cran.node.input
 
-import com.valaphee.cran.node.Node
+import com.valaphee.cran.node.NodeJvm
 import org.hid4java.HidDevice
 import org.hid4java.HidManager
 import java.util.BitSet
@@ -25,10 +25,8 @@ import kotlin.concurrent.thread
 /**
  * @author Kevin Ludwig
  */
-abstract class Mouse(
-    type: String
-) : Node(type) {
-    companion object {
+abstract class MouseNodeJvm : NodeJvm {
+    protected companion object {
         private var hidDevice: HidDevice? = null
         private const val path = "\\\\?\\hid#variable_6&col02#1"
 

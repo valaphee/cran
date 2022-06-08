@@ -30,27 +30,25 @@ import kotlin.math.absoluteValue
  */
 @NodeProc("jvm")
 object AbsoluteJvm : NodeJvm {
-    override fun process(nodes: List<Node>, scope: Scope) {
-        nodes.forEach {
-            if (it is Absolute) {
-                val `in` = scope.dataPath(it.`in`)
-                val out = scope.dataPath(it.out)
+    override fun process(node: Node, scope: Scope) = if (node is Absolute) {
+        val `in` = scope.dataPath(node.`in`)
+        val out = scope.dataPath(node.out)
 
-                out.set {
-                    val _in = `in`.get()
-                    when (_in) {
-                        is Byte       -> _in.toInt().absoluteValue.toByte()
-                        is Short      -> _in.toInt().absoluteValue.toShort()
-                        is Int        -> _in        .absoluteValue
-                        is Long       -> _in        .absoluteValue
-                        is BigInteger -> _in        .abs()
-                        is Float      -> _in        .absoluteValue
-                        is Double     -> _in        .absoluteValue
-                        is BigDecimal -> _in        .abs()
-                        else          -> throw DataPathException("|$_in|")
-                    }
-                }
+        out.set {
+            val _in = `in`.get()
+            when (_in) {
+                is Byte       -> _in.toInt().absoluteValue.toByte()
+                is Short      -> _in.toInt().absoluteValue.toShort()
+                is Int        -> _in        .absoluteValue
+                is Long       -> _in        .absoluteValue
+                is BigInteger -> _in        .abs()
+                is Float      -> _in        .absoluteValue
+                is Double     -> _in        .absoluteValue
+                is BigDecimal -> _in        .abs()
+                else          -> throw DataPathException("|$_in|")
             }
         }
-    }
+
+        true
+    } else false
 }

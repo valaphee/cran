@@ -17,9 +17,9 @@
 package com.valaphee.cran.node.input
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.cran.node.Bit
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.Num
+import com.valaphee.cran.node.math.vector.Vec2
 import com.valaphee.cran.spec.In
 import com.valaphee.cran.spec.NodeDecl
 import com.valaphee.cran.spec.Out
@@ -27,11 +27,11 @@ import com.valaphee.cran.spec.Out
 /**
  * @author Kevin Ludwig
  */
-@NodeDecl("Input/Set Mouse Button")
-class SetMouseButton(
+@NodeDecl("Input/Move Mouse")
+class MoveMouse(
     type: String,
-    @get:In (""          ) @get:JsonProperty("in"       ) val `in`    : Int,
-    @get:In ("Key"  , Num) @get:JsonProperty("in_button") val inButton: Int,
-    @get:In ("State", Bit) @get:JsonProperty("in_state" ) val inState : Int,
-    @get:Out(""          ) @get:JsonProperty("out"      ) val out     : Int
+    @get:In (""                 ) @get:JsonProperty("in"            ) val `in`         : Int,
+    @get:In ("Sensitivity", Num ) @get:JsonProperty("in_sensitivity") val inSensitivity: Int,
+    @get:In ("Move"       , Vec2) @get:JsonProperty("in_move"       ) val inMove       : Int,
+    @get:Out(""                 ) @get:JsonProperty("out"           ) val out          : Int
 ) : Node(type)

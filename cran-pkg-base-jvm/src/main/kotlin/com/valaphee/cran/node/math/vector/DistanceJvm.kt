@@ -28,26 +28,24 @@ import kotlin.math.sqrt
  */
 @NodeProc("jvm")
 object DistanceJvm : NodeJvm {
-    override fun process(nodes: List<Node>, scope: Scope) {
-        nodes.forEach {
-            if (it is Distance) {
-                val inP = scope.dataPath(it.inP)
-                val inQ = scope.dataPath(it.inQ)
-                val out = scope.dataPath(it.out)
+    override fun process(node: Node, scope: Scope) = if (node is Distance) {
+        val inP = scope.dataPath(node.inP)
+        val inQ = scope.dataPath(node.inQ)
+        val out = scope.dataPath(node.out)
 
-                out.set {
-                    vectorOp(inP.get(), inQ.get(), { p, q ->
-                        val pSubQ = p.sub(q)
-                        sqrt(pSubQ.mul(pSubQ).reduceLanes(VectorOperators.ADD).toFloat()).toInt()
-                    }, { p, q ->
-                        val pSubQ = p.sub(q)
-                        sqrt(pSubQ.mul(pSubQ).reduceLanes(VectorOperators.ADD))
-                    }, { p, q ->
-                        val pSubQ = p.sub(q)
-                        sqrt(pSubQ.mul(pSubQ).reduceLanes(VectorOperators.ADD))
-                    }, scope.objectMapper)
-                }
-            }
+        out.set {
+            vectorOp(inP.get(), inQ.get(), { p, q ->
+                val pSubQ = p.sub(q)
+                sqrt(pSubQ.mul(pSubQ).reduceLanes(VectorOperators.ADD).toFloat()).toInt()
+            }, { p, q ->
+                val pSubQ = p.sub(q)
+                sqrt(pSubQ.mul(pSubQ).reduceLanes(VectorOperators.ADD))
+            }, { p, q ->
+                val pSubQ = p.sub(q)
+                sqrt(pSubQ.mul(pSubQ).reduceLanes(VectorOperators.ADD))
+            }, scope.objectMapper)
         }
-    }
+
+        true
+    } else false
 }

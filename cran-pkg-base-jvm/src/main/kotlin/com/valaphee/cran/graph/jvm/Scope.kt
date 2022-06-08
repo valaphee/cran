@@ -24,7 +24,7 @@ import com.valaphee.cran.node.NodeJvm
  */
 class Scope(
     val objectMapper: ObjectMapper,
-    val procs: Set<NodeJvm>,
+    val procs: List<NodeJvm>,
     val graphLookup: GraphJvmLookup,
     val graph: GraphJvm,
 ) {

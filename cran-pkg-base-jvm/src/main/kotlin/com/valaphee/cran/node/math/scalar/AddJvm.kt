@@ -29,99 +29,97 @@ import java.math.BigInteger
  */
 @NodeProc("jvm")
 object AddJvm : NodeJvm {
-    override fun process(nodes: List<Node>, scope: Scope) {
-        nodes.forEach {
-            if (it is Add) {
-                val inA = scope.dataPath(it.inA)
-                val inB = scope.dataPath(it.inB)
-                val out = scope.dataPath(it.out)
+    override fun process(node: Node, scope: Scope) = if (node is Add) {
+        val inA = scope.dataPath(node.inA)
+        val inB = scope.dataPath(node.inB)
+        val out = scope.dataPath(node.out)
 
-                out.set {
-                    val _inA = inA.get()
-                    val _inB = inB.get()
-                    when (_inA) {
-                        is Byte -> when (_inB) {
-                            is Byte       -> _inA                                + _inB
-                            is Short      -> _inA                                + _inB
-                            is Int        -> _inA                                + _inB
-                            is Long       -> _inA                                + _inB
-                            is BigInteger -> BigInteger.valueOf(_inA.toLong())   + _inB
-                            is Float      -> _inA                                + _inB
-                            is Double     -> _inA                                + _inB
-                            is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) + _inB
-                            else          -> throw DataPathException("$_inA + $_inB")
-                        }
-                        is Short -> when (_inB) {
-                            is Byte       -> _inA                                + _inB
-                            is Short      -> _inA                                + _inB
-                            is Int        -> _inA                                + _inB
-                            is Long       -> _inA                                + _inB
-                            is BigInteger -> BigInteger.valueOf(_inA.toLong())   + _inB
-                            is Float      -> _inA                                + _inB
-                            is Double     -> _inA                                + _inB
-                            is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) + _inB
-                            else          -> throw DataPathException("$_inA + $_inB")
-                        }
-                        is Int -> when (_inB) {
-                            is Byte       -> _inA                                + _inB
-                            is Short      -> _inA                                + _inB
-                            is Int        -> _inA                                + _inB
-                            is Long       -> _inA                                + _inB
-                            is BigInteger -> BigInteger.valueOf(_inA.toLong())   + _inB
-                            is Float      -> _inA                                + _inB
-                            is Double     -> _inA                                + _inB
-                            is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) + _inB
-                            else          -> throw DataPathException("$_inA + $_inB")
-                        }
-                        is Long -> when (_inB) {
-                            is Byte       -> _inA                                + _inB
-                            is Short      -> _inA                                + _inB
-                            is Int        -> _inA                                + _inB
-                            is Long       -> _inA                                + _inB
-                            is BigInteger -> BigInteger.valueOf(_inA.toLong())   + _inB
-                            is Float      -> _inA                                + _inB
-                            is Double     -> _inA                                + _inB
-                            is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) + _inB
-                            else          -> throw DataPathException("$_inA + $_inB")
-                        }
-                        is BigInteger -> when (_inB) {
-                            is BigInteger -> _inA                + _inB
-                            is BigDecimal -> _inA.toBigDecimal() + _inB
-                            is Number     -> _inA                + BigInteger.valueOf(_inB.toLong())
-                            else          -> throw DataPathException("$_inA + $_inB")
-                        }
-                        is Float -> when (_inB) {
-                            is Byte       -> _inA                                + _inB
-                            is Short      -> _inA                                + _inB
-                            is Int        -> _inA                                + _inB
-                            is Long       -> _inA                                + _inB
-                            is BigInteger -> BigInteger.valueOf(_inA.toLong())   + _inB
-                            is Float      -> _inA                                + _inB
-                            is Double     -> _inA                                + _inB
-                            is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) + _inB
-                            else          -> throw DataPathException("$_inA + $_inB")
-                        }
-                        is Double -> when (_inB) {
-                            is Byte       -> _inA                                + _inB
-                            is Short      -> _inA                                + _inB
-                            is Int        -> _inA                                + _inB
-                            is Long       -> _inA                                + _inB
-                            is BigInteger -> BigInteger.valueOf(_inA.toLong())   + _inB
-                            is Float      -> _inA                                + _inB
-                            is Double     -> _inA                                + _inB
-                            is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) + _inB
-                            else          -> throw DataPathException("$_inA + $_inB")
-                        }
-                        is BigDecimal -> when (_inB) {
-                            is BigInteger -> _inA + _inB.toBigDecimal()
-                            is BigDecimal -> _inA + _inB
-                            is Number     -> _inA + BigDecimal.valueOf(_inB.toDouble())
-                            else          -> throw DataPathException("$_inA + $_inB")
-                        }
-                        else -> throw DataPathException("$_inA + $_inB")
-                    }
+        out.set {
+            val _inA = inA.get()
+            val _inB = inB.get()
+            when (_inA) {
+                is Byte -> when (_inB) {
+                    is Byte       -> _inA                                + _inB
+                    is Short      -> _inA                                + _inB
+                    is Int        -> _inA                                + _inB
+                    is Long       -> _inA                                + _inB
+                    is BigInteger -> BigInteger.valueOf(_inA.toLong())   + _inB
+                    is Float      -> _inA                                + _inB
+                    is Double     -> _inA                                + _inB
+                    is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) + _inB
+                    else          -> throw DataPathException("$_inA + $_inB")
                 }
+                is Short -> when (_inB) {
+                    is Byte       -> _inA                                + _inB
+                    is Short      -> _inA                                + _inB
+                    is Int        -> _inA                                + _inB
+                    is Long       -> _inA                                + _inB
+                    is BigInteger -> BigInteger.valueOf(_inA.toLong())   + _inB
+                    is Float      -> _inA                                + _inB
+                    is Double     -> _inA                                + _inB
+                    is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) + _inB
+                    else          -> throw DataPathException("$_inA + $_inB")
+                }
+                is Int -> when (_inB) {
+                    is Byte       -> _inA                                + _inB
+                    is Short      -> _inA                                + _inB
+                    is Int        -> _inA                                + _inB
+                    is Long       -> _inA                                + _inB
+                    is BigInteger -> BigInteger.valueOf(_inA.toLong())   + _inB
+                    is Float      -> _inA                                + _inB
+                    is Double     -> _inA                                + _inB
+                    is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) + _inB
+                    else          -> throw DataPathException("$_inA + $_inB")
+                }
+                is Long -> when (_inB) {
+                    is Byte       -> _inA                                + _inB
+                    is Short      -> _inA                                + _inB
+                    is Int        -> _inA                                + _inB
+                    is Long       -> _inA                                + _inB
+                    is BigInteger -> BigInteger.valueOf(_inA.toLong())   + _inB
+                    is Float      -> _inA                                + _inB
+                    is Double     -> _inA                                + _inB
+                    is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) + _inB
+                    else          -> throw DataPathException("$_inA + $_inB")
+                }
+                is BigInteger -> when (_inB) {
+                    is BigInteger -> _inA                + _inB
+                    is BigDecimal -> _inA.toBigDecimal() + _inB
+                    is Number     -> _inA                + BigInteger.valueOf(_inB.toLong())
+                    else          -> throw DataPathException("$_inA + $_inB")
+                }
+                is Float -> when (_inB) {
+                    is Byte       -> _inA                                + _inB
+                    is Short      -> _inA                                + _inB
+                    is Int        -> _inA                                + _inB
+                    is Long       -> _inA                                + _inB
+                    is BigInteger -> BigInteger.valueOf(_inA.toLong())   + _inB
+                    is Float      -> _inA                                + _inB
+                    is Double     -> _inA                                + _inB
+                    is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) + _inB
+                    else          -> throw DataPathException("$_inA + $_inB")
+                }
+                is Double -> when (_inB) {
+                    is Byte       -> _inA                                + _inB
+                    is Short      -> _inA                                + _inB
+                    is Int        -> _inA                                + _inB
+                    is Long       -> _inA                                + _inB
+                    is BigInteger -> BigInteger.valueOf(_inA.toLong())   + _inB
+                    is Float      -> _inA                                + _inB
+                    is Double     -> _inA                                + _inB
+                    is BigDecimal -> BigDecimal.valueOf(_inA.toDouble()) + _inB
+                    else          -> throw DataPathException("$_inA + $_inB")
+                }
+                is BigDecimal -> when (_inB) {
+                    is BigInteger -> _inA + _inB.toBigDecimal()
+                    is BigDecimal -> _inA + _inB
+                    is Number     -> _inA + BigDecimal.valueOf(_inB.toDouble())
+                    else          -> throw DataPathException("$_inA + $_inB")
+                }
+                else -> throw DataPathException("$_inA + $_inB")
             }
         }
-    }
+
+        true
+    } else false
 }

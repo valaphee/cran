@@ -14,23 +14,36 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.node.list
+package com.valaphee.cran.node.input
 
 import com.valaphee.cran.graph.jvm.Scope
 import com.valaphee.cran.node.Node
-import com.valaphee.cran.node.NodeJvm
 import com.valaphee.cran.spec.NodeProc
 
 /**
  * @author Kevin Ludwig
  */
 @NodeProc("jvm")
-object LastJvm : NodeJvm {
-    override fun process(node: Node, scope: Scope) = if (node is Last) {
-        val `in` = scope.dataPath(node.`in`)
-        val out = scope.dataPath(node.out)
+object SetKeyboardKeyJvm : KeyboardNodeJvm() {
+    override fun process(node: Node, scope: Scope) = if (node is SetKeyboardKey) {
+        val `in` = scope.controlPath(node.`in`)
+        val inKey = scope.dataPath(node.inKey)
+        val inState = scope.dataPath(node.inState)
+        val out = scope.controlPath(node.out)
 
-        out.set { `in`.getOfType<Iterable<Any?>>().lastOrNull() }
+        `in`.declare {
+            val key = inKey.getOfType<Key>()
+            if (inState.getOfType()) {
+                if (!keys.contains(key) && keys.size <= 6) {
+                    keys += key
+                    write()
+                }
+            } else if (keys.contains(key)) {
+                keys -= key
+                write()
+            }
+            out.invoke()
+        }
 
         true
     } else false

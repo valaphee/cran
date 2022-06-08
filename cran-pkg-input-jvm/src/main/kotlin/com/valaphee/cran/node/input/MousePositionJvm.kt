@@ -14,23 +14,27 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.node.list
+package com.valaphee.cran.node.input
 
 import com.valaphee.cran.graph.jvm.Scope
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
 import com.valaphee.cran.spec.NodeProc
+import jdk.incubator.vector.IntVector
+import java.awt.MouseInfo
 
 /**
  * @author Kevin Ludwig
  */
 @NodeProc("jvm")
-object LastJvm : NodeJvm {
-    override fun process(node: Node, scope: Scope) = if (node is Last) {
-        val `in` = scope.dataPath(node.`in`)
+object MousePositionJvm : NodeJvm {
+    override fun process(node: Node, scope: Scope) = if (node is MousePosition) {
         val out = scope.dataPath(node.out)
 
-        out.set { `in`.getOfType<Iterable<Any?>>().lastOrNull() }
+        out.set {
+            val position = MouseInfo.getPointerInfo().location
+            IntVector.fromArray(IntVector.SPECIES_64, intArrayOf(position.x, position.y), 0)
+        }
 
         true
     } else false

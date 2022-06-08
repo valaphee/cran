@@ -29,39 +29,37 @@ import kotlin.math.pow
  */
 @NodeProc("jvm")
 object ExponentiateJvm : NodeJvm {
-    override fun process(nodes: List<Node>, scope: Scope) {
-        nodes.forEach {
-            if (it is Exponentiate) {
-                val inX = scope.dataPath(it.inX)
-                val inN = scope.dataPath(it.inN)
-                val out = scope.dataPath(it.out)
+    override fun process(node: Node, scope: Scope) = if (node is Exponentiate) {
+        val inX = scope.dataPath(node.inX)
+        val inN = scope.dataPath(node.inN)
+        val out = scope.dataPath(node.out)
 
-                out.set {
-                    val _inX = inX.get()
-                    val _inN = inN.get()
-                    when (_inX) {
-                        is Float -> when (_inN) {
-                            is Float  -> _inX           .pow(_inN        )
-                            is Double -> _inX.toDouble().pow(_inN        )
-                            is Number -> _inX           .pow(_inN.toInt())
-                            else      -> throw DataPathException("$_inX$_inN")
-                        }
-                        is Double -> when (_inN) {
-                            is Float  -> _inX.pow(_inN.toDouble())
-                            is Double -> _inX.pow(_inN           )
-                            is Number -> _inX.pow(_inN.toInt()   )
-                            else      -> throw DataPathException("$_inX$_inN")
-                        }
-                        is Number -> when (_inN) {
-                            is Float  -> _inX.toFloat() .pow(_inN)
-                            is Double -> _inX.toDouble().pow(_inN)
-                            is Number -> IntMath.pow(_inX.toInt(), _inN.toInt())
-                            else      -> throw DataPathException("$_inX$_inN")
-                        }
-                        else -> throw DataPathException("$_inX$_inN")
-                    }
+        out.set {
+            val _inX = inX.get()
+            val _inN = inN.get()
+            when (_inX) {
+                is Float -> when (_inN) {
+                    is Float  -> _inX           .pow(_inN        )
+                    is Double -> _inX.toDouble().pow(_inN        )
+                    is Number -> _inX           .pow(_inN.toInt())
+                    else      -> throw DataPathException("$_inX$_inN")
                 }
+                is Double -> when (_inN) {
+                    is Float  -> _inX.pow(_inN.toDouble())
+                    is Double -> _inX.pow(_inN           )
+                    is Number -> _inX.pow(_inN.toInt()   )
+                    else      -> throw DataPathException("$_inX$_inN")
+                }
+                is Number -> when (_inN) {
+                    is Float  -> _inX.toFloat() .pow(_inN)
+                    is Double -> _inX.toDouble().pow(_inN)
+                    is Number -> IntMath.pow(_inX.toInt(), _inN.toInt())
+                    else      -> throw DataPathException("$_inX$_inN")
+                }
+                else -> throw DataPathException("$_inX$_inN")
             }
         }
-    }
+
+        true
+    } else false
 }

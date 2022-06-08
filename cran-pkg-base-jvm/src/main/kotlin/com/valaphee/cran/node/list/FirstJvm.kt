@@ -26,14 +26,12 @@ import com.valaphee.cran.spec.NodeProc
  */
 @NodeProc("jvm")
 object FirstJvm : NodeJvm {
-    override fun process(nodes: List<Node>, scope: Scope) {
-        nodes.forEach {
-            if (it is First) {
-                val `in` = scope.dataPath(it.`in`)
-                val out = scope.dataPath(it.out)
+    override fun process(node: Node, scope: Scope) = if (node is First) {
+        val `in` = scope.dataPath(node.`in`)
+        val out = scope.dataPath(node.out)
 
-                out.set { `in`.getOfType<Iterable<Any?>>().firstOrNull() }
-            }
-        }
-    }
+        out.set { `in`.getOfType<Iterable<Any?>>().firstOrNull() }
+
+        true
+    } else false
 }
