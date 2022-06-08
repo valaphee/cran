@@ -22,8 +22,10 @@ dependencies {
     implementation(project(":cran-spec"))
     implementation(project(":cran-svc"))
 
-    implementation(project(":cran-pkg-base"))
-    implementation(project(":cran-pkg-input"))
+    implementation(project(":cran-jvm"))
+    implementation(project(":cran-jvm-base"))
+    implementation(project(":cran-jvm-cv"))
+    implementation(project(":cran-jvm-input"))
 
     implementation(libs.classgraph)
     implementation(libs.fasterxml.guice)

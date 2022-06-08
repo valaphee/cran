@@ -133,8 +133,8 @@ class ConnectionSkin(
     }
 
     override fun createContextMenu() = ContextMenu().apply {
-        item((skinFactory as SkinFactory).uiComponent.messages["graph.connection.probe"])
+        item((skinFactory as SkinFactory).uiComponent.messages["graph.connection.probe"]) { action {} }
         separator()
-        item((skinFactory as SkinFactory).uiComponent.messages["graph.connection.remove"]) { action { controller.getConnections(type).remove(model) } }
+        item(skinFactory.uiComponent.messages["graph.connection.remove"]) { action { controller.getConnections(type).remove(model) } }
     }
 }

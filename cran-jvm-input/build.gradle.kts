@@ -20,13 +20,11 @@ plugins {
 }
 
 dependencies {
-    api(project(":cran"))
+    api(project(":cran-jvm"))
     implementation(project(":cran-spec"))
     kapt(project(":cran-spec"))
 
-    implementation(libs.guava)
-
-    api(libs.kotlinx.coroutines)
+    implementation("org.hid4java:hid4java:0.7.0")
 }
 
 java {
@@ -40,7 +38,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             pom.apply {
-                name.set("Cran Jvm")
+                name.set("Cran Jvm: Input")
                 description.set("Flow-based programming \"language\"")
                 url.set("https://valaphee.com")
                 scm {

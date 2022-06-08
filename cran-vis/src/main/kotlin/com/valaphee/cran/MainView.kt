@@ -94,7 +94,7 @@ class MainView(
     override val coroutineContext = Dispatchers.IO
 
     private val channel = environment.toChannel()
-    private val graphService = GraphServiceGrpc.newBlockingStub(channel)
+    internal val graphService = GraphServiceGrpc.newBlockingStub(channel)
 
     private val objectMapper by di<ObjectMapper>()
     private val spec = objectMapper.readValue<Spec>(graphService.getSpec(GetSpecRequest.getDefaultInstance()).spec.toByteArray())
@@ -185,7 +185,7 @@ class MainView(
                     converter = object : StringConverter<PathTree<GraphImpl>>() {
                         override fun toString(`object`: PathTree<GraphImpl>) = `object`.name
 
-                        override fun fromString(string: String) = TODO()
+                        override fun fromString(string: String) = PathTree(item.path, string, item.value?.also { it.name = string })
                     }
                 }
             }

@@ -5,12 +5,14 @@ package com.valaphee.cran.svc.graph.v1;
 option java_multiple_files = true;
 option java_generic_services = true;
 
+// Spec
 message GetSpecRequest {}
 
 message GetSpecResponse {
   string spec = 1;
 }
 
+// Graph
 message ListGraphRequest {}
 
 message ListGraphResponse {
@@ -29,6 +31,7 @@ message DeleteGraphRequest {
 
 message DeleteGraphResponse {}
 
+// Graph Scope
 message RunGraphRequest {
   string graph_name = 1;
 }
@@ -43,6 +46,24 @@ message StopGraphRequest {
 
 message StopGraphResponse {}
 
+// Path
+message PathProbeRequest {
+  enum Action {
+    ADD = 0;
+    REMOVE = 1;
+  }
+
+  string graph_name = 1;
+  uint32 path_id = 2;
+  Action action = 3;
+}
+
+message PathProbeResponse {
+  uint32 path_probe_id = 1;
+  optional bytes data = 2;
+}
+
+// Service
 service GraphService {
   rpc GetSpec (GetSpecRequest) returns (GetSpecResponse);
 
@@ -55,4 +76,6 @@ service GraphService {
   rpc RunGraph (RunGraphRequest) returns (RunGraphResponse);
 
   rpc StopGraph (StopGraphRequest) returns (StopGraphResponse);
+
+  rpc PathProbe (stream PathProbeRequest) returns (stream PathProbeResponse);
 }

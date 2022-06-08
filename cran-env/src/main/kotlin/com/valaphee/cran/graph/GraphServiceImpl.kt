@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.valaphee.cran.node.Entry
 import com.valaphee.cran.spec.Spec
 import com.valaphee.cran.svc.graph.v1.DeleteGraphRequest
 import com.valaphee.cran.svc.graph.v1.DeleteGraphResponse
@@ -28,6 +29,8 @@ import com.valaphee.cran.svc.graph.v1.GetSpecResponse
 import com.valaphee.cran.svc.graph.v1.GraphServiceGrpc.GraphServiceImplBase
 import com.valaphee.cran.svc.graph.v1.ListGraphRequest
 import com.valaphee.cran.svc.graph.v1.ListGraphResponse
+import com.valaphee.cran.svc.graph.v1.PathProbeRequest
+import com.valaphee.cran.svc.graph.v1.PathProbeResponse
 import com.valaphee.cran.svc.graph.v1.RunGraphRequest
 import com.valaphee.cran.svc.graph.v1.RunGraphResponse
 import com.valaphee.cran.svc.graph.v1.StopGraphRequest
@@ -114,7 +117,7 @@ class GraphServiceImpl @Inject constructor(
                 scopes[scopeId] = it
                 it.initialize()
             }
-            it.nodes.forEach { if (it is com.valaphee.cran.node.Entry) launch { it(scope) } }
+            it.nodes.forEach { if (it is Entry) launch { it(scope) } }
         }
 
         responseObserver.onNext(RunGraphResponse.newBuilder().setScopeId(scopeId.toString()).build())
@@ -126,6 +129,18 @@ class GraphServiceImpl @Inject constructor(
 
         responseObserver.onNext(StopGraphResponse.getDefaultInstance())
         responseObserver.onCompleted()
+    }
+
+    override fun pathProbe(responseObserver: StreamObserver<PathProbeResponse>) = object : StreamObserver<PathProbeRequest> {
+        override fun onNext(value: PathProbeRequest) {
+        }
+
+        override fun onError(thrown: Throwable) {
+        }
+
+        override fun onCompleted() {
+            responseObserver.onCompleted()
+        }
     }
 
     companion object {

@@ -87,7 +87,7 @@ class GraphImpl(
                         }
                     }
                 }
-            }.values.forEach { it.forEach { connectorA -> if (connectorA.isOutput) it.forEach { connectorB -> if (connectorB.isInput) connect(connectorA, connectorB) } } }
+            }.forEach { (id, connectors) -> connectors.forEach { connectorA -> if (connectorA.isOutput) connectors.forEach { connectorB -> if (connectorB.isInput) connect(connectorA, connectorB).apply { connection.id = id.toString() } } } }
         }
     }
 

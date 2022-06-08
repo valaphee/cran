@@ -21,7 +21,7 @@ import javafx.scene.control.TreeItem
 /**
  * @author Kevin Ludwig
  */
-class PathTree<T> private constructor(
+class PathTree<T> constructor(
     val path: String,
     val name: String? = null,
     val value: T? = null
