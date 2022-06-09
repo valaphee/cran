@@ -32,6 +32,7 @@ import tornadofx.get
 import tornadofx.item
 import tornadofx.onChange
 import tornadofx.separator
+import kotlin.math.max
 
 /**
  * @author Kevin Ludwig
@@ -103,6 +104,9 @@ class NodeSkin(
                 }
             }
         }
+
+        // Adjust height
+        model.height = 25.0 + 20.0 * 2 + max(20.0 * model.inputs.size, 20.0 * model.outputs.size)
     }
 
     override fun createConnectorShape(connector: Connector) = ConnectorShape(controller, connector)

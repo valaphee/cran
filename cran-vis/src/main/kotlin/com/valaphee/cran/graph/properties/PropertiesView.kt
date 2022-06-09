@@ -22,6 +22,7 @@ import com.fasterxml.jackson.module.kotlin.treeToValue
 import com.valaphee.cran.graph.ConnectorValueObject
 import com.valaphee.cran.graph.GraphImpl.Companion.addPort
 import com.valaphee.cran.graph.NodeValueObject
+import com.valaphee.cran.spec.Spec
 import eu.mihosoft.vrl.workflow.VNode
 import javafx.scene.layout.Priority
 import tornadofx.View
@@ -65,22 +66,22 @@ class PropertiesView(
             val nodeValueObject = (node.valueObject as NodeValueObject)
             nodeValueObject.spec.ports.groupBy { it.type }.forEach {
                 fieldset(it.key.name) {
-
                     it.value.groupBy { it }.forEach {
-                        field("${it.key.name} (${it.key.json})") {
+                        field(""""${it.key.name}" (${it.key.json})""") {
                             vbox {
                                 objectMapper.treeToValue<JsonSchema?>(it.key.data)?.let { jsonSchema ->
                                     it.value.forEach {
-                                        node.connectors.filter { connector -> connector.localId == it.json }.forEach { connector ->
+                                        if (it.type == Spec.Node.Port.Type.Const) add(jsonSchema.toNode(viewModel.bind { nodeValueObject.const.single { const -> const.spec == it }.valueProperty }))
+                                        else node.connectors.filter { connector -> connector.localId == it.json }.forEach { connector ->
                                             val connectorValueObject = connector.valueObject as ConnectorValueObject
                                             connectorValueObject.multiKeyProperty?.let {
                                                 add(hbox {
                                                     val multiKeyProperty = viewModel.bind { it }
                                                     textfield(multiKeyProperty.value.let { objectMapper.writeValueAsString(it) } ?: "") { focusedProperty().onChange { _ -> multiKeyProperty.value = objectMapper.readValue(text) } }
-                                                    add(jsonSchema.toNode(viewModel.bind { connectorValueObject.valueProperty() }, node.flow.getConnections(connector.type).isInputConnected(connector)).apply { hgrow = Priority.ALWAYS })
+                                                    if (connector.isInput && !node.flow.getConnections(connector.type).isInputConnected(connector)) add(jsonSchema.toNode(viewModel.bind { connectorValueObject.valueProperty() }).apply { hgrow = Priority.ALWAYS })
                                                     button("-") { action { node.removeConnector(connector) } }
                                                 })
-                                            } ?: add(jsonSchema.toNode(viewModel.bind { connectorValueObject.valueProperty() }, node.flow.getConnections(connector.type).isInputConnected(connector)))
+                                            } ?: if (connector.isInput && !node.flow.getConnections(connector.type).isInputConnected(connector)) add(jsonSchema.toNode(viewModel.bind { connectorValueObject.valueProperty() })) else Unit
                                         }
                                     }
                                 } ?: it.value.forEach {

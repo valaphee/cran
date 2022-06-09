@@ -21,7 +21,6 @@ include("cran-spec")
 include("cran-svc")
 
 include("cran-pkg-base")
-include("cran-pkg-base-hlsl")
 include("cran-pkg-base-virtual")
 include("cran-pkg-input")
 include("cran-pkg-input-virtual")
