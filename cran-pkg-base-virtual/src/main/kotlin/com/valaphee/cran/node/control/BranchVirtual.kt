@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.node.math.scalar
+package com.valaphee.cran.node.control
 
-import com.valaphee.cran.Glsl
+import com.valaphee.cran.Virtual
 import com.valaphee.cran.node.Node
-import com.valaphee.cran.node.NodeGlsl
+import com.valaphee.cran.node.NodeVirtual
 import com.valaphee.cran.spec.NodeImpl
 
 /**
  * @author Kevin Ludwig
  */
-@NodeImpl("glsl")
-object AddGlsl : NodeGlsl {
-    override fun initialize(node: Node, glsl: Glsl) = if (node is Add) {
-        val inA = glsl.getVariable(node.inA)
-        val inB = glsl.getVariable(node.inB)
+@NodeImpl("virtual")
+object BranchVirtual : NodeVirtual {
+    override fun initialize(node: Node, virtual: Virtual) = if (node is Branch) {
+        val `in` = virtual.controlPath(node.`in`)
+        val inValue = virtual.dataPath(node.inValue)
+        val out = node.out.mapValues { virtual.controlPath(it.value) }
+        val outDefault = virtual.controlPath(node.outDefault)
 
-        glsl.defineVariable(node.out, "${inA.declare()} + ${inB.declare()}")
+        `in`.define { (out[inValue.get()] ?: outDefault)() }
 
         true
     } else false

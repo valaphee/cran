@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.node.math.scalar
+package com.valaphee.cran.node
 
 import com.valaphee.cran.Glsl
-import com.valaphee.cran.node.Node
-import com.valaphee.cran.node.NodeGlsl
 import com.valaphee.cran.spec.NodeImpl
 
 /**
  * @author Kevin Ludwig
  */
 @NodeImpl("glsl")
-object AddGlsl : NodeGlsl {
-    override fun initialize(node: Node, glsl: Glsl) = if (node is Add) {
-        val inA = glsl.getVariable(node.inA)
-        val inB = glsl.getVariable(node.inB)
-
-        glsl.defineVariable(node.out, "${inA.declare()} + ${inB.declare()}")
+object ValueGlsl : NodeGlsl {
+    override fun initialize(node: Node, glsl: Glsl) = if (node is Value) {
+        glsl.defineVariable(node.out, "${node.value}")
 
         true
     } else false

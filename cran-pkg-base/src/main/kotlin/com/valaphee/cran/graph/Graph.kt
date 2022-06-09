@@ -34,6 +34,7 @@ import com.valaphee.cran.spec.Spec
 abstract class Graph {
     @get:JsonProperty("name" ) abstract val name : String
     @get:JsonProperty("nodes") abstract val nodes: List<Node>
+
     @get:JsonIgnore val sortedNodes: List<Node> get() = mutableListOf<Node>().apply {
         val nodes = nodes.toMutableList()
         val satisfiedRequirements = linkedSetOf<Int>()

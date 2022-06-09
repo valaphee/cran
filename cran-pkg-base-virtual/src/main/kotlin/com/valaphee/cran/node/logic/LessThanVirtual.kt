@@ -14,23 +14,30 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.node.math.scalar
+package com.valaphee.cran.node.logic
 
-import com.valaphee.cran.Glsl
+import com.valaphee.cran.Virtual
 import com.valaphee.cran.node.Node
-import com.valaphee.cran.node.NodeGlsl
+import com.valaphee.cran.node.NodeVirtual
+import com.valaphee.cran.path.DataPathException
 import com.valaphee.cran.spec.NodeImpl
 
 /**
  * @author Kevin Ludwig
  */
-@NodeImpl("glsl")
-object AddGlsl : NodeGlsl {
-    override fun initialize(node: Node, glsl: Glsl) = if (node is Add) {
-        val inA = glsl.getVariable(node.inA)
-        val inB = glsl.getVariable(node.inB)
+@NodeImpl("virtual")
+object LessThanVirtual : NodeVirtual {
+    override fun initialize(node: Node, virtual: Virtual) = if (node is LessThan) {
+        val inA = virtual.dataPath(node.inA)
+        val inB = virtual.dataPath(node.inB)
+        val out = virtual.dataPath(node.out)
 
-        glsl.defineVariable(node.out, "${inA.declare()} + ${inB.declare()}")
+        out.set {
+            val _inA = inA.get()
+            val _inB = inB.get()
+            val _out = Compare.compare(_inA, _inB)
+            if (_out != Int.MAX_VALUE) _out < 0 else DataPathException("$_inA < $_inB")
+        }
 
         true
     } else false

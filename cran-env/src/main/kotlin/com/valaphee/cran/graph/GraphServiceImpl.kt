@@ -20,10 +20,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import com.valaphee.cran.graph.jvm.GraphJvmLookup
-import com.valaphee.cran.graph.jvm.Scope
+import com.valaphee.cran.Virtual
 import com.valaphee.cran.node.Entry
-import com.valaphee.cran.node.NodeJvm
+import com.valaphee.cran.node.NodeVirtual
 import com.valaphee.cran.spec.Spec
 import com.valaphee.cran.svc.graph.v1.DeleteGraphRequest
 import com.valaphee.cran.svc.graph.v1.DeleteGraphResponse
@@ -59,23 +58,23 @@ import java.util.zip.GZIPOutputStream
 @Singleton
 class GraphServiceImpl @Inject constructor(
     private val objectMapper: ObjectMapper
-) : GraphServiceImplBase(), GraphJvmLookup, CoroutineScope {
+) : GraphServiceImplBase(), GraphLookup, CoroutineScope {
     private val executor = Executors.newSingleThreadExecutor()
     override val coroutineContext get() = executor.asCoroutineDispatcher()
 
     private val dataPath = File("data").also { it.mkdirs() }
 
     private val spec: Spec
-    private val procs: List<NodeJvm>
-    private val graphs = mutableMapOf<String, GraphImpl>()
-    private val scopes = mutableMapOf<UUID, Scope>()
+    private val implsVirtual: List<NodeVirtual>
+    private val graphs = mutableMapOf<String, Graph>()
+    private val scopes = mutableMapOf<UUID, Virtual>()
 
     init {
         ClassGraph().scan().use {
             spec = it.getResourcesMatchingWildcard("**.spec.json").urLs.map { objectMapper.readValue<Spec>(it).also { it.nodes.onEach { log.info("Built-in node '{}' found", it.name) } } }.reduce { acc, spec -> acc + spec }
             graphs += it.getResourcesMatchingWildcard("**.gph").urLs.map { objectMapper.readValue<GraphImpl>(it).also { log.info("Built-in graph '{}' found", it.name) } }.associateBy { it.name }
         }
-        procs = checkNotNull(spec.nodesImpls["jvm"]).mapNotNull { Class.forName(it).kotlin.objectInstance as NodeJvm? }
+        implsVirtual = checkNotNull(spec.nodesImpls["virtual"]).mapNotNull { Class.forName(it).kotlin.objectInstance as NodeVirtual? }
         dataPath.walk().forEach {
             if (it.isFile && it.extension == "gph") it.inputStream().use {
                 objectMapper.readValue<GraphImpl>(GZIPInputStream(it)).also {
@@ -87,7 +86,7 @@ class GraphServiceImpl @Inject constructor(
         }
     }
 
-    override fun getGraphJvm(name: String) = graphs[name]
+    override fun getGraph(name: String) = graphs[name]
 
     override fun getSpec(request: GetSpecRequest, responseObserver: StreamObserver<GetSpecResponse>) {
         responseObserver.onNext(GetSpecResponse.newBuilder().setSpec(objectMapper.writeValueAsString(spec)).build())
@@ -118,7 +117,7 @@ class GraphServiceImpl @Inject constructor(
     override fun runGraph(request: RunGraphRequest, responseObserver: StreamObserver<RunGraphResponse>) {
         val scopeId = UUID.randomUUID()
         graphs[request.graphName]?.let {
-            val scope = Scope(objectMapper, procs, this, it).also {
+            val scope = Virtual(objectMapper, implsVirtual, this, it).also {
                 scopes[scopeId] = it
                 it.initialize()
             }

@@ -17,7 +17,6 @@
 package com.valaphee.cran.graph
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.cran.graph.jvm.GraphJvm
 import com.valaphee.cran.meta.Meta
 import com.valaphee.cran.node.Node
 
@@ -25,7 +24,7 @@ import com.valaphee.cran.node.Node
  * @author Kevin Ludwig
  */
 class GraphImpl(
-                              override val name : String    ,
-    @get:JsonProperty("meta")          val meta : Meta?     ,
+                              override val name : String     ,
+    @get:JsonProperty("meta")          val meta : Meta?      ,
                               override val nodes: List<Node>
-) : GraphJvm()
+) : Graph()
