@@ -38,18 +38,18 @@
   },
   "nodes" : [ {
     "type" : "Logic/Greater Than",
-    "in_a" : 0,
-    "in_b" : 1,
+    "in_1" : 0,
+    "in_2" : 1,
     "out" : 2
   }, {
     "type" : "Math/Vector/Distance",
-    "in_p" : 3,
-    "in_q" : 4,
+    "in_1" : 3,
+    "in_2" : 4,
     "out" : 0
   }, {
     "type" : "Math/Vector/Subtract",
-    "in_a" : 3,
-    "in_b" : 4,
+    "in_1" : 3,
+    "in_2" : 4,
     "out" : 5
   }, {
     "type" : "Control/While",

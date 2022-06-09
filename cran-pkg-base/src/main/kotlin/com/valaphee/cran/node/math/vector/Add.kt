@@ -17,7 +17,7 @@
 package com.valaphee.cran.node.math.vector
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.cran.node.Node
+import com.valaphee.cran.node.BinaryOperation
 import com.valaphee.cran.spec.In
 import com.valaphee.cran.spec.NodeDecl
 import com.valaphee.cran.spec.Out
@@ -28,11 +28,7 @@ import com.valaphee.cran.spec.Out
 @NodeDecl("Math/Vector/Add")
 class Add(
     type: String,
-    @get:In ("A"    , Vec) @get:JsonProperty("in_a") val inA: Int,
-    @get:In ("B"    , Vec) @get:JsonProperty("in_b") val inB: Int,
-    @get:Out("A + B", Vec) @get:JsonProperty("out" ) val out: Int
-) : Node(type) {
-    init {
-        out requires intArrayOf(inA, inB)
-    }
-}
+    @get:In ("A"    , Vec) @get:JsonProperty("in_1") override val in1: Int,
+    @get:In ("B"    , Vec) @get:JsonProperty("in_2") override val in2: Int,
+    @get:Out("A + B", Vec) @get:JsonProperty("out" ) override val out: Int
+) : BinaryOperation(type)

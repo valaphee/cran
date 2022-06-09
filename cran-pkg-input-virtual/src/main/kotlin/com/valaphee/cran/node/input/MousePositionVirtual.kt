@@ -18,7 +18,7 @@ package com.valaphee.cran.node.input
 
 import com.valaphee.cran.Virtual
 import com.valaphee.cran.node.Node
-import com.valaphee.cran.node.NodeVirtual
+import com.valaphee.cran.virtual.Implementation
 import com.valaphee.cran.spec.NodeImpl
 import jdk.incubator.vector.IntVector
 import java.awt.MouseInfo
@@ -27,7 +27,7 @@ import java.awt.MouseInfo
  * @author Kevin Ludwig
  */
 @NodeImpl("virtual")
-object MousePositionVirtual : NodeVirtual {
+object MousePositionVirtual : Implementation {
     override fun initialize(node: Node, virtual: Virtual) = if (node is MousePosition) {
         val out = virtual.dataPath(node.out)
 

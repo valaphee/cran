@@ -21,14 +21,14 @@ import com.valaphee.cran.graph.Graph
 import com.valaphee.cran.graph.GraphLookup
 import com.valaphee.cran.virtual.ControlPath
 import com.valaphee.cran.virtual.DataPath
-import com.valaphee.cran.node.NodeVirtual
+import com.valaphee.cran.virtual.Implementation
 
 /**
  * @author Kevin Ludwig
  */
 class Virtual(
     val objectMapper: ObjectMapper,
-    val impls: List<NodeVirtual>,
+    val impls: List<Implementation>,
     val graphLookup: GraphLookup,
     val graph: Graph,
 ) {

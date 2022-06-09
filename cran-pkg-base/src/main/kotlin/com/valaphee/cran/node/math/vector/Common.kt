@@ -21,13 +21,9 @@ import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonSerializer
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializerProvider
-import com.fasterxml.jackson.module.kotlin.convertValue
 import jdk.incubator.vector.DoubleVector
-import jdk.incubator.vector.FloatVector
 import jdk.incubator.vector.IntVector
-import jdk.incubator.vector.VectorOperators
 
 const val Vec  = """{"type":"array","items":{"type":"number"}}"""
 const val Vec2 = """{"type":"array","items":{"type":"number"},"minItems":2,"maxItems":2}"""
@@ -107,38 +103,4 @@ object DoubleVectorDeserializer : JsonDeserializer<DoubleVector>() {
             else    -> error("${array.size}")
         }
     }
-}
-
-inline fun vectorOp(x: Any?, intOp: (IntVector) -> Any, floatOp: (FloatVector) -> Any, doubleOp: (DoubleVector) -> Any, objectMapper: ObjectMapper) = when (x) {
-    is IntVector -> intOp   (x                                         )
-    is FloatVector -> floatOp (x                                         )
-    is DoubleVector -> doubleOp(x                                         )
-    else            -> doubleOp(objectMapper.convertValue(checkNotNull(x)))
-}
-
-inline fun vectorOp(a: Any?, b: Any?, intOp: (IntVector, IntVector) -> Any, floatOp: (FloatVector, FloatVector) -> Any, doubleOp: (DoubleVector, DoubleVector) -> Any, objectMapper: ObjectMapper) = when (a) {
-    is IntVector -> when (b) {
-        is IntVector -> intOp   (a                                                                                                     , b                                         )
-        is FloatVector -> floatOp (a.convert     (VectorOperators.I2F,                                          0).reinterpretAsFloats() , b                                         )
-        is DoubleVector -> doubleOp(a.convertShape(VectorOperators.I2D, doubleVectorSpeciesByLength(a.length()), 0).reinterpretAsDoubles(), b                                         )
-        else            -> doubleOp(a.convertShape(VectorOperators.I2D, doubleVectorSpeciesByLength(a.length()), 0).reinterpretAsDoubles(), objectMapper.convertValue(checkNotNull(b)))
-    }
-    is FloatVector -> when (b) {
-        is IntVector -> floatOp (a                                                                                                     , b.convert(VectorOperators.I2F, 0).reinterpretAsFloats())
-        is FloatVector -> floatOp (a                                                                                                     , b                                                      )
-        is DoubleVector -> doubleOp(a.convertShape(VectorOperators.F2D, doubleVectorSpeciesByLength(a.length()), 0).reinterpretAsDoubles(), b                                                      )
-        else            -> doubleOp(a.convertShape(VectorOperators.F2D, doubleVectorSpeciesByLength(a.length()), 0).reinterpretAsDoubles(), objectMapper.convertValue(checkNotNull(b))             )
-    }
-    is DoubleVector -> when (b) {
-        is IntVector -> doubleOp(a, b.convertShape(VectorOperators.I2D, doubleVectorSpeciesByLength(b.length()), 0).reinterpretAsDoubles())
-        is FloatVector -> doubleOp(a, b.convertShape(VectorOperators.F2D, doubleVectorSpeciesByLength(b.length()), 0).reinterpretAsDoubles())
-        is DoubleVector -> doubleOp(a, b                                                                                                     )
-        else            -> doubleOp(a, objectMapper.convertValue(checkNotNull(b))                                                            )
-    }
-    else -> doubleOp(objectMapper.convertValue(checkNotNull(a)), when (b) {
-        is IntVector -> b.convertShape(VectorOperators.I2D, doubleVectorSpeciesByLength(b.length()), 0).reinterpretAsDoubles()
-        is FloatVector -> b.convertShape(VectorOperators.F2D, doubleVectorSpeciesByLength(b.length()), 0).reinterpretAsDoubles()
-        is DoubleVector -> b
-        else            -> objectMapper.convertValue(checkNotNull(b))
-    })
 }

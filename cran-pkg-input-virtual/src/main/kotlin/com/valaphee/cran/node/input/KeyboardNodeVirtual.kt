@@ -16,7 +16,7 @@
 
 package com.valaphee.cran.node.input
 
-import com.valaphee.cran.node.NodeVirtual
+import com.valaphee.cran.virtual.Implementation
 import org.hid4java.HidDevice
 import org.hid4java.HidManager
 import java.util.BitSet
@@ -25,7 +25,7 @@ import kotlin.concurrent.thread
 /**
  * @author Kevin Ludwig
  */
-abstract class KeyboardNodeVirtual : NodeVirtual {
+abstract class KeyboardNodeVirtual : Implementation {
     protected companion object {
         private var hidDevice: HidDevice? = null
         private const val path = "\\\\?\\hid#variable_6&col04#1"

@@ -17,7 +17,7 @@
 package com.valaphee.cran.node.math.vector
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.cran.node.Node
+import com.valaphee.cran.node.BinaryOperation
 import com.valaphee.cran.node.Num
 import com.valaphee.cran.spec.In
 import com.valaphee.cran.spec.NodeDecl
@@ -29,11 +29,7 @@ import com.valaphee.cran.spec.Out
 @NodeDecl("Math/Vector/Distance")
 class Distance(
     type: String,
-    @get:In ("p"      , Vec) @get:JsonProperty("in_p") val inP: Int,
-    @get:In ("q"      , Vec) @get:JsonProperty("in_q") val inQ: Int,
-    @get:Out("d(p, q)", Num) @get:JsonProperty("out" ) val out: Int
-) : Node(type) {
-    init {
-        out requires intArrayOf(inP, inQ)
-    }
-}
+    @get:In ("p"      , Vec) @get:JsonProperty("in_1") override val in1: Int,
+    @get:In ("q"      , Vec) @get:JsonProperty("in_2") override val in2: Int,
+    @get:Out("d(p, q)", Num) @get:JsonProperty("out" ) override val out: Int
+) : BinaryOperation(type)

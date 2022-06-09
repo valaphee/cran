@@ -17,8 +17,8 @@
 package com.valaphee.cran.node.logic
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.cran.node.BinaryOperation
 import com.valaphee.cran.node.Bit
-import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.Und
 import com.valaphee.cran.spec.In
 import com.valaphee.cran.spec.NodeDecl
@@ -30,11 +30,7 @@ import com.valaphee.cran.spec.Out
 @NodeDecl("Logic/Less Than")
 class LessThan(
     type: String,
-    @get:In ("A"    , Und) @get:JsonProperty("in_a") val inA: Int,
-    @get:In ("B"    , Und) @get:JsonProperty("in_b") val inB: Int,
-    @get:Out("A < B", Bit) @get:JsonProperty("out" ) val out: Int
-) : Node(type) {
-    init {
-        out requires intArrayOf(inA, inB)
-    }
-}
+    @get:In ("A"    , Und) @get:JsonProperty("in_1") override val in1: Int,
+    @get:In ("B"    , Und) @get:JsonProperty("in_2") override val in2: Int,
+    @get:Out("A < B", Bit) @get:JsonProperty("out" ) override val out: Int
+) : BinaryOperation(type)

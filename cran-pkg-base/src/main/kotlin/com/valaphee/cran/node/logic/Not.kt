@@ -18,7 +18,7 @@ package com.valaphee.cran.node.logic
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.cran.node.Bit
-import com.valaphee.cran.node.Node
+import com.valaphee.cran.node.UnaryOperation
 import com.valaphee.cran.spec.In
 import com.valaphee.cran.spec.NodeDecl
 import com.valaphee.cran.spec.Out
@@ -29,10 +29,7 @@ import com.valaphee.cran.spec.Out
 @NodeDecl("Logic/Not")
 class Not(
     type: String,
-    @get:In ("X" , Bit) @get:JsonProperty("in" ) val `in`: Int,
-    @get:Out("¬X", Bit) @get:JsonProperty("out") val out : Int
-) : Node(type) {
-    init {
-        out requires intArrayOf(`in`)
-    }
-}
+    @get:In ("X" , Bit) @get:JsonProperty("in" ) override val `in`: Int,
+    @get:Out("¬X", Bit) @get:JsonProperty("out") override val out : Int
+) : UnaryOperation(type)
+

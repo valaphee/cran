@@ -17,7 +17,7 @@
 package com.valaphee.cran.node.math.scalar
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.cran.node.Node
+import com.valaphee.cran.node.BinaryOperation
 import com.valaphee.cran.node.Num
 import com.valaphee.cran.spec.In
 import com.valaphee.cran.spec.NodeDecl
@@ -29,11 +29,7 @@ import com.valaphee.cran.spec.Out
 @NodeDecl("Math/Scalar/Root")
 class Root(
     type: String,
-    @get:In ("x"  , Num) @get:JsonProperty("in_x") val inX: Int,
-    @get:In ("n"  , Num) @get:JsonProperty("in_n") val inN: Int,
-    @get:Out("ⁿ√x", Num) @get:JsonProperty("out" ) val out: Int
-) : Node(type) {
-    init {
-        out requires intArrayOf(inX, inN)
-    }
-}
+    @get:In ("x"  , Num) @get:JsonProperty("in_1") override val in1: Int,
+    @get:In ("n"  , Num) @get:JsonProperty("in_2") override val in2: Int,
+    @get:Out("ⁿ√x", Num) @get:JsonProperty("out" ) override val out: Int
+) : BinaryOperation(type)

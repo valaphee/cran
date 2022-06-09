@@ -22,7 +22,7 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.valaphee.cran.Virtual
 import com.valaphee.cran.node.Entry
-import com.valaphee.cran.node.NodeVirtual
+import com.valaphee.cran.virtual.Implementation
 import com.valaphee.cran.spec.Spec
 import com.valaphee.cran.svc.graph.v1.DeleteGraphRequest
 import com.valaphee.cran.svc.graph.v1.DeleteGraphResponse
@@ -65,7 +65,7 @@ class GraphServiceImpl @Inject constructor(
     private val dataPath = File("data").also { it.mkdirs() }
 
     private val spec: Spec
-    private val implsVirtual: List<NodeVirtual>
+    private val implsVirtual: List<Implementation>
     private val graphs = mutableMapOf<String, Graph>()
     private val scopes = mutableMapOf<UUID, Virtual>()
 
@@ -74,7 +74,7 @@ class GraphServiceImpl @Inject constructor(
             spec = it.getResourcesMatchingWildcard("**.spec.json").urLs.map { objectMapper.readValue<Spec>(it).also { it.nodes.onEach { log.info("Built-in node '{}' found", it.name) } } }.reduce { acc, spec -> acc + spec }
             graphs += it.getResourcesMatchingWildcard("**.gph").urLs.map { objectMapper.readValue<GraphImpl>(it).also { log.info("Built-in graph '{}' found", it.name) } }.associateBy { it.name }
         }
-        implsVirtual = checkNotNull(spec.nodesImpls["virtual"]).mapNotNull { Class.forName(it).kotlin.objectInstance as NodeVirtual? }
+        implsVirtual = checkNotNull(spec.nodesImpls["virtual"]).mapNotNull { Class.forName(it).kotlin.objectInstance as Implementation? }
         dataPath.walk().forEach {
             if (it.isFile && it.extension == "gph") it.inputStream().use {
                 objectMapper.readValue<GraphImpl>(GZIPInputStream(it)).also {

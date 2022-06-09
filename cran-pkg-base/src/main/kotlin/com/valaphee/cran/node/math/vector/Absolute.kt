@@ -17,7 +17,7 @@
 package com.valaphee.cran.node.math.vector
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.valaphee.cran.node.Node
+import com.valaphee.cran.node.UnaryOperation
 import com.valaphee.cran.spec.In
 import com.valaphee.cran.spec.NodeDecl
 import com.valaphee.cran.spec.Out
@@ -28,10 +28,6 @@ import com.valaphee.cran.spec.Out
 @NodeDecl("Math/Vector/Absolute")
 class Absolute(
     type: String,
-    @get:In ("X"  , Vec) @get:JsonProperty("in" ) val `in`: Int,
-    @get:Out("|X|", Vec) @get:JsonProperty("out") val out : Int
-) : Node(type) {
-    init {
-        out requires intArrayOf(`in`)
-    }
-}
+    @get:In ("X"  , Vec) @get:JsonProperty("in" ) override val `in`: Int,
+    @get:Out("|X|", Vec) @get:JsonProperty("out") override val out : Int
+) : UnaryOperation(type)
