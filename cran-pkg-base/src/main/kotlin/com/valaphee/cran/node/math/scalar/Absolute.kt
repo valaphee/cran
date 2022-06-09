@@ -31,4 +31,8 @@ class Absolute(
     type: String,
     @get:In ("X"  , Num) @get:JsonProperty("in" ) val `in`: Int,
     @get:Out("|X|", Num) @get:JsonProperty("out") val out : Int
-) : Node(type)
+) : Node(type) {
+    init {
+        out requires intArrayOf(`in`)
+    }
+}

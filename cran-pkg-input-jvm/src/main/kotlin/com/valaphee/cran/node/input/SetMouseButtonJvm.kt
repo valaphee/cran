@@ -18,20 +18,20 @@ package com.valaphee.cran.node.input
 
 import com.valaphee.cran.graph.jvm.Scope
 import com.valaphee.cran.node.Node
-import com.valaphee.cran.spec.NodeProc
+import com.valaphee.cran.spec.NodeImpl
 
 /**
  * @author Kevin Ludwig
  */
-@NodeProc("jvm")
+@NodeImpl("jvm")
 object SetMouseButtonJvm : MouseNodeJvm() {
-    override fun process(node: Node, scope: Scope) = if (node is SetMouseButton) {
+    override fun initialize(node: Node, scope: Scope) = if (node is SetMouseButton) {
         val `in` = scope.controlPath(node.`in`)
         val inButton = scope.dataPath(node.inButton)
         val inState = scope.dataPath(node.inState)
         val out = scope.controlPath(node.out)
 
-        `in`.declare {
+        `in`.define {
             val button = inButton.getOfType<Int>()
             if (inState.getOfType()) {
                 buttons.set(button)

@@ -19,14 +19,14 @@ package com.valaphee.cran.node.control
 import com.valaphee.cran.graph.jvm.Scope
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeProc
+import com.valaphee.cran.spec.NodeImpl
 
 /**
  * @author Kevin Ludwig
  */
-@NodeProc("jvm")
+@NodeImpl("jvm")
 object ForJvm : NodeJvm {
-    override fun process(node: Node, scope: Scope) = if (node is For) {
+    override fun initialize(node: Node, scope: Scope) = if (node is For) {
         val `in` = scope.controlPath(node.`in`)
         val inRangeStart = scope.dataPath(node.inRangeStart)
         val inRangeEnd = scope.dataPath(node.inRangeEnd)
@@ -35,7 +35,7 @@ object ForJvm : NodeJvm {
         val out = scope.controlPath(node.out)
         val outIndex = scope.dataPath(node.outIndex)
 
-        `in`.declare {
+        `in`.define {
             IntProgression.fromClosedRange(inRangeStart.getOfType(), inRangeEnd.getOfType(), inStep.getOfType()).forEach {
                 outIndex.set(it)
                 outBody()

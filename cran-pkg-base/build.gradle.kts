@@ -25,8 +25,6 @@ dependencies {
 
     implementation(libs.classgraph)
     api(libs.fasterxml.kotlin)
-    implementation(libs.guava)
-    api(libs.kotlinx.coroutines)
 }
 
 java {

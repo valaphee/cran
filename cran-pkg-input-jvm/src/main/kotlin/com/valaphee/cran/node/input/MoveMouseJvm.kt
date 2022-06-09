@@ -18,15 +18,15 @@ package com.valaphee.cran.node.input
 
 import com.valaphee.cran.graph.jvm.Scope
 import com.valaphee.cran.node.Node
-import com.valaphee.cran.spec.NodeProc
+import com.valaphee.cran.spec.NodeImpl
 import jdk.incubator.vector.IntVector
 
 /**
  * @author Kevin Ludwig
  */
-@NodeProc("jvm")
+@NodeImpl("jvm")
 object MoveMouseJvm : MouseNodeJvm() {
-    override fun process(node: Node, scope: Scope) = if (node is MoveMouse) {
+    override fun initialize(node: Node, scope: Scope) = if (node is MoveMouse) {
         val `in` = scope.controlPath(node.`in`)
         val inSensitivity = scope.dataPath(node.inSensitivity)
         val inMove = scope.dataPath(node.inMove)
@@ -43,7 +43,7 @@ object MoveMouseJvm : MouseNodeJvm() {
             }
         }.toIntArray()
 
-        `in`.declare {
+        `in`.define {
             val move = inMove.getOfType<IntVector>()
             val moveAbs = move.abs().min(moves.size - 1)
             val moveX = moves[moveAbs.lane(0)]

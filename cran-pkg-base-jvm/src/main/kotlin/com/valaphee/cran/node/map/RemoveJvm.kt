@@ -19,14 +19,14 @@ package com.valaphee.cran.node.map
 import com.valaphee.cran.graph.jvm.Scope
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeProc
+import com.valaphee.cran.spec.NodeImpl
 
 /**
  * @author Kevin Ludwig
  */
-@NodeProc("jvm")
+@NodeImpl("jvm")
 object RemoveJvm : NodeJvm {
-    override fun process(node: Node, scope: Scope) = if (node is Remove) {
+    override fun initialize(node: Node, scope: Scope) = if (node is Remove) {
         val `in` = scope.dataPath(node.`in`)
         val inKey = scope.dataPath(node.inKey)
         val out = scope.dataPath(node.out)

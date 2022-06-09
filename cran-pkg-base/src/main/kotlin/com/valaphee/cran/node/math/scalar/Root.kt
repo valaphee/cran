@@ -32,4 +32,8 @@ class Root(
     @get:In ("x"  , Num) @get:JsonProperty("in_x") val inX: Int,
     @get:In ("n"  , Num) @get:JsonProperty("in_n") val inN: Int,
     @get:Out("ⁿ√x", Num) @get:JsonProperty("out" ) val out: Int
-) : Node(type)
+) : Node(type) {
+    init {
+        out requires intArrayOf(inX, inN)
+    }
+}

@@ -19,14 +19,14 @@ package com.valaphee.cran.node.control
 import com.valaphee.cran.graph.jvm.Scope
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeProc
+import com.valaphee.cran.spec.NodeImpl
 
 /**
  * @author Kevin Ludwig
  */
-@NodeProc("jvm")
+@NodeImpl("jvm")
 object SelectJvm : NodeJvm {
-    override fun process(node: Node, scope: Scope) = if (node is Select) {
+    override fun initialize(node: Node, scope: Scope) = if (node is Select) {
         val `in` = scope.dataPath(node.`in`)
         val inValue = node.inValue.mapValues { scope.dataPath(it.value) }
         val inDefault = scope.dataPath(node.inDefault)

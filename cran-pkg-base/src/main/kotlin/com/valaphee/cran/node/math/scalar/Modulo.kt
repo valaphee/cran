@@ -32,4 +32,8 @@ class Modulo(
     @get:In ("A"      , Num) @get:JsonProperty("in_a") val inA: Int,
     @get:In ("B"      , Num) @get:JsonProperty("in_b") val inB: Int,
     @get:Out("A mod B", Num) @get:JsonProperty("out" ) val out: Int
-) : Node(type)
+) : Node(type) {
+    init {
+        out requires intArrayOf(inA, inB)
+    }
+}

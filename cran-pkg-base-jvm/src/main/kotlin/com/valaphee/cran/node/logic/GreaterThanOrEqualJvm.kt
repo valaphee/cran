@@ -16,18 +16,18 @@
 
 package com.valaphee.cran.node.logic
 
-import com.valaphee.cran.graph.jvm.DataPathException
+import com.valaphee.cran.path.DataPathException
 import com.valaphee.cran.graph.jvm.Scope
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeProc
+import com.valaphee.cran.spec.NodeImpl
 
 /**
  * @author Kevin Ludwig
  */
-@NodeProc("jvm")
+@NodeImpl("jvm")
 object GreaterThanOrEqualJvm : NodeJvm {
-    override fun process(node: Node, scope: Scope) = if (node is GreaterThanOrEqual) {
+    override fun initialize(node: Node, scope: Scope) = if (node is GreaterThanOrEqual) {
         val inA = scope.dataPath(node.inA)
         val inB = scope.dataPath(node.inB)
         val out = scope.dataPath(node.out)

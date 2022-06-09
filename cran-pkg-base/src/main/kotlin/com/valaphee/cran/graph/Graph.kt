@@ -16,6 +16,7 @@
 
 package com.valaphee.cran.graph
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.NullNode
@@ -33,6 +34,25 @@ import com.valaphee.cran.spec.Spec
 abstract class Graph {
     @get:JsonProperty("name" ) abstract val name : String
     @get:JsonProperty("nodes") abstract val nodes: List<Node>
+    @get:JsonIgnore val sortedNodes: List<Node> get() = mutableListOf<Node>().apply {
+        val nodes = nodes.toMutableList()
+        val satisfiedRequirements = linkedSetOf<Int>()
+        while (nodes.isNotEmpty()) {
+            val nodesIterator = nodes.iterator()
+            var anySatisfied = false
+            nodesIterator.forEach {
+                if (it.requirements.all { it.value.all { satisfiedRequirements.contains(it) } }) {
+                    nodesIterator.remove()
+
+                    satisfiedRequirements += it.requirements.keys
+                    this += it
+
+                    anySatisfied = true
+                }
+            }
+            check(anySatisfied)
+        }
+    }
 
     fun toSpec() = Spec.Node(name, nodes.mapNotNull {
         when (it) {

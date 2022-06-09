@@ -19,16 +19,16 @@ package com.valaphee.cran.node.input
 import com.valaphee.cran.graph.jvm.Scope
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeProc
+import com.valaphee.cran.spec.NodeImpl
 import jdk.incubator.vector.IntVector
 import java.awt.MouseInfo
 
 /**
  * @author Kevin Ludwig
  */
-@NodeProc("jvm")
+@NodeImpl("jvm")
 object MousePositionJvm : NodeJvm {
-    override fun process(node: Node, scope: Scope) = if (node is MousePosition) {
+    override fun initialize(node: Node, scope: Scope) = if (node is MousePosition) {
         val out = scope.dataPath(node.out)
 
         out.set {

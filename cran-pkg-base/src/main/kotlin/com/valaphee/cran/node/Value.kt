@@ -30,4 +30,8 @@ class Value(
     @get:Const("", Und) @get:JsonProperty("value") val value: Any?,
     @get:Out  ("", Und) @get:JsonProperty("out"  ) val out  : Int ,
     @get:JsonProperty("embed") val embed: Boolean = false
-) : Node(type)
+) : Node(type) {
+    init {
+        out requires intArrayOf()
+    }
+}

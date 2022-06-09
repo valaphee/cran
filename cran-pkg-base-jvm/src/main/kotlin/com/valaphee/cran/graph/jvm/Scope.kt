@@ -18,26 +18,36 @@ package com.valaphee.cran.graph.jvm
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.valaphee.cran.node.NodeJvm
+import com.valaphee.cran.path.jvm.ControlPath
+import com.valaphee.cran.path.jvm.DataPath
 
 /**
  * @author Kevin Ludwig
  */
 class Scope(
     val objectMapper: ObjectMapper,
-    val procs: List<NodeJvm>,
+    val impls: List<NodeJvm>,
     val graphLookup: GraphJvmLookup,
     val graph: GraphJvm,
 ) {
-    private val controlPaths = mutableSetOf<ControlPath>()
-    private val dataPaths = mutableSetOf<DataPath>()
+    private val controlPaths = mutableListOf<ControlPath?>()
+    private val dataPaths = mutableListOf<DataPath?>()
 
-    fun subScope(graph: GraphJvm) = Scope(objectMapper, procs, graphLookup, graph)
+    fun subScope(graph: GraphJvm) = Scope(objectMapper, impls, graphLookup, graph)
 
-    fun controlPath(controlPathId: Int) = controlPaths.find { it.id == controlPathId } ?: ControlPath(controlPathId).also { controlPaths += it }
+    fun controlPath(controlPathId: Int) = controlPaths.getOrNull(controlPathId) ?: ControlPath().also {
+        if (controlPathId > controlPaths.size) repeat(controlPathId - controlPaths.size) { controlPaths += null }
+        if (controlPathId == controlPaths.size) controlPaths += it
+        else controlPaths[controlPathId] = it
+    }
 
-    fun dataPath(dataPathId: Int) = dataPaths.find { it.id == dataPathId } ?: DataPath(dataPathId, objectMapper).also { dataPaths += it }
+    fun dataPath(dataPathId: Int) = dataPaths.getOrNull(dataPathId) ?: DataPath(objectMapper).also {
+        if (dataPathId > dataPaths.size) repeat(dataPathId - dataPaths.size) { dataPaths += null }
+        if (dataPathId == dataPaths.size) dataPaths += it
+        else dataPaths[dataPathId] = it
+    }
 
-    fun process() {
-        graph.process(this)
+    fun initialize() {
+        graph.initialize(this)
     }
 }

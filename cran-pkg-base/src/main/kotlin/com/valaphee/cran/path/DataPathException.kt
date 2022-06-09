@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.graph.jvm
+package com.valaphee.cran.path
 
 /**
  * @author Kevin Ludwig
  */
-open class ControlPathException : Exception {
+open class DataPathException : Exception {
     constructor() : super()
 
     constructor(message: String) : super(message)
@@ -29,6 +29,7 @@ open class ControlPathException : Exception {
     constructor(cause: Throwable?) : super(cause)
 
     companion object {
-        val AlreadyDeclared = ControlPathException("Control path has multiple outputs, only one output is allowed.")
+        val AlreadySet = DataPathException("Data path has multiple inputs, one input is allowed.")
+        val Undefined = DataPathException("Data path is undefined, one input is required.")
     }
 }

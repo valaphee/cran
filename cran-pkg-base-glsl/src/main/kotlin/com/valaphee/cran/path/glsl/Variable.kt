@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.graph.jvm
+package com.valaphee.cran.path.glsl
 
 /**
  * @author Kevin Ludwig
  */
-abstract class Path {
-    abstract val id: Int
+class Variable(
+    val name: String,
+    val code: String,
+    val dependencies: List<Variable>
+) {
+    fun declare() = name
 }

@@ -16,20 +16,20 @@
 
 package com.valaphee.cran.node.math.scalar
 
-import com.valaphee.cran.graph.jvm.DataPathException
+import com.valaphee.cran.path.DataPathException
 import com.valaphee.cran.graph.jvm.Scope
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeProc
+import com.valaphee.cran.spec.NodeImpl
 import java.math.BigDecimal
 import java.math.BigInteger
 
 /**
  * @author Kevin Ludwig
  */
-@NodeProc("jvm")
+@NodeImpl("jvm")
 object DivideJvm : NodeJvm {
-    override fun process(node: Node, scope: Scope) = if (node is Divide) {
+    override fun initialize(node: Node, scope: Scope) = if (node is Divide) {
         val inA = scope.dataPath(node.inA)
         val inB = scope.dataPath(node.inB)
         val out = scope.dataPath(node.out)

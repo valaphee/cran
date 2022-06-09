@@ -30,4 +30,8 @@ class Absolute(
     type: String,
     @get:In ("X"  , Vec) @get:JsonProperty("in" ) val `in`: Int,
     @get:Out("|X|", Vec) @get:JsonProperty("out") val out : Int
-) : Node(type)
+) : Node(type) {
+    init {
+        out requires intArrayOf(`in`)
+    }
+}

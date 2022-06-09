@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.graph.jvm
+package com.valaphee.cran.path.jvm
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.valaphee.cran.path.DataPathException
 import kotlin.reflect.KClass
 
 /**
  * @author Kevin Ludwig
  */
 class DataPath(
-    override val id: Int,
     private val objectMapper: ObjectMapper
-) : Path() {
+) {
     internal var value: Any? = null
     internal var valueFunction: (suspend () -> Any?)? = null
 

@@ -32,4 +32,8 @@ class Or(
     @get:In ("A"    , Bit) @get:JsonProperty("in_a") val inA: Int,
     @get:In ("B"    , Bit) @get:JsonProperty("in_b") val inB: Int,
     @get:Out("A ∨ B", Bit) @get:JsonProperty("out" ) val out: Int
-) : Node(type)
+) : Node(type) {
+    init {
+        out requires intArrayOf(inA, inB)
+    }
+}

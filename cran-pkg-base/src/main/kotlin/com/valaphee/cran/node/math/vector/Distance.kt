@@ -32,4 +32,8 @@ class Distance(
     @get:In ("p"      , Vec) @get:JsonProperty("in_p") val inP: Int,
     @get:In ("q"      , Vec) @get:JsonProperty("in_q") val inQ: Int,
     @get:Out("d(p, q)", Num) @get:JsonProperty("out" ) val out: Int
-) : Node(type)
+) : Node(type) {
+    init {
+        out requires intArrayOf(inP, inQ)
+    }
+}

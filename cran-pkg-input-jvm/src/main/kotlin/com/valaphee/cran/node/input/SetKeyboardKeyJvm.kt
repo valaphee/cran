@@ -18,20 +18,20 @@ package com.valaphee.cran.node.input
 
 import com.valaphee.cran.graph.jvm.Scope
 import com.valaphee.cran.node.Node
-import com.valaphee.cran.spec.NodeProc
+import com.valaphee.cran.spec.NodeImpl
 
 /**
  * @author Kevin Ludwig
  */
-@NodeProc("jvm")
+@NodeImpl("jvm")
 object SetKeyboardKeyJvm : KeyboardNodeJvm() {
-    override fun process(node: Node, scope: Scope) = if (node is SetKeyboardKey) {
+    override fun initialize(node: Node, scope: Scope) = if (node is SetKeyboardKey) {
         val `in` = scope.controlPath(node.`in`)
         val inKey = scope.dataPath(node.inKey)
         val inState = scope.dataPath(node.inState)
         val out = scope.controlPath(node.out)
 
-        `in`.declare {
+        `in`.define {
             val key = inKey.getOfType<Key>()
             if (inState.getOfType()) {
                 if (!keys.contains(key) && keys.size <= 6) {

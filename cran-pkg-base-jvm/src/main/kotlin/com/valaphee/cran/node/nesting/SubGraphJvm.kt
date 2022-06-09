@@ -19,29 +19,29 @@ package com.valaphee.cran.node.nesting
 import com.valaphee.cran.graph.jvm.Scope
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeProc
+import com.valaphee.cran.spec.NodeImpl
 
 /**
  * @author Kevin Ludwig
  */
-@NodeProc("jvm")
+@NodeImpl("jvm")
 object SubGraphJvm : NodeJvm {
-    override fun process(node: Node, scope: Scope) = scope.graphLookup.getGraphJvm(node.type)?.let { subGraph ->
-        val subScope = scope.subScope(subGraph).also { it.process() }
+    override fun initialize(node: Node, scope: Scope) = scope.graphLookup.getGraphJvm(node.type)?.let { subGraph ->
+        val subScope = scope.subScope(subGraph).also { it.initialize() }
         subGraph.nodes.forEach { subNode ->
             when (subNode) {
                 is ControlInput -> {
                     val out = subScope.controlPath(subNode.out)
                     (node[subNode.json] as? Int)?.let {
                         val `in` = scope.controlPath(it)
-                        out.function?.let(`in`::declare)
+                        out.function?.let(`in`::define)
                     }
                 }
                 is ControlOutput -> {
                     val `in` = subScope.controlPath(subNode.`in`)
                     (node[subNode.json] as? Int)?.let {
                         val out = scope.controlPath(it)
-                        out.function?.let(`in`::declare)
+                        out.function?.let(`in`::define)
                     }
                 }
                 is DataInput -> {

@@ -34,4 +34,8 @@ class Get(
     @get:In (""     , Arr) @get:JsonProperty("in"      ) val `in`   : Int,
     @get:In ("Index", Int) @get:JsonProperty("in_index") val inIndex: Int,
     @get:Out(""     , Und) @get:JsonProperty("out"     ) val out    : Int
-) : Node(type)
+) : Node(type) {
+    init {
+        out requires intArrayOf(`in`, inIndex)
+    }
+}

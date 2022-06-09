@@ -19,16 +19,16 @@ package com.valaphee.cran.node.math.vector
 import com.valaphee.cran.graph.jvm.Scope
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeProc
+import com.valaphee.cran.spec.NodeImpl
 import jdk.incubator.vector.VectorOperators
 import kotlin.math.sqrt
 
 /**
  * @author Kevin Ludwig
  */
-@NodeProc("jvm")
+@NodeImpl("jvm")
 object DistanceJvm : NodeJvm {
-    override fun process(node: Node, scope: Scope) = if (node is Distance) {
+    override fun initialize(node: Node, scope: Scope) = if (node is Distance) {
         val inP = scope.dataPath(node.inP)
         val inQ = scope.dataPath(node.inQ)
         val out = scope.dataPath(node.out)

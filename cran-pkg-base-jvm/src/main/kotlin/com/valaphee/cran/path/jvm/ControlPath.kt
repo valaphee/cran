@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.graph.jvm
+package com.valaphee.cran.path.jvm
+
+import com.valaphee.cran.path.ControlPathException
 
 /**
  * @author Kevin Ludwig
  */
-class ControlPath(
-    override val id: Int
-) : Path() {
+class ControlPath {
     internal var function: (suspend () -> Unit)? = null
 
     suspend operator fun invoke() {
         function?.invoke()
     }
 
-    fun declare(function: suspend () -> Unit) {
-        if (this.function != null) throw ControlPathException.AlreadyDeclared
+    fun define(function: suspend () -> Unit) {
+        if (this.function != null) throw ControlPathException.AlreadyDefined
 
         this.function = function
     }

@@ -38,7 +38,7 @@ import javax.tools.StandardLocation
  */
 @AutoService(Processor::class)
 class SpecGenerator : AbstractProcessor() {
-    override fun getSupportedAnnotationTypes() = mutableSetOf(NodeDecl::class.java.name, NodeProc::class.java.name)
+    override fun getSupportedAnnotationTypes() = mutableSetOf(NodeDecl::class.java.name, NodeImpl::class.java.name)
 
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latest()
 
@@ -73,7 +73,7 @@ class SpecGenerator : AbstractProcessor() {
                         })
                     } else null
                 } else null
-            } ?: emptyList(), mutableMapOf<String, MutableList<String>>().apply { it.getElementsAnnotatedWith(NodeProc::class.java)?.forEach { if (it.kind == ElementKind.CLASS && it is TypeElement) getOrPut(it.getAnnotation(NodeProc::class.java).name) { mutableListOf() } += it.qualifiedName.toString() } }))
+            } ?: emptyList(), mutableMapOf<String, MutableList<String>>().apply { it.getElementsAnnotatedWith(NodeImpl::class.java)?.forEach { if (it.kind == ElementKind.CLASS && it is TypeElement) getOrPut(it.getAnnotation(NodeImpl::class.java).name) { mutableListOf() } += it.qualifiedName.toString() } }))
             processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", "${MessageDigest.getInstance("MD5").digest(bytes).toHexString()}.spec.json").openOutputStream().use { it.write(bytes) }
         }
         return true

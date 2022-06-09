@@ -33,4 +33,8 @@ class LessThan(
     @get:In ("A"    , Und) @get:JsonProperty("in_a") val inA: Int,
     @get:In ("B"    , Und) @get:JsonProperty("in_b") val inB: Int,
     @get:Out("A < B", Bit) @get:JsonProperty("out" ) val out: Int
-) : Node(type)
+) : Node(type) {
+    init {
+        out requires intArrayOf(inA, inB)
+    }
+}

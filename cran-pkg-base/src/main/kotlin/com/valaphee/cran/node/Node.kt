@@ -18,6 +18,7 @@ package com.valaphee.cran.node
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.DatabindContext
@@ -36,7 +37,7 @@ import kotlin.reflect.full.findAnnotation
 open class Node(
     @get:JsonProperty("type") val type: String,
     @get:JsonAnyGetter val extra: MutableMap<String, Any?> = mutableMapOf()
-)/* : MutableMap<String, Any?> by other*/ {
+) {
     object TypeResolver : TypeIdResolverBase() {
         private val types = ClassGraph().enableClassInfo().enableAnnotationInfo().scan().use { it.getClassesWithAnnotation(NodeDecl::class.java).map { Class.forName(it.name).kotlin }.associateBy { checkNotNull(it.findAnnotation<NodeDecl>()).name } }.toMutableMap()
 
@@ -47,6 +48,13 @@ open class Node(
         override fun typeFromId(context: DatabindContext, id: String): JavaType = context.constructType(types[id]?.java ?: Node::class.java)
 
         override fun getMechanism() = JsonTypeInfo.Id.NAME
+    }
+
+    private val _requirements = mutableMapOf<Int, IntArray>()
+    @get:JsonIgnore val requirements get() = _requirements
+
+    infix fun Int.requires(requirements: IntArray) {
+        this@Node._requirements[this] = requirements
     }
 
     operator fun get(key: String) = extra[key]

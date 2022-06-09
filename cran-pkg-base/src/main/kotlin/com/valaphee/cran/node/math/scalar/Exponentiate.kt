@@ -32,4 +32,8 @@ class Exponentiate(
     @get:In ("x" , Num) @get:JsonProperty("in_x") val inX: Int,
     @get:In ("n" , Num) @get:JsonProperty("in_n") val inN: Int,
     @get:Out("xⁿ", Num) @get:JsonProperty("out" ) val out: Int
-) : Node(type)
+) : Node(type) {
+    init {
+        out requires intArrayOf(inX, inN)
+    }
+}

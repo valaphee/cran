@@ -22,8 +22,7 @@ import com.valaphee.cran.graph.Graph
  * @author Kevin Ludwig
  */
 abstract class GraphJvm : Graph() {
-    open fun process(scope: Scope) {
-        val nodes = nodes.toMutableList()
-        scope.procs.forEach { proc -> nodes.removeIf { node -> proc.process(node, scope) }}
+    open fun initialize(scope: Scope) {
+        nodes.forEach { node -> scope.impls.any { it.initialize(node, scope) } }
     }
 }

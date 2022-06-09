@@ -23,8 +23,8 @@ import com.fasterxml.jackson.databind.JsonNode
  * @author Kevin Ludwig
  */
 class Spec(
-    @get:JsonProperty("nodes"      ) val nodes    : List<Node>               ,
-    @get:JsonProperty("nodes_procs") val nodeProcs: Map<String, MutableList<String>>
+    @get:JsonProperty("nodes"      ) val nodes     : List<Node>                      ,
+    @get:JsonProperty("nodes_impls") val nodesImpls: Map<String, MutableList<String>>
 ) {
     class Node(
         @get:JsonProperty("name" ) val name : String    ,
@@ -50,5 +50,5 @@ class Spec(
         }
     }
 
-    operator fun plus(other: Spec) = Spec(nodes + other.nodes, nodeProcs.toMutableMap().apply { other.nodeProcs.forEach { getOrPut(it.key) { mutableListOf() } += it.value } })
+    operator fun plus(other: Spec) = Spec(nodes + other.nodes, nodesImpls.toMutableMap().apply { other.nodesImpls.forEach { getOrPut(it.key) { mutableListOf() } += it.value } })
 }

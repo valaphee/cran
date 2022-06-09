@@ -22,5 +22,5 @@ import com.valaphee.cran.graph.jvm.Scope
  * @author Kevin Ludwig
  */
 interface NodeJvm {
-    fun process(node: Node, scope: Scope): Boolean
+    fun initialize(node: Node, scope: Scope): Boolean
 }

@@ -32,4 +32,8 @@ class First(
     type: String,
     @get:In ("", Arr) @get:JsonProperty("in" ) val `in`: Int,
     @get:Out("", Und) @get:JsonProperty("out") val out : Int
-) : Node(type)
+) : Node(type) {
+    init {
+        out requires intArrayOf(`in`)
+    }
+}

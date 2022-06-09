@@ -66,6 +66,7 @@ class GraphServiceImpl @Inject constructor(
     private val dataPath = File("data").also { it.mkdirs() }
 
     private val spec: Spec
+    private val procs: List<NodeJvm>
     private val graphs = mutableMapOf<String, GraphImpl>()
     private val scopes = mutableMapOf<UUID, Scope>()
 
@@ -74,6 +75,7 @@ class GraphServiceImpl @Inject constructor(
             spec = it.getResourcesMatchingWildcard("**.spec.json").urLs.map { objectMapper.readValue<Spec>(it).also { it.nodes.onEach { log.info("Built-in node '{}' found", it.name) } } }.reduce { acc, spec -> acc + spec }
             graphs += it.getResourcesMatchingWildcard("**.gph").urLs.map { objectMapper.readValue<GraphImpl>(it).also { log.info("Built-in graph '{}' found", it.name) } }.associateBy { it.name }
         }
+        procs = checkNotNull(spec.nodesImpls["jvm"]).mapNotNull { Class.forName(it).kotlin.objectInstance as NodeJvm? }
         dataPath.walk().forEach {
             if (it.isFile && it.extension == "gph") it.inputStream().use {
                 objectMapper.readValue<GraphImpl>(GZIPInputStream(it)).also {
@@ -116,9 +118,9 @@ class GraphServiceImpl @Inject constructor(
     override fun runGraph(request: RunGraphRequest, responseObserver: StreamObserver<RunGraphResponse>) {
         val scopeId = UUID.randomUUID()
         graphs[request.graphName]?.let {
-            val scope = Scope(objectMapper, checkNotNull(spec.nodeProcs["jvm"]).mapNotNull { Class.forName(it).kotlin.objectInstance as NodeJvm? }.toSet(), this, it).also {
+            val scope = Scope(objectMapper, procs, this, it).also {
                 scopes[scopeId] = it
-                it.process()
+                it.initialize()
             }
             it.nodes.forEach { if (it is Entry) launch { scope.controlPath(it.out)() } }
         }

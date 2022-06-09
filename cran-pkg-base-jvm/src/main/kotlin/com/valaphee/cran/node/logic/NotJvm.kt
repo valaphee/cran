@@ -19,14 +19,14 @@ package com.valaphee.cran.node.logic
 import com.valaphee.cran.graph.jvm.Scope
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeProc
+import com.valaphee.cran.spec.NodeImpl
 
 /**
  * @author Kevin Ludwig
  */
-@NodeProc("jvm")
+@NodeImpl("jvm")
 object NotJvm : NodeJvm {
-    override fun process(node: Node, scope: Scope) = if (node is Not) {
+    override fun initialize(node: Node, scope: Scope) = if (node is Not) {
         val `in` = scope.dataPath(node.`in`)
         val out = scope.dataPath(node.out)
 

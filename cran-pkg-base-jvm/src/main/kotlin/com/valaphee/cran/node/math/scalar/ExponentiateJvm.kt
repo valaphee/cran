@@ -17,19 +17,19 @@
 package com.valaphee.cran.node.math.scalar
 
 import com.google.common.math.IntMath
-import com.valaphee.cran.graph.jvm.DataPathException
+import com.valaphee.cran.path.DataPathException
 import com.valaphee.cran.graph.jvm.Scope
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.NodeJvm
-import com.valaphee.cran.spec.NodeProc
+import com.valaphee.cran.spec.NodeImpl
 import kotlin.math.pow
 
 /**
  * @author Kevin Ludwig
  */
-@NodeProc("jvm")
+@NodeImpl("jvm")
 object ExponentiateJvm : NodeJvm {
-    override fun process(node: Node, scope: Scope) = if (node is Exponentiate) {
+    override fun initialize(node: Node, scope: Scope) = if (node is Exponentiate) {
         val inX = scope.dataPath(node.inX)
         val inN = scope.dataPath(node.inN)
         val out = scope.dataPath(node.out)
