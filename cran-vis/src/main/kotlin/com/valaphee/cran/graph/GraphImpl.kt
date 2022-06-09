@@ -24,6 +24,7 @@ import com.google.inject.Inject
 import com.valaphee.cran.meta.Meta
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.Value
+import com.valaphee.cran.path.Entry
 import com.valaphee.cran.settings.Settings
 import com.valaphee.cran.spec.Spec
 import com.valaphee.cran.spec.SpecLookup
@@ -32,7 +33,8 @@ import eu.mihosoft.vrl.workflow.Connector
 import eu.mihosoft.vrl.workflow.FlowFactory
 import eu.mihosoft.vrl.workflow.VFlow
 import eu.mihosoft.vrl.workflow.VNode
-import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.property.ObjectProperty
+import tornadofx.toProperty
 import kotlin.math.max
 import kotlin.math.round
 
@@ -53,13 +55,23 @@ class GraphImpl(
             val embed = mutableListOf<Value>()
             return flow.nodes.map { node ->
                 val nodeValueObject = node.valueObject as NodeValueObject
-                objectMapper.convertValue<Node>(mapOf<String, Any?>("type" to nodeValueObject.spec.name) + nodeValueObject.const.associate { it.spec.json to it.valueProperty.value } + node.inputs.associate { input ->
+                val (multiInputs, otherInputs) = node.inputs.partition { (it.valueObject as ConnectorValueObject).spec.multi }
+                val (multiOutputs, otherOutputs) = node.outputs.partition { (it.valueObject as ConnectorValueObject).spec.multi }
+                objectMapper.convertValue<Node>(mapOf<String, Any?>("type" to nodeValueObject.spec.name) + nodeValueObject.const.associate { it.spec.json to it.value } + otherInputs.associate { input ->
                     val connectorValueObject = input.valueObject as ConnectorValueObject
-                    connectorValueObject.spec.json to (connections.find { it.value.contains(input) }?.index ?: connectorValueObject.value?.let {
+                    input.localId to (connections.find { it.value.contains(input) }?.index ?: connectorValueObject.value?.let {
                         embed += Value("Value", it, index, true)
                         index++
                     } ?: index++)
-                } + node.outputs.associate { output -> output.localId to (connections.find { it.value.contains(output) }?.index ?: index++) })
+                } + multiInputs.groupBy { it.localId }.mapValues {
+                    it.value.map { input ->
+                        val connectorValueObject = input.valueObject as ConnectorValueObject
+                        Entry(connectorValueObject.multiKeyProperty!!.value, (connections.find { it.value.contains(input) }?.index ?: connectorValueObject.value?.let {
+                            embed += Value("Value", it, index, true)
+                            index++
+                        } ?: index++))
+                    }
+                } + otherOutputs.associate { output -> output.localId to (connections.find { it.value.contains(output) }?.index ?: index++) } + multiOutputs.groupBy { it.localId }.mapValues { it.value.map { output -> Entry((output.valueObject as ConnectorValueObject).multiKeyProperty!!.value, (connections.find { it.value.contains(output) }?.index ?: index++)) } })
             } + embed
         }
 
@@ -77,7 +89,7 @@ class GraphImpl(
                     val spec = checkNotNull(specLookup.getNodeSpec(node.type))
                     val _node = objectMapper.convertValue<Map<String, Any?>>(node)
                     newNode(spec, meta.nodes.getOrNull(i), settings).apply {
-                        (valueObject as NodeValueObject).const.forEach { it.valueProperty.value = _node[it.spec.json] }
+                        (valueObject as NodeValueObject).const.forEach { it.value = _node[it.spec.json] }
                         connectors.forEach {
                             val connectorValueObject = it.valueObject as ConnectorValueObject
                             val connectionId = _node[connectorValueObject.spec.json] as Int
@@ -85,6 +97,7 @@ class GraphImpl(
 
                             getOrPut(connectionId) { mutableListOf() } += it
                         }
+                        spec.ports.forEach { if (it.multi) objectMapper.convertValue<List<Entry>>(checkNotNull(_node[it.json])).forEach { entry -> getOrPut(entry.value) { mutableListOf() } += checkNotNull(addPort(it, entry.key.toProperty(), null)).apply { if (it.type == Spec.Node.Port.Type.InData) (valueObject as ConnectorValueObject).value = _embed[entry.value] } } }
                     }
                 }
             }.forEach { (id, connectors) -> connectors.forEach { connectorA -> if (connectorA.isOutput) connectors.forEach { connectorB -> if (connectorB.isInput) connect(connectorA, connectorB).apply { connection.id = id.toString() } } } }
@@ -109,28 +122,32 @@ class GraphImpl(
             val const = mutableListOf<NodeValueObject.Const>()
             valueObject = NodeValueObject(spec, const)
 
-            spec.ports.forEach { portSpec ->
-                when (portSpec.type) {
-                    Spec.Node.Port.Type.InControl -> addInput("control").apply {
-                        /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
-                        localId = portSpec.json
-                        valueObject = ConnectorValueObject(portSpec)
-                    }
-                    Spec.Node.Port.Type.OutControl -> addOutput("control").apply {
-                        /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
-                        localId = portSpec.json
-                        valueObject = ConnectorValueObject(portSpec)
-                    }
-                    Spec.Node.Port.Type.InData -> addInput("data").apply {
-                        localId = portSpec.json
-                        valueObject = ConnectorValueObject(portSpec)
-                    }
-                    Spec.Node.Port.Type.OutData -> addOutput("data").apply {
-                        localId = portSpec.json
-                        valueObject = ConnectorValueObject(portSpec)
-                    }
-                    Spec.Node.Port.Type.Const -> const += NodeValueObject.Const(portSpec, SimpleObjectProperty(null))
-                }
+            spec.ports.forEach { if (!it.multi) addPort(it, null, const) }
+        }
+
+        fun VNode.addPort(spec: Spec.Node.Port, mapKey: ObjectProperty<Any>?, const: MutableList<NodeValueObject.Const>?) = when (spec.type) {
+            Spec.Node.Port.Type.InControl -> addInput("control").apply {
+                /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
+                localId = spec.json
+                valueObject = ConnectorValueObject(spec, mapKey)
+            }
+            Spec.Node.Port.Type.OutControl -> addOutput("control").apply {
+                /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
+                localId = spec.json
+                valueObject = ConnectorValueObject(spec, mapKey)
+            }
+            Spec.Node.Port.Type.InData -> addInput("data").apply {
+                localId = spec.json
+                valueObject = ConnectorValueObject(spec, mapKey)
+            }
+            Spec.Node.Port.Type.OutData -> addOutput("data").apply {
+                localId = spec.json
+                valueObject = ConnectorValueObject(spec, mapKey)
+            }
+            Spec.Node.Port.Type.Const -> {
+                checkNotNull(const) += NodeValueObject.Const(spec)
+
+                null
             }
         }
     }

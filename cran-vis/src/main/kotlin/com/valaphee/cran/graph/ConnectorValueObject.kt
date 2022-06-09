@@ -18,10 +18,12 @@ package com.valaphee.cran.graph
 
 import com.valaphee.cran.spec.Spec
 import eu.mihosoft.vrl.workflow.DefaultValueObject
+import javafx.beans.property.ObjectProperty
 
 /**
  * @author Kevin Ludwig
  */
 class ConnectorValueObject(
-    val spec: Spec.Node.Port
+    val spec: Spec.Node.Port,
+    val multiKeyProperty: ObjectProperty<Any>? = null
 ) : DefaultValueObject()

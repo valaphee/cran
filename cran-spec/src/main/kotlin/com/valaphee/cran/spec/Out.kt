@@ -22,6 +22,7 @@ package com.valaphee.cran.spec
 @Target(AnnotationTarget.PROPERTY_GETTER)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class Out(
-    val name: String     ,
-    val data: String = "",
+    val name : String          ,
+    val data : String  = ""    ,
+    val multi: Boolean = false
 )

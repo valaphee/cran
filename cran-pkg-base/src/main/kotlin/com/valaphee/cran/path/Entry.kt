@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.spec
+package com.valaphee.cran.path
+
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * @author Kevin Ludwig
  */
-@Target(AnnotationTarget.PROPERTY_GETTER)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class In(
-    val name : String         ,
-    val data : String  = ""   ,
-    val multi: Boolean = false
+class Entry(
+    @get:JsonProperty("key")   val key  : Any?,
+    @get:JsonProperty("value") val value: Int
 )

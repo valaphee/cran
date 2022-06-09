@@ -57,10 +57,10 @@ abstract class Graph {
 
     fun toSpec() = Spec.Node(name, nodes.mapNotNull {
         when (it) {
-            is ControlInput  -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.InControl , NullNode.instance                   )
-            is ControlOutput -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.OutControl, NullNode.instance                   )
-            is DataInput     -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.InData    , ObjectNode(JsonNodeFactory.instance))
-            is DataOutput    -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.OutData   , ObjectNode(JsonNodeFactory.instance))
+            is ControlInput  -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.InControl , NullNode.instance                   , false)
+            is ControlOutput -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.OutControl, NullNode.instance                   , false)
+            is DataInput     -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.InData    , ObjectNode(JsonNodeFactory.instance), false)
+            is DataOutput    -> Spec.Node.Port(it.name, it.json, Spec.Node.Port.Type.OutData   , ObjectNode(JsonNodeFactory.instance), false)
             else             -> null
         }
     })

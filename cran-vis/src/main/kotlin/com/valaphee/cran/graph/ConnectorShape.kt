@@ -85,7 +85,7 @@ class ConnectorShape(
                     }
                     label(when (nodeValueObject.spec.name) {
                         "Nesting/Control Output", "Nesting/Data Output" -> nodeValueObject.const.single { it.spec.json == "name" }.valueProperty.asString()
-                        else -> it.spec.name.toProperty()
+                        else -> it.multiKeyProperty?.asString() ?: it.spec.name.toProperty()
                     }) {
                         minWidthProperty().bind(Text().let {
                             it.textProperty().bind(textProperty())
@@ -99,7 +99,7 @@ class ConnectorShape(
 
                     label(when (nodeValueObject.spec.name) {
                         "Nesting/Control Input", "Nesting/Data Input" -> nodeValueObject.const.single { it.spec.json == "name" }.valueProperty.asString()
-                        else -> it.spec.name.toProperty()
+                        else -> it.multiKeyProperty?.asString() ?: it.spec.name.toProperty()
                     }) {
                         minWidthProperty().bind(Text().let {
                             it.textProperty().bind(textProperty())

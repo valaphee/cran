@@ -19,6 +19,9 @@ package com.valaphee.cran.graph
 import com.valaphee.cran.spec.Spec
 import eu.mihosoft.vrl.workflow.DefaultValueObject
 import javafx.beans.property.ObjectProperty
+import javafx.beans.property.SimpleObjectProperty
+import tornadofx.getValue
+import tornadofx.setValue
 
 /**
  * @author Kevin Ludwig
@@ -29,6 +32,8 @@ class NodeValueObject(
 ) : DefaultValueObject() {
     class Const(
         val spec: Spec.Node.Port,
-        val valueProperty: ObjectProperty<Any>
-    )
+        val valueProperty: ObjectProperty<Any> = SimpleObjectProperty(null)
+    ) {
+        var value: Any? by valueProperty
+    }
 }

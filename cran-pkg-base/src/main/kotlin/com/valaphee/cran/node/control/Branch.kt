@@ -19,6 +19,7 @@ package com.valaphee.cran.node.control
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.Und
+import com.valaphee.cran.path.Entry
 import com.valaphee.cran.spec.In
 import com.valaphee.cran.spec.NodeDecl
 import com.valaphee.cran.spec.Out
@@ -29,8 +30,8 @@ import com.valaphee.cran.spec.Out
 @NodeDecl("Control/Branch")
 class Branch(
     type: String,
-    @get:In (""            ) @get:JsonProperty("in"         ) val `in`      : Int           ,
-    @get:In (""       , Und) @get:JsonProperty("in_value"   ) val inValue   : Int           ,
-    @get:Out(""            ) @get:JsonProperty("out"        ) val out       : Map<Any?, Int>,
-    @get:Out("Default"     ) @get:JsonProperty("out_default") val outDefault: Int
+    @get:In (""                  ) @get:JsonProperty("in"         ) val `in`      : Int                      ,
+    @get:In (""       , Und      ) @get:JsonProperty("in_value"   ) val inValue   : Int                      ,
+    @get:Out(""       , "" , true) @get:JsonProperty("out"        ) val out       : List<Entry> = emptyList(),
+    @get:Out("Default"           ) @get:JsonProperty("out_default") val outDefault: Int
 ) : Node(type)

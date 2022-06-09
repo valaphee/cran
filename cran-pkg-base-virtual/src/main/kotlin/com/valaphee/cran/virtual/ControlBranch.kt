@@ -29,10 +29,10 @@ object ControlBranch : Implementation {
     override fun initialize(node: Node, virtual: Virtual) = if (node is Branch) {
         val `in` = virtual.controlPath(node.`in`)
         val inValue = virtual.dataPath(node.inValue)
-        val out = node.out.mapValues { virtual.controlPath(it.value) }
+        val out = node.out.associate { it.key to virtual.controlPath(it.value) }
         val outDefault = virtual.controlPath(node.outDefault)
 
-        `in`.define { (out[inValue.get()] ?: outDefault)() }
+        `in`.define { (out[inValue.getOfType()] ?: outDefault)() }
 
         true
     } else false

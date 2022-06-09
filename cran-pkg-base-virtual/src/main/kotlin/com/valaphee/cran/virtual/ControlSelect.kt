@@ -28,11 +28,11 @@ import com.valaphee.cran.spec.NodeImpl
 object ControlSelect : Implementation {
     override fun initialize(node: Node, virtual: Virtual) = if (node is Select) {
         val `in` = virtual.dataPath(node.`in`)
-        val inValue = node.inValue.mapValues { virtual.dataPath(it.value) }
+        val inValue = node.inValue.associate { it.key to virtual.dataPath(it.value) }
         val inDefault = virtual.dataPath(node.inDefault)
         val out = virtual.dataPath(node.out)
 
-        out.set { (inValue[`in`.get()] ?: inDefault).get() }
+        out.set { (inValue[`in`.getOfType()] ?: inDefault).get() }
 
         true
     } else false

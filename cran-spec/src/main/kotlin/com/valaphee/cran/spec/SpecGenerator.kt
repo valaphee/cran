@@ -61,13 +61,13 @@ class SpecGenerator : AbstractProcessor() {
                                     } else if (const != null) {
                                         processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @In or @Const is allowed, not both.")
                                         return true
-                                    } else `in`.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }?.let { Spec.Node.Port(`in`.name, json.value, Spec.Node.Port.Type.InData, it) } ?: Spec.Node.Port(`in`.name, json.value, Spec.Node.Port.Type.InControl, NullNode.instance)
+                                    } else `in`.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }?.let { Spec.Node.Port(`in`.name, json.value, Spec.Node.Port.Type.InData, it, `in`.multi) } ?: Spec.Node.Port(`in`.name, json.value, Spec.Node.Port.Type.InControl, NullNode.instance, `in`.multi)
                                 else if (out != null)
                                     if (const != null) {
                                         processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Only @Out or @Const is allowed, not both.")
                                         return true
-                                    } else out.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }?.let { Spec.Node.Port(out.name, json.value, Spec.Node.Port.Type.OutData, it) } ?: Spec.Node.Port(out.name, json.value, Spec.Node.Port.Type.OutControl, NullNode.instance)
-                                else if (const != null) const.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }?.let { Spec.Node.Port(const.name, json.value, Spec.Node.Port.Type.Const, it) } ?: return true
+                                    } else out.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }?.let { Spec.Node.Port(out.name, json.value, Spec.Node.Port.Type.OutData, it, out.multi) } ?: Spec.Node.Port(out.name, json.value, Spec.Node.Port.Type.OutControl, NullNode.instance, out.multi)
+                                else if (const != null) const.data.takeIf { it.isNotEmpty() }?.let { objectMapper.readTree(it) }?.let { Spec.Node.Port(const.name, json.value, Spec.Node.Port.Type.Const, it, false) } ?: return true
                                 else null
                             } else null
                         })

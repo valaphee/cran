@@ -62,17 +62,17 @@ class JsonSchema(
         Type.Integer -> TextField().apply {
             isDisable = readOnly
             text = (value as Number?)?.toString() ?: "0"
-            textProperty().onChange { toValue() }
+            focusedProperty().onChange { toValue() }
         }
         Type.Number -> TextField().apply {
             isDisable = readOnly
             text = (value as Number?)?.toString() ?: "0.0"
-            textProperty().onChange { toValue() }
+            focusedProperty().onChange { toValue() }
         }
         Type.String -> TextField().apply {
             isDisable = readOnly
             text = value?.toString() ?: ""
-            textProperty().onChange { toValue() }
+            focusedProperty().onChange { toValue() }
         }
         else -> TextField().apply {
             isDisable = readOnly

@@ -19,6 +19,7 @@ package com.valaphee.cran.node.control
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.Und
+import com.valaphee.cran.path.Entry
 import com.valaphee.cran.spec.In
 import com.valaphee.cran.spec.NodeDecl
 import com.valaphee.cran.spec.Out
@@ -29,8 +30,8 @@ import com.valaphee.cran.spec.Out
 @NodeDecl("Control/Select")
 class Select(
     type: String,
-    @get:In (""       , Und) @get:JsonProperty("in"        ) val `in`     : Int           ,
-    @get:In (""       , Und) @get:JsonProperty("in_value"  ) val inValue  : Map<Any?, Int>,
-    @get:In ("Default", Und) @get:JsonProperty("in_default") val inDefault: Int           ,
-    @get:Out(""       , Und) @get:JsonProperty("out"       ) val out      : Int
+    @get:In (""       , Und      ) @get:JsonProperty("in"        ) val `in`     : Int                      ,
+    @get:In (""       , Und, true) @get:JsonProperty("in_value"  ) val inValue  : List<Entry> = emptyList(),
+    @get:In ("Default", Und      ) @get:JsonProperty("in_default") val inDefault: Int                      ,
+    @get:Out(""       , Und      ) @get:JsonProperty("out"       ) val out      : Int
 ) : Node(type)
