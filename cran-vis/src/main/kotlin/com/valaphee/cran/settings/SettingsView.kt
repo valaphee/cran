@@ -16,15 +16,68 @@
 
 package com.valaphee.cran.settings
 
-import javafx.scene.Parent
+import javafx.beans.value.ObservableValue
+import javafx.scene.layout.Priority
 import tornadofx.View
+import tornadofx.ViewModel
+import tornadofx.action
+import tornadofx.button
+import tornadofx.buttonbar
+import tornadofx.enableWhen
+import tornadofx.field
+import tornadofx.fieldset
+import tornadofx.form
 import tornadofx.get
+import tornadofx.textfield
+import tornadofx.vbox
+import tornadofx.vgrow
 
 /**
  * @author Kevin Ludwig
  */
 class SettingsView : View("%settings") {
-    override val root by fxml<Parent>("/settings.fxml")
+    private val settings by di<Settings>()
+
+    override val root = vbox {
+        prefWidth = 600.0
+        prefHeight = 800.0
+
+        styleClass += "background"
+        stylesheets += "/dark_theme.css"
+
+        val viewModel = ViewModel()
+
+        form {
+            vgrow = Priority.ALWAYS
+
+            fieldset {
+                field("Grid") {
+                    textfield(viewModel.bind { settings.gridXProperty } as ObservableValue<Int>)
+                    textfield(viewModel.bind { settings.gridYProperty } as ObservableValue<Int>)
+                }
+            }
+        }
+        buttonbar {
+            button(messages["settings.ok"]) {
+                isDefaultButton = true
+
+                action {
+                    viewModel.commit()
+                    close()
+                }
+            }
+            button(messages["settings.cancel"]) {
+                isCancelButton = true
+
+                action { close() }
+            }
+            button(messages["settings.apply"]) {
+                enableWhen(viewModel.dirty)
+
+                action { viewModel.commit() }
+            }
+        }
+    }
 
     init {
         title = messages["settings"]

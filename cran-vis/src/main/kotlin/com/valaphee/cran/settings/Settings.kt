@@ -39,8 +39,8 @@ class Settings(
     gridY: Int = 5,
     val environment: Environment = Environment("localhost:8080", "tls/client_cer.pem", "tls/client_key.pem", "tls/server_cer.pem")
 ) {
-    @JsonIgnore private val gridXProperty = gridX.toProperty()
-    @JsonIgnore private val gridYProperty = gridY.toProperty()
+    @get:JsonIgnore val gridXProperty = gridX.toProperty()
+    @get:JsonIgnore val gridYProperty = gridY.toProperty()
 
     var gridX by gridXProperty
     var gridY by gridYProperty
@@ -51,10 +51,10 @@ class Settings(
         clientKey: String,
         serverCer: String
     ) {
-        @JsonIgnore internal val targetProperty = target.toProperty()
-        @JsonIgnore internal val clientCerProperty = clientCer.toProperty()
-        @JsonIgnore internal val clientKeyProperty = clientKey.toProperty()
-        @JsonIgnore internal val serverCerProperty = serverCer.toProperty()
+        @get:JsonIgnore val targetProperty = target.toProperty()
+        @get:JsonIgnore val clientCerProperty = clientCer.toProperty()
+        @get:JsonIgnore val clientKeyProperty = clientKey.toProperty()
+        @get:JsonIgnore val serverCerProperty = serverCer.toProperty()
 
         var target: String by targetProperty
         var clientCer: String by clientCerProperty

@@ -4,7 +4,7 @@ fasterxml = "2.13.3"
 grpc = "1.46.0"
 guava = "31.1-jre"
 guice = "5.1.0"
-kotlinx-coroutines = "1.6.1-native-mt"
+kotlinx-coroutines = "1.6.2"
 log4j = "2.17.2"
 
 [libraries]
@@ -22,7 +22,8 @@ guava = { module = "com.google.guava:guava", version.ref = "guava" }
 
 guice = { module = "com.google.inject:guice", version.ref = "guice" }
 
-kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-jdk8 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-javafx = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-javafx", version.ref = "kotlinx-coroutines" }
 
 log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
 log4j-iostreams = { module = "org.apache.logging.log4j:log4j-iostreams", version.ref = "log4j" }

@@ -30,7 +30,7 @@ dependencies {
     implementation(libs.fasterxml.kotlin)
     implementation(libs.guice)
     implementation("no.tornado:tornadofx:1.7.20")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-javafx:1.6.1")
+    implementation(libs.kotlinx.coroutines.javafx)
     implementation("eu.mihosoft.vrl.workflow:vworkflows-fx:0.2.5.0")
 }
 

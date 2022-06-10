@@ -169,15 +169,17 @@ class MainView(
                 TextFieldTreeCell<PathTree<GraphImpl>>().apply {
                     setOnMouseClicked {
                         if (it.clickCount == 2) {
-                            item.value?.let { graph = it }
+                            item?.value?.let { graph = it }
                             it.consume()
                         }
                     }
 
                     setOnDragDetected {
-                        startDragAndDrop(TransferMode.COPY).apply {
-                            dragView = snapshot(null, null)
-                            item.value?.let { setContent { this[nodeSpecDataFormat] = objectMapper.writeValueAsString(it.toSpec()) } }
+                        item?.value?.let {
+                            startDragAndDrop(TransferMode.COPY).apply {
+                                dragView = snapshot(null, null)
+                                setContent { this[nodeSpecDataFormat] = objectMapper.writeValueAsString(it.toSpec()) }
+                            }
                         }
                         it.consume()
                     }

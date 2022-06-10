@@ -26,7 +26,7 @@ dependencies {
     api(project(":cran-pkg-base"))
 
     implementation(libs.guava)
-    api(libs.kotlinx.coroutines)
+    api(libs.kotlinx.coroutines.jdk8)
 }
 
 java {
