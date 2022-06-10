@@ -23,39 +23,40 @@ import com.valaphee.cran.node.nesting.ControlOutput
 import com.valaphee.cran.node.nesting.DataInput
 import com.valaphee.cran.node.nesting.DataOutput
 import com.valaphee.cran.spec.NodeImpl
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
  */
 @NodeImpl("virtual")
 object SubGraph : Implementation {
-    override fun initialize(node: Node, virtual: Virtual) = virtual.graphLookup.getGraph(node.type)?.let { subGraph ->
-        val sub = virtual.sub(subGraph).also { it.initialize() }
+    override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = virtual.graphLookup.getGraph(node.type)?.let { subGraph ->
+        val subScope = virtual.subScope(subGraph).also { it.initialize(coroutineScope) }
         subGraph.nodes.forEach { subNode ->
             when (subNode) {
                 is ControlInput -> {
-                    val out = sub.controlPath(subNode.out)
+                    val out = subScope.controlPath(subNode.out)
                     (node[subNode.json] as? Int)?.let {
                         val `in` = virtual.controlPath(it)
                         out.function?.let(`in`::define)
                     }
                 }
                 is ControlOutput -> {
-                    val `in` = sub.controlPath(subNode.`in`)
+                    val `in` = subScope.controlPath(subNode.`in`)
                     (node[subNode.json] as? Int)?.let {
                         val out = virtual.controlPath(it)
                         out.function?.let(`in`::define)
                     }
                 }
                 is DataInput -> {
-                    val out = sub.dataPath(subNode.out)
+                    val out = subScope.dataPath(subNode.out)
                     (node[subNode.json] as? Int)?.let {
                         val `in` = virtual.dataPath(it)
                         `in`.valueFunction?.let(out::set) ?: out.set { `in`.get() }
                     }
                 }
                 is DataOutput -> {
-                    val `in` = sub.dataPath(subNode.`in`)
+                    val `in` = subScope.dataPath(subNode.`in`)
                     (node[subNode.json] as? Int)?.let {
                         val out = virtual.dataPath(it)
                         `in`.valueFunction?.let(out::set) ?: out.set { `in`.get() }

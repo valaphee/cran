@@ -127,6 +127,7 @@ class MainView(
         })
 
         with(graphsTreeView) {
+            /*isEditable = true*/
             root = TreeItem(PathTree())
             isShowRoot = false
 
@@ -218,8 +219,11 @@ class MainView(
                             styleClass += _styleClass
 
                             action {
-                                val local = sceneToLocal(x - currentWindow!!.x, y - currentWindow!!.y)
-                                graph?.newNode(it, Meta.Node(if (local.x.isNaN()) 0.0 else local.x, if (local.y.isNaN()) 0.0 else local.y))
+                                val inScreen = this@with.localToScreen(this@with.boundsInLocal)
+                                graph?.newNode(it, Meta.Node(x - inScreen.minX, y - inScreen.minY))
+
+                                // Hide on click
+                                hide()
                             }
                         }
                     } ?: Menu(tree.name).apply {

@@ -20,13 +20,14 @@ import com.valaphee.cran.Virtual
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.list.Remove
 import com.valaphee.cran.spec.NodeImpl
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
  */
 @NodeImpl("virtual")
 object ListRemove : Implementation {
-    override fun initialize(node: Node, virtual: Virtual) = if (node is Remove) {
+    override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = if (node is Remove) {
         val `in` = virtual.dataPath(node.`in`)
         val inItem = virtual.dataPath(node.inItem)
         val out = virtual.dataPath(node.out)

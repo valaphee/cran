@@ -22,7 +22,6 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.valaphee.cran.Virtual
 import com.valaphee.cran.node.Entry
-import com.valaphee.cran.virtual.Implementation
 import com.valaphee.cran.spec.Spec
 import com.valaphee.cran.svc.graph.v1.DeleteGraphRequest
 import com.valaphee.cran.svc.graph.v1.DeleteGraphResponse
@@ -39,6 +38,7 @@ import com.valaphee.cran.svc.graph.v1.StopGraphRequest
 import com.valaphee.cran.svc.graph.v1.StopGraphResponse
 import com.valaphee.cran.svc.graph.v1.UpdateGraphRequest
 import com.valaphee.cran.svc.graph.v1.UpdateGraphResponse
+import com.valaphee.cran.virtual.Implementation
 import io.github.classgraph.ClassGraph
 import io.grpc.stub.StreamObserver
 import kotlinx.coroutines.CoroutineScope
@@ -119,7 +119,7 @@ class GraphServiceImpl @Inject constructor(
         graphs[request.graphName]?.let {
             val scope = Virtual(objectMapper, implsVirtual, this, it).also {
                 scopes[scopeId] = it
-                it.initialize()
+                it.initialize(this)
             }
             it.nodes.forEach { if (it is Entry) launch { scope.controlPath(it.out)() } }
         }

@@ -17,7 +17,9 @@
 package com.valaphee.cran.node.input
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.valaphee.cran.node.Bit
 import com.valaphee.cran.node.Node
+import com.valaphee.cran.node.Num
 import com.valaphee.cran.spec.NodeDecl
 import com.valaphee.cran.spec.Out
 
@@ -27,5 +29,7 @@ import com.valaphee.cran.spec.Out
 @NodeDecl("Input/On Keyboard Key")
 class OnKeyboardKey(
     type: String,
-    @get:Out("") @get:JsonProperty("out") val out: Int
+    @get:Out(""          ) @get:JsonProperty("out"      ) val out     : Int,
+    @get:Out("Key"  , Num) @get:JsonProperty("out_key"  ) val outKey  : Int,
+    @get:Out("State", Bit) @get:JsonProperty("out_state") val outState: Int,
 ) : Node(type)

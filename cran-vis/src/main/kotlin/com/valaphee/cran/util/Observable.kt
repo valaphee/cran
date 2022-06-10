@@ -18,13 +18,20 @@ package com.valaphee.cran.util
 
 import javafx.beans.value.ObservableDoubleValue
 import javafx.beans.value.ObservableValue
+import javafx.collections.ObservableList
+import tornadofx.onChange
 
 fun ObservableDoubleValue.update(op: (Double) -> Unit) = apply {
-    addListener { _, _, value -> op(value?.toDouble() ?: 0.0) }
+    onChange { op(it) }
     op(value?.toDouble() ?: 0.0)
 }
 
 fun <T> ObservableValue<T>.update(op: (T?) -> Unit) = apply {
-    addListener { _, _, value -> op(value) }
+    onChange { op(it) }
     op(value)
+}
+
+fun <T> ObservableList<T>.update(op: (ObservableList<out T>) -> Unit) = apply {
+    onChange { op(it.list) }
+    op(this)
 }

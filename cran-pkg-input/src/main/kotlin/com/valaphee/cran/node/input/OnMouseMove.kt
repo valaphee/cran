@@ -18,6 +18,7 @@ package com.valaphee.cran.node.input
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.valaphee.cran.node.Node
+import com.valaphee.cran.node.math.vector.Vec2
 import com.valaphee.cran.spec.NodeDecl
 import com.valaphee.cran.spec.Out
 
@@ -27,5 +28,6 @@ import com.valaphee.cran.spec.Out
 @NodeDecl("Input/On Mouse Move")
 class OnMouseMove(
     type: String,
-    @get:Out("") @get:JsonProperty("out") val out: Int
+    @get:Out(""          ) @get:JsonProperty("out"     ) val out    : Int,
+    @get:Out("Move", Vec2) @get:JsonProperty("out_move") val outMove: Int,
 ) : Node(type)

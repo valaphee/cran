@@ -20,13 +20,14 @@ import com.valaphee.cran.Virtual
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.map.Get
 import com.valaphee.cran.spec.NodeImpl
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
  */
 @NodeImpl("virtual")
 object MapGet : Implementation {
-    override fun initialize(node: Node, virtual: Virtual)  = if (node is Get) {
+    override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual)  = if (node is Get) {
         val `in` = virtual.dataPath(node.`in`)
         val inKey = virtual.dataPath(node.inKey)
         val out = virtual.dataPath(node.out)

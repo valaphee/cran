@@ -65,7 +65,7 @@
     "in" : 8
   }, {
     "type" : "Input/Mouse Position",
-    "out_position" : 4
+    "out" : 4
   }, {
     "type" : "Nesting/Control Output",
     "name" : "",

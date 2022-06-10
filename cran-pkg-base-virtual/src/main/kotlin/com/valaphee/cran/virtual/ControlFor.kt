@@ -20,13 +20,14 @@ import com.valaphee.cran.Virtual
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.control.For
 import com.valaphee.cran.spec.NodeImpl
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
  */
 @NodeImpl("virtual")
 object ControlFor : Implementation {
-    override fun initialize(node: Node, virtual: Virtual) = if (node is For) {
+    override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = if (node is For) {
         val `in` = virtual.controlPath(node.`in`)
         val inRangeStart = virtual.dataPath(node.inRangeStart)
         val inRangeEnd = virtual.dataPath(node.inRangeEnd)

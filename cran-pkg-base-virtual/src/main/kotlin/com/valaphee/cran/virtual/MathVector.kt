@@ -32,6 +32,7 @@ import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.FloatVector
 import jdk.incubator.vector.IntVector
 import jdk.incubator.vector.VectorOperators
+import kotlinx.coroutines.CoroutineScope
 import kotlin.math.sqrt
 
 /**
@@ -39,7 +40,7 @@ import kotlin.math.sqrt
  */
 @NodeImpl("virtual")
 object MathVector : Implementation {
-    override fun initialize(node: Node, virtual: Virtual) = when (node) {
+    override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = when (node) {
         is UnaryOperation -> {
             val `in` = virtual.dataPath(node.`in`)
             val out = virtual.dataPath(node.out)

@@ -23,6 +23,7 @@ import com.valaphee.cran.graph.ConnectorValueObject
 import com.valaphee.cran.graph.GraphImpl.Companion.addPort
 import com.valaphee.cran.graph.NodeValueObject
 import com.valaphee.cran.spec.Spec
+import com.valaphee.cran.util.update
 import eu.mihosoft.vrl.workflow.VNode
 import javafx.scene.layout.Priority
 import tornadofx.View
@@ -30,6 +31,7 @@ import tornadofx.ViewModel
 import tornadofx.action
 import tornadofx.button
 import tornadofx.buttonbar
+import tornadofx.clear
 import tornadofx.enableWhen
 import tornadofx.field
 import tornadofx.fieldset
@@ -63,50 +65,54 @@ class PropertiesView(
         form {
             vgrow = Priority.ALWAYS
 
-            val nodeValueObject = (node.valueObject as NodeValueObject)
-            nodeValueObject.spec.ports.groupBy { it.type }.forEach {
-                fieldset(it.key.name) {
-                    it.value.groupBy { it }.forEach {
-                        field(""""${it.key.name}" (${it.key.json})""") {
-                            vbox {
-                                objectMapper.treeToValue<JsonSchema?>(it.key.data)?.let { jsonSchema ->
-                                    it.value.forEach {
-                                        if (it.type == Spec.Node.Port.Type.Const) add(jsonSchema.toNode(viewModel.bind { nodeValueObject.const.single { const -> const.spec == it }.valueProperty }))
-                                        else node.connectors.filter { connector -> connector.localId == it.json }.forEach { connector ->
-                                            val connectorValueObject = connector.valueObject as ConnectorValueObject
-                                            connectorValueObject.multiKeyProperty?.let {
+            node.connectors.update { connectors ->
+                clear()
+
+                val nodeValueObject = (node.valueObject as NodeValueObject)
+                nodeValueObject.spec.ports.groupBy { it.type }.forEach {
+                    fieldset(it.key.name) {
+                        it.value.groupBy { it }.forEach {
+                            field(""""${it.key.name}" (${it.key.json})""") {
+                                vbox {
+                                    objectMapper.treeToValue<JsonSchema?>(it.key.data)?.let { jsonSchema ->
+                                        it.value.forEach {
+                                            if (it.type == Spec.Node.Port.Type.Const) add(jsonSchema.toNode(viewModel.bind { nodeValueObject.const.single { const -> const.spec == it }.valueProperty }))
+                                            else connectors.filter { connector -> connector.localId == it.json }.forEach { connector ->
+                                                val connectorValueObject = connector.valueObject as ConnectorValueObject
+                                                connectorValueObject.multiKeyProperty?.let {
+                                                    add(hbox {
+                                                        val multiKeyProperty = viewModel.bind { it }
+                                                        textfield(multiKeyProperty.value.let { objectMapper.writeValueAsString(it) } ?: "") { focusedProperty().onChange { _ -> multiKeyProperty.value = objectMapper.readValue(text) } }
+                                                        if (connector.isInput && !node.flow.getConnections(connector.type).isInputConnected(connector)) add(jsonSchema.toNode(viewModel.bind { connectorValueObject.valueProperty() }).apply { hgrow = Priority.ALWAYS })
+                                                        button("-") { action { node.removeConnector(connector) } }
+                                                    })
+                                                } ?: if (connector.isInput && !node.flow.getConnections(connector.type).isInputConnected(connector)) add(jsonSchema.toNode(viewModel.bind { connectorValueObject.valueProperty() })) else Unit
+                                            }
+                                        }
+                                    } ?: it.value.forEach {
+                                        connectors.filter { connector -> connector.localId == it.json }.forEach { connector ->
+                                            (connector.valueObject as ConnectorValueObject).multiKeyProperty?.let {
                                                 add(hbox {
                                                     val multiKeyProperty = viewModel.bind { it }
-                                                    textfield(multiKeyProperty.value.let { objectMapper.writeValueAsString(it) } ?: "") { focusedProperty().onChange { _ -> multiKeyProperty.value = objectMapper.readValue(text) } }
-                                                    if (connector.isInput && !node.flow.getConnections(connector.type).isInputConnected(connector)) add(jsonSchema.toNode(viewModel.bind { connectorValueObject.valueProperty() }).apply { hgrow = Priority.ALWAYS })
+                                                    textfield(multiKeyProperty.value.let { objectMapper.writeValueAsString(it) } ?: "") {
+                                                        hgrow = Priority.ALWAYS
+                                                        focusedProperty().onChange { _ -> multiKeyProperty.value = objectMapper.readValue(text) }
+                                                    }
                                                     button("-") { action { node.removeConnector(connector) } }
                                                 })
-                                            } ?: if (connector.isInput && !node.flow.getConnections(connector.type).isInputConnected(connector)) add(jsonSchema.toNode(viewModel.bind { connectorValueObject.valueProperty() })) else Unit
+                                            }
                                         }
                                     }
-                                } ?: it.value.forEach {
-                                    node.connectors.filter { connector -> connector.localId == it.json }.forEach { connector ->
-                                        (connector.valueObject as ConnectorValueObject).multiKeyProperty?.let {
-                                            add(hbox {
-                                                val multiKeyProperty = viewModel.bind { it }
-                                                textfield(multiKeyProperty.value.let { objectMapper.writeValueAsString(it) } ?: "") {
-                                                    hgrow = Priority.ALWAYS
-                                                    focusedProperty().onChange { _ -> multiKeyProperty.value = objectMapper.readValue(text) }
-                                                }
-                                                button("-") { action { node.removeConnector(connector) } }
-                                            })
+                                    if (it.key.multi) add(hbox {
+                                        val newMapKeyTextField = textfield { hgrow = Priority.ALWAYS }
+                                        button("+") {
+                                            action {
+                                                checkNotNull(node.addPort(it.key, objectMapper.readValue<Any?>(newMapKeyTextField.text).toProperty(), null))
+                                                newMapKeyTextField.clear()
+                                            }
                                         }
-                                    }
+                                    })
                                 }
-                                if (it.key.multi) add(hbox {
-                                    val newMapKeyTextField = textfield { hgrow = Priority.ALWAYS }
-                                    button("+") {
-                                        action {
-                                            checkNotNull(node.addPort(it.key, objectMapper.readValue<Any?>(newMapKeyTextField.text).toProperty(), null))
-                                            newMapKeyTextField.clear()
-                                        }
-                                    }
-                                })
                             }
                         }
                     }

@@ -20,13 +20,14 @@ import com.valaphee.cran.Virtual
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.Value
 import com.valaphee.cran.spec.NodeImpl
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
  */
 @NodeImpl("virtual")
 object Value : Implementation {
-    override fun initialize(node: Node, virtual: Virtual) = if (node is Value) {
+    override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = if (node is Value) {
         val out = virtual.dataPath(node.out)
 
         out.set(node.value)

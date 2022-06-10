@@ -30,8 +30,8 @@ import com.valaphee.cran.spec.Out
 @NodeDecl("Input/Set Mouse Button")
 class SetMouseButton(
     type: String,
-    @get:In (""          ) @get:JsonProperty("in"       ) val `in`    : Int,
-    @get:In ("Key"  , Num) @get:JsonProperty("in_button") val inButton: Int,
-    @get:In ("State", Bit) @get:JsonProperty("in_state" ) val inState : Int,
-    @get:Out(""          ) @get:JsonProperty("out"      ) val out     : Int
+    @get:In (""           ) @get:JsonProperty("in"       ) val `in`    : Int,
+    @get:In ("Button", Num) @get:JsonProperty("in_button") val inButton: Int,
+    @get:In ("State" , Bit) @get:JsonProperty("in_state" ) val inState : Int,
+    @get:Out(""           ) @get:JsonProperty("out"      ) val out     : Int
 ) : Node(type)

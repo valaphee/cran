@@ -30,6 +30,7 @@ import com.valaphee.cran.node.math.scalar.Multiply
 import com.valaphee.cran.node.math.scalar.Subtract
 import com.valaphee.cran.path.DataPathException
 import com.valaphee.cran.spec.NodeImpl
+import kotlinx.coroutines.CoroutineScope
 import java.math.BigDecimal
 import java.math.BigInteger
 import kotlin.math.absoluteValue
@@ -40,7 +41,7 @@ import kotlin.math.pow
  */
 @NodeImpl("virtual")
 object MathScalar : Implementation {
-    override fun initialize(node: Node, virtual: Virtual) = when (node) {
+    override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = when (node) {
         is UnaryOperation -> {
             val `in` = virtual.dataPath(node.`in`)
             val out = virtual.dataPath(node.out)

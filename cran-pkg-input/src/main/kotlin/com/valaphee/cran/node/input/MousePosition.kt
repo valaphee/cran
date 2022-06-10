@@ -28,5 +28,5 @@ import com.valaphee.cran.spec.Out
 @NodeDecl("Input/Mouse Position")
 class MousePosition(
     type: String,
-    @get:Out("", Vec2) @get:JsonProperty("out_position") val out: Int
+    @get:Out("", Vec2) @get:JsonProperty("out") val out: Int
 ) : Node(type)

@@ -26,6 +26,7 @@ dependencies {
     api(project(":cran-pkg-base-virtual"))
     api(project(":cran-pkg-input"))
 
+    implementation("net.java.dev.jna:jna-platform:5.11.0")
     implementation("org.hid4java:hid4java:0.7.0")
 }
 
