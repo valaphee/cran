@@ -20,8 +20,6 @@ import com.valaphee.cran.Virtual
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.input.MousePosition
 import com.valaphee.cran.node.input.MoveMouse
-import com.valaphee.cran.node.input.OnMouseButton
-import com.valaphee.cran.node.input.OnMouseMove
 import com.valaphee.cran.node.input.SetMouseButton
 import com.valaphee.cran.spec.NodeImpl
 import jdk.incubator.vector.IntVector
@@ -49,7 +47,9 @@ object Mouse : Implementation {
     }
 
     override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = when (node) {
-        is OnMouseMove -> true
+        /*is OnMouseMove -> {
+            true
+        }*/
         is MoveMouse -> {
             val `in` = virtual.controlPath(node.`in`)
             val inSensitivity = virtual.dataPath(node.inSensitivity)
@@ -78,7 +78,9 @@ object Mouse : Implementation {
 
             true
         }
-        is OnMouseButton -> true
+        /*is OnMouseButton -> {
+            true
+        }*/
         is SetMouseButton -> {
             val `in` = virtual.controlPath(node.`in`)
             val inButton = virtual.dataPath(node.inButton)

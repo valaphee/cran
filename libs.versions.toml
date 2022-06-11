@@ -1,11 +1,13 @@
 [versions]
 classgraph = "4.8.146"
 fasterxml = "2.13.3"
-grpc = "1.46.0"
 guava = "31.1-jre"
 guice = "5.1.0"
+hazelcast = "5.1.1"
 kotlinx-coroutines = "1.6.2"
 log4j = "2.17.2"
+tornadofx = "1.7.20"
+vworkflowsfx = "0.2.5.0"
 
 [libraries]
 classgraph = { module = "io.github.classgraph:classgraph", version.ref = "classgraph" }
@@ -14,13 +16,11 @@ fasterxml-annotations = { module = "com.fasterxml.jackson.core:jackson-annotatio
 fasterxml-guice = { module = "com.fasterxml.jackson.module:jackson-module-guice", version.ref = "fasterxml" }
 fasterxml-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "fasterxml" }
 
-grpc-netty = { module = "io.grpc:grpc-netty", version.ref = "grpc" }
-grpc-protobuf = { module = "io.grpc:grpc-protobuf", version.ref = "grpc" }
-grpc-stub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
-
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 
 guice = { module = "com.google.inject:guice", version.ref = "guice" }
+
+hazelcast = { module = "com.hazelcast:hazelcast", version.ref = "hazelcast" }
 
 kotlinx-coroutines-jdk8 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-javafx = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-javafx", version.ref = "kotlinx-coroutines" }
@@ -29,3 +29,7 @@ log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "lo
 log4j-iostreams = { module = "org.apache.logging.log4j:log4j-iostreams", version.ref = "log4j" }
 log4j-jul = { module = "org.apache.logging.log4j:log4j-jul", version.ref = "log4j" }
 log4j-slf4j-impl = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j" }
+
+tornadofx = { module = "no.tornado:tornadofx", version.ref = "tornadofx" }
+
+vworkflowsfx = { module = "eu.mihosoft.vrl.workflow:vworkflows-fx", version.ref = "vworkflowsfx" }

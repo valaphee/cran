@@ -22,16 +22,17 @@ plugins {
 dependencies {
     implementation(project(":cran-meta"))
     implementation(project(":cran-spec"))
-    implementation(project(":cran-svc"))
 
     implementation(project(":cran-pkg-base"))
 
     implementation(libs.fasterxml.guice)
     implementation(libs.fasterxml.kotlin)
     implementation(libs.guice)
-    implementation("no.tornado:tornadofx:1.7.20")
+    implementation(libs.hazelcast)
+    implementation(libs.tornadofx)
     implementation(libs.kotlinx.coroutines.javafx)
-    implementation("eu.mihosoft.vrl.workflow:vworkflows-fx:0.2.5.0")
+    implementation(libs.kotlinx.coroutines.jdk8)
+    implementation(libs.vworkflowsfx)
 }
 
 tasks {

@@ -14,39 +14,30 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.graph
+package com.valaphee.cran.spec
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.inject.Inject
 import com.hazelcast.nio.ObjectDataInput
 import com.hazelcast.nio.ObjectDataOutput
 import com.hazelcast.nio.serialization.StreamSerializer
 import com.valaphee.cran.injector
-import com.valaphee.cran.meta.Meta
-import com.valaphee.cran.node.Node
 
 /**
  * @author Kevin Ludwig
  */
-class GraphImpl(
-                              override val name : String     ,
-    @get:JsonProperty("meta")          val meta : Meta?      ,
-                              override val nodes: List<Node>
-) : Graph() {
-    class Serializer : StreamSerializer<GraphImpl> {
-        @Inject private lateinit var objectMapper: ObjectMapper
+class SpecNodeSerializer : StreamSerializer<Spec.Node> {
+    @Inject private lateinit var objectMapper: ObjectMapper
 
-        init {
-            injector.injectMembers(this)
-        }
-
-        override fun getTypeId() = 2
-
-        override fun write(out: ObjectDataOutput, `object`: GraphImpl) {
-            objectMapper.writeValue(out, `object`)
-        }
-
-        override fun read(`in`: ObjectDataInput): GraphImpl = objectMapper.readValue(`in`, GraphImpl::class.java)
+    init {
+        injector.injectMembers(this)
     }
+
+    override fun getTypeId() = 1
+
+    override fun write(out: ObjectDataOutput, `object`: Spec.Node) {
+        objectMapper.writeValue(out, `object`)
+    }
+
+    override fun read(`in`: ObjectDataInput): Spec.Node = objectMapper.readValue(`in`, Spec.Node::class.java)
 }

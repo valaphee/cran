@@ -16,22 +16,15 @@
 
 package com.valaphee.cran.virtual
 
-import com.sun.jna.Pointer
-import com.sun.jna.platform.win32.Kernel32
 import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef
 import com.sun.jna.platform.win32.WinUser
 import com.valaphee.cran.Virtual
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.input.Key
-import com.valaphee.cran.node.input.OnKeyboardKey
 import com.valaphee.cran.node.input.SetKeyboardKey
 import com.valaphee.cran.spec.NodeImpl
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.hid4java.HidDevice
 import org.hid4java.HidManager
 import java.util.BitSet
@@ -47,7 +40,7 @@ object Keyboard : Implementation {
     private val keys = mutableSetOf<Key>()
 
     @Volatile private var hookThreadId = 0
-    private val onKey = MutableSharedFlow<Pair<Key, Boolean>>()
+    /*private val onKey = MutableSharedFlow<Pair<Key, Boolean>>()*/
 
     init {
         Runtime.getRuntime().addShutdownHook(thread(false) {
@@ -61,23 +54,23 @@ object Keyboard : Implementation {
 
         hidDevice = HidManager.getHidServices().attachedHidDevices.find { it.path.startsWith(path) }?.also { it.open() }
 
-        thread {
+        /*thread {
             hookThreadId = Kernel32.INSTANCE.GetCurrentThreadId()
             val hMod = Kernel32.INSTANCE.GetModuleHandle(null)
             val hhkKeyboardLL = User32.INSTANCE.SetWindowsHookEx(User32.WH_KEYBOARD_LL, object : WinUser.LowLevelKeyboardProc {
                 override fun callback(nCode: Int, wParam: WinDef.WPARAM, lParam: WinUser.KBDLLHOOKSTRUCT): WinDef.LRESULT {
-                    if (nCode == 0) runCatching { runBlocking { Key.byVkCode(lParam.vkCode)?.let { onKey.emit(it to (wParam.toInt() == User32.WM_KEYDOWN)) } } }
+                    if (nCode == 0) runCatching { Key.byVkCode(lParam.vkCode)?.let { onKey.tryEmit(it to (wParam.toInt() == User32.WM_KEYDOWN)) } }
                     return User32.INSTANCE.CallNextHookEx(null, nCode, wParam, WinDef.LPARAM(Pointer.nativeValue(lParam.pointer)))
                 }
             }, hMod, 0)
             User32.INSTANCE.GetMessage(WinUser.MSG(), WinDef.HWND(Pointer.NULL), 0, 0)
             User32.INSTANCE.UnhookWindowsHookEx(hhkKeyboardLL)
             hookThreadId = 0
-        }
+        }*/
     }
 
     override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = when(node) {
-        is OnKeyboardKey -> {
+        /*is OnKeyboardKey -> {
             val outKey = virtual.dataPath(node.outKey)
             val outState = virtual.dataPath(node.outState)
             val out = virtual.controlPath(node.out)
@@ -91,7 +84,7 @@ object Keyboard : Implementation {
             }
 
             true
-        }
+        }*/
         is SetKeyboardKey -> {
             val `in` = virtual.controlPath(node.`in`)
             val inKey = virtual.dataPath(node.inKey)

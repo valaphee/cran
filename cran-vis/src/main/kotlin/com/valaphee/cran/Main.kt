@@ -16,7 +16,8 @@
 
 package com.valaphee.cran
 
-import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair
 import com.fasterxml.jackson.module.guice.GuiceAnnotationIntrospector
 import com.fasterxml.jackson.module.guice.GuiceInjectableValues
@@ -35,11 +36,13 @@ import java.io.File
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
+lateinit var injector: Injector
+
 fun main(arguments: Array<String>) {
-    val injector = Guice.createInjector(object : AbstractModule() {
+    injector = Guice.createInjector(object : AbstractModule() {
         @Provides
         @Singleton
-        fun objectMapper(injector: Injector) = jacksonObjectMapper().apply {
+        fun objectMapper(injector: Injector) = jacksonObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).apply {
             val guiceAnnotationIntrospector = GuiceAnnotationIntrospector()
             setAnnotationIntrospectors(AnnotationIntrospectorPair(guiceAnnotationIntrospector, serializationConfig.annotationIntrospector), AnnotationIntrospectorPair(guiceAnnotationIntrospector, deserializationConfig.annotationIntrospector))
             injectableValues = GuiceInjectableValues(injector)
@@ -47,10 +50,9 @@ fun main(arguments: Array<String>) {
 
         @Provides
         @Singleton
-        fun settings(): Settings {
-            val objectMapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
+        fun settings(objectMapper: ObjectMapper): Settings {
             val file = File(File(System.getProperty("user.home"), ".valaphee/cran").also(File::mkdirs), "settings.json")
-            return if (!file.exists()) Settings().apply { objectMapper.writeValue(file, this) } else objectMapper.readValue(file)
+            return if (!file.exists()) Settings().apply { objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, this) } else objectMapper.readValue(file)
         }
     })
 

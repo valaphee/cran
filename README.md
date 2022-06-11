@@ -16,7 +16,6 @@ This project consists of 6 parts:
 * cran-pkg-*: Specifications/implementations
 * cran-meta: Node Metadata
 * cran-spec: Node Specification
-* cran-svc: gRPC services (Environment <> Visual Editor)
 * cran-vis: JavaFX-based visual editor
 
 ## Screenshots

@@ -19,7 +19,6 @@ plugins { id("com.github.johnrengelman.shadow") }
 dependencies {
     implementation(project(":cran-meta"))
     implementation(project(":cran-spec"))
-    implementation(project(":cran-svc"))
 
     implementation(project(":cran-pkg-base"))
     implementation(project(":cran-pkg-base-virtual"))
@@ -34,8 +33,7 @@ dependencies {
     implementation(libs.log4j.iostreams)
     implementation(libs.log4j.jul)
     implementation(libs.log4j.slf4j.impl)
-    implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
-    implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.4")
+    implementation(libs.hazelcast)
 }
 
 tasks {

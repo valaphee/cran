@@ -19,20 +19,21 @@ package com.valaphee.cran
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.inject.Injector
+import com.hazelcast.client.HazelcastClient
+import com.hazelcast.client.config.ClientConfig
+import com.hazelcast.config.SerializerConfig
+import com.hazelcast.core.EntryEvent
+import com.hazelcast.core.EntryListener
+import com.hazelcast.map.MapEvent
+import com.hazelcast.nio.ObjectDataInput
+import com.hazelcast.nio.ObjectDataOutput
+import com.hazelcast.nio.serialization.StreamSerializer
 import com.valaphee.cran.graph.GraphImpl
 import com.valaphee.cran.graph.SkinFactory
 import com.valaphee.cran.meta.Meta
-import com.valaphee.cran.settings.Settings
 import com.valaphee.cran.settings.SettingsView
 import com.valaphee.cran.spec.Spec
 import com.valaphee.cran.spec.SpecLookup
-import com.valaphee.cran.svc.graph.v1.DeleteGraphRequest
-import com.valaphee.cran.svc.graph.v1.GetSpecRequest
-import com.valaphee.cran.svc.graph.v1.GraphServiceGrpc
-import com.valaphee.cran.svc.graph.v1.ListGraphRequest
-import com.valaphee.cran.svc.graph.v1.RunGraphRequest
-import com.valaphee.cran.svc.graph.v1.StopGraphRequest
-import com.valaphee.cran.svc.graph.v1.UpdateGraphRequest
 import com.valaphee.cran.util.PathTree
 import com.valaphee.cran.util.PathTree.Companion.get
 import com.valaphee.cran.util.asStyleClass
@@ -60,8 +61,6 @@ import javafx.util.StringConverter
 import jfxtras.labs.util.event.MouseControlUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import tornadofx.FileChooserMode
 import tornadofx.View
 import tornadofx.action
@@ -84,28 +83,76 @@ import tornadofx.toProperty
 import tornadofx.treeview
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
+import kotlin.collections.set
 
 /**
  * @author Kevin Ludwig
  */
-class MainView(
-    environment: Settings.Environment
-) : View("%main"), CoroutineScope, SpecLookup {
+class MainView : View("%main"), CoroutineScope, SpecLookup {
     override val coroutineContext = Dispatchers.IO
 
-    private val channel = environment.toChannel()
-    internal val graphService = GraphServiceGrpc.newBlockingStub(channel)
-
     private val objectMapper by di<ObjectMapper>()
-    private val spec = objectMapper.readValue<Spec>(graphService.getSpec(GetSpecRequest.getDefaultInstance()).spec.toByteArray())
     private val injector by di<Injector>()
     private var graphProvider = injector.getProvider(GraphImpl::class.java)
 
-    private val graphProperty = SimpleObjectProperty<GraphImpl>().apply {
-        update {
-            title = "${environment.target}${it?.let { " - ${it.name}" } ?: ""}"
+    private val hazelcastClient = HazelcastClient.newHazelcastClient(ClientConfig().apply {
+        serializationConfig.apply {
+            addSerializerConfig(SerializerConfig().setTypeClass(Spec.Node::class.java).setImplementation(object : StreamSerializer<Spec.Node> {
+                override fun getTypeId() = 1
+
+                override fun write(out: ObjectDataOutput, `object`: Spec.Node) {
+                    objectMapper.writeValue(out, `object`)
+                }
+
+                override fun read(`in`: ObjectDataInput) = objectMapper.readValue(`in`, Spec.Node::class.java)
+            }))
+            addSerializerConfig(SerializerConfig().setTypeClass(GraphImpl::class.java).setImplementation(object : StreamSerializer<GraphImpl> {
+                override fun getTypeId() = 2
+
+                override fun write(out: ObjectDataOutput, `object`: GraphImpl) {
+                    objectMapper.writeValue(out, `object`)
+                }
+
+                override fun read(`in`: ObjectDataInput) = objectMapper.readValue(`in`, GraphImpl::class.java).apply { specLookup = this@MainView }
+            }))
         }
+    })
+    private val nodeSpecs = hazelcastClient.getReplicatedMap<String, Spec.Node>("node_specs") as Map<String, Spec.Node>
+    private val graphs = hazelcastClient.getReplicatedMap<String, GraphImpl>("graphs")
+
+    init {
+        graphs.addEntryListener(object : EntryListener<String, GraphImpl> {
+            override fun entryAdded(event: EntryEvent<String, GraphImpl>) {
+                graphsTreeMerge(graphs.values, true)
+            }
+
+            override fun entryUpdated(event: EntryEvent<String, GraphImpl>) {
+                graphsTreeMerge(graphs.values, true)
+            }
+
+            override fun entryRemoved(event: EntryEvent<String, GraphImpl>) {
+                graphsTreeMerge(graphs.values, true)
+            }
+
+            override fun entryEvicted(event: EntryEvent<String, GraphImpl>) {
+                graphsTreeMerge(graphs.values, true)
+            }
+
+            override fun entryExpired(event: EntryEvent<String, GraphImpl>) {
+                graphsTreeMerge(graphs.values, true)
+            }
+
+            override fun mapCleared(event: MapEvent) {
+                graphsTreeMerge(graphs.values, true)
+            }
+
+            override fun mapEvicted(event: MapEvent) {
+                graphsTreeMerge(graphs.values, true)
+            }
+        })
     }
+
+    private val graphProperty = SimpleObjectProperty<GraphImpl>().apply { update { title = it?.let { " - ${it.name}" } ?: "" } }
     private var graph by graphProperty
 
     override val root by fxml<Parent>("/main.fxml")
@@ -138,12 +185,7 @@ class MainView(
                         it.consume()
                     }
                     KeyCode.DELETE -> {
-                        selectedValue?.value?.let {
-                            launch {
-                                delete(it)
-                                _refresh()
-                            }
-                        }
+                        selectedValue?.value?.let { graphs.remove(it.name) }
                         it.consume()
                     }
                     else -> Unit
@@ -153,16 +195,7 @@ class MainView(
             contextmenu {
                 item(messages["main.graphs.new"]) { action { graphsTreeMerge(listOf(graphProvider.get())) } }
                 separator()
-                item(messages["main.graphs.delete"]) {
-                    action {
-                        selectedValue?.value?.let {
-                            launch {
-                                delete(it)
-                                _refresh()
-                            }
-                        }
-                    }
-                }
+                item(messages["main.graphs.delete"]) { action { selectedValue?.value?.let { graphs.remove(it.name) } } }
                 item(messages["main.graphs.rename"])
             }
 
@@ -209,7 +242,7 @@ class MainView(
                 }
 
                 val nodeItems = mutableMapOf<String, MenuItem>()
-                val treeItems = (PathTree(spec.nodes) { it.name }.convert<MenuItem> { parent, tree ->
+                val treeItems = (PathTree(nodeSpecs.values) { it.name }.convert<MenuItem> { parent, tree ->
                     val _styleClass = tree.path.asStyleClass()
                     tree.value?.let {
                         MenuItem(tree.name).apply {
@@ -271,10 +304,10 @@ class MainView(
         with(jsonTextArea) { graphProperty.onChange { text = it?.let { objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it) } ?: "" } }
 
         // Initialization
-        launch { _refresh() }
+        graphsTreeMerge(graphs.values, true)
     }
 
-    override fun getNodeSpec(name: String) = spec.nodes.find { it.name == name } ?: graphsTreeView.root?.get(name)?.toSpec()
+    override fun getNodeSpec(name: String) = nodeSpecs[name] ?: graphsTreeView.root?.get(name)?.toSpec()
 
     fun keyPressed(event: KeyEvent) {
         if (event.isControlDown) when (event.code) {
@@ -283,17 +316,13 @@ class MainView(
                 event.consume()
             }
             KeyCode.S -> {
-                graph?.let { graph -> launch { graphService.updateGraph(UpdateGraphRequest.newBuilder().setGraph(objectMapper.writeValueAsString(graph)).build()) } }
+                graph?.let { graphs[it.name] = it }
                 event.consume()
             }
             else -> Unit
         } else when (event.code) {
             KeyCode.DELETE -> {
                 graph?.let { it.flow.nodes.filter(VNode::isSelected).forEach(it.flow::remove) }
-                event.consume()
-            }
-            KeyCode.F5 -> {
-                launch { this@MainView._refresh() }
                 event.consume()
             }
             KeyCode.F11 -> {
@@ -309,7 +338,7 @@ class MainView(
     }
 
     fun fileImportMenuItemAction() {
-        chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Graph", "*.gph"), FileChooser.ExtensionFilter("All Files", "*.*"))).singleOrNull()?.let { graphsTreeMerge(listOf(it.inputStream().use { objectMapper.readValue<GraphImpl>(GZIPInputStream(it)).also { it.specLookup = this } })) }
+        chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Graph", "*.gph"), FileChooser.ExtensionFilter("All Files", "*.*"))).singleOrNull()?.let { graphsTreeMerge(listOf(it.inputStream().use { objectMapper.readValue(GZIPInputStream(it)) })) }
     }
 
     fun fileExportAsMenuItemAction() {
@@ -353,28 +382,17 @@ class MainView(
     }
 
     fun runButtonAction() {
-        graphService.runGraph(RunGraphRequest.newBuilder().setGraphName(graph.name).build())
     }
 
     fun stopButtonAction() {
-        graphService.stopGraph(StopGraphRequest.newBuilder().setScopeId("").build())
     }
 
     fun jsonTabSelectionChanged() {
         jsonTextArea.text = graph?.let { objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it) } ?: ""
     }
 
-    private fun graphsTreeMerge(graphs: List<GraphImpl>, replace: Boolean = false) {
+    private fun graphsTreeMerge(graphs: Collection<GraphImpl>, replace: Boolean = false) {
          PathTree(graphs) { it.name }.convert<TreeItem<PathTree<GraphImpl>>>(graphsTreeView.root, { parent, tree -> parent?.children?.find { it.value.path == tree.path }?.also { it.value = tree } ?: TreeItem(tree) }) { parent, children -> if (replace) parent?.children?.setAll(children) else parent?.children?.addAll(children) }
-    }
-
-    private suspend fun _refresh() {
-        val graphs = graphService.listGraph(ListGraphRequest.getDefaultInstance()).graphsList.map { objectMapper.readValue<GraphImpl>(it).apply { specLookup = this@MainView } }
-        withContext(Dispatchers.Main) { graphsTreeMerge(graphs, true) }
-    }
-
-    private fun delete(graph: GraphImpl) {
-        graphService.deleteGraph(DeleteGraphRequest.newBuilder().setGraphName(graph.name).build())
     }
 
     companion object {

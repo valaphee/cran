@@ -18,7 +18,6 @@ rootProject.name = "cran"
 
 include("cran-meta")
 include("cran-spec")
-include("cran-svc")
 
 include("cran-pkg-base")
 include("cran-pkg-base-virtual")

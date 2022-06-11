@@ -16,6 +16,7 @@
 
 package com.valaphee.cran
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.guice.GuiceAnnotationIntrospector
@@ -23,56 +24,34 @@ import com.fasterxml.jackson.module.guice.GuiceInjectableValues
 import com.fasterxml.jackson.module.kotlin.addDeserializer
 import com.fasterxml.jackson.module.kotlin.addSerializer
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.inject.AbstractModule
 import com.google.inject.Guice
 import com.google.inject.Injector
 import com.google.inject.Provides
 import com.google.inject.Singleton
-import com.valaphee.cran.graph.GraphServiceImpl
+import com.hazelcast.core.Hazelcast
+import com.valaphee.cran.graph.GraphImpl
 import com.valaphee.cran.node.math.vector.DoubleVectorDeserializer
 import com.valaphee.cran.node.math.vector.DoubleVectorSerializer
 import com.valaphee.cran.node.math.vector.IntVectorDeserializer
 import com.valaphee.cran.node.math.vector.IntVectorSerializer
-import com.valaphee.cran.security.TlsSubcommand
-import com.valaphee.cran.svc.graph.v1.GraphServiceGrpc.GraphServiceImplBase
-import io.grpc.netty.GrpcSslContexts
-import io.grpc.netty.NettyServerBuilder
-import io.netty.handler.ssl.ClientAuth
-import io.netty.handler.ssl.SslContextBuilder
+import com.valaphee.cran.spec.Spec
+import io.github.classgraph.ClassGraph
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.IntVector
-import kotlinx.cli.ArgParser
-import kotlinx.cli.ArgType
-import kotlinx.cli.default
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.io.IoBuilder
-import org.bouncycastle.jce.provider.BouncyCastleProvider
-import java.io.File
-import java.net.InetSocketAddress
-import java.security.Security
 
-fun main(arguments: Array<String>) {
-    Security.addProvider(BouncyCastleProvider())
+lateinit var injector: Injector
 
-    val argumentParser = ArgParser("cran-env")
-    val host by argumentParser.option(ArgType.String, "host", "H", "Host").default("localhost")
-    val port by argumentParser.option(ArgType.Int, "port", "p", "Port").default(8080)
-    val serverCer by argumentParser.option(ArgType.String, "server-cer", description = "Server Certificate").default("tls/server_cer.pem")
-    val serverKey by argumentParser.option(ArgType.String, "server-key", description = "Server Private Key").default("tls/server_key.pem")
-    val clientCer by argumentParser.option(ArgType.String, "client-cer", description = "Client Certificate").default("tls/client_cer.pem")
-    argumentParser.subcommands(TlsSubcommand)
-    argumentParser.parse(arguments)
-
+fun main() {
     System.setIn(null)
     System.setOut(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.INFO).buildPrintStream())
     System.setErr(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.ERROR).buildPrintStream())
 
-    val injector = Guice.createInjector(object : AbstractModule() {
-        override fun configure() {
-            bind(GraphServiceImplBase::class.java).to(GraphServiceImpl::class.java)
-        }
-
+    injector = Guice.createInjector(object : AbstractModule() {
         @Provides
         @Singleton
         fun objectMapper(injector: Injector) = jacksonObjectMapper().registerModule(
@@ -86,12 +65,15 @@ fun main(arguments: Array<String>) {
         }
     })
 
-    val server = NettyServerBuilder
-        .forAddress(InetSocketAddress(host, port))
-        .addService(injector.getInstance(GraphServiceImplBase::class.java))
-        .sslContext(GrpcSslContexts.configure(SslContextBuilder.forServer(File(serverCer), File(serverKey)).trustManager(File(clientCer)).clientAuth(ClientAuth.REQUIRE)).build())
-        .build()
-        .start()
-    LogManager.getLogger("Main").info("Listening on $port")
-    server.awaitTermination()
+    val log = LogManager.getLogger()
+
+    val hazelcast = Hazelcast.newHazelcastInstance()
+    val nodeSpecs = hazelcast.getReplicatedMap<String, Spec.Node>("node_specs")
+    val graphs = hazelcast.getReplicatedMap<String, GraphImpl>("graphs")
+
+    ClassGraph().scan().use {
+        val objectMapper = injector.getInstance(ObjectMapper::class.java)
+        it.getResourcesMatchingWildcard("**.spec.json").urLs.forEach { nodeSpecs.putAll(objectMapper.readValue<Spec>(it).nodes.onEach { log.info("Built-in node '{}' found", it.name) }.associateBy { it.name }) }
+        graphs.putAll(it.getResourcesMatchingWildcard("**.gph").urLs.map { objectMapper.readValue<GraphImpl>(it).also { log.info("Built-in graph '{}' found", it.name) } }.associateBy { it.name })
+    }
 }

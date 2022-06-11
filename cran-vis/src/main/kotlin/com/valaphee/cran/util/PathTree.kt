@@ -30,7 +30,7 @@ class PathTree<T> constructor(
 
     constructor() : this("")
 
-    constructor(list: List<T>, getPath: (T) -> String) : this("") {
+    constructor(list: Collection<T>, getPath: (T) -> String) : this("") {
         list.forEach {
             val pathSplit = getPath(it).split('/')
             val path = StringBuilder()

@@ -17,58 +17,20 @@
 package com.valaphee.cran.settings
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import io.grpc.ManagedChannel
-import io.grpc.netty.GrpcSslContexts
-import io.grpc.netty.NegotiationType
-import io.grpc.netty.NettyChannelBuilder
-import io.netty.handler.ssl.SslContextBuilder
 import tornadofx.getValue
 import tornadofx.setValue
 import tornadofx.toProperty
-import java.io.File
-import java.security.KeyStore
-import java.security.cert.X509Certificate
-import javax.net.ssl.TrustManagerFactory
-import javax.net.ssl.X509TrustManager
 
 /**
  * @author Kevin Ludwig
  */
 class Settings(
     gridX: Int = 5,
-    gridY: Int = 5,
-    val environment: Environment = Environment("localhost:8080", "tls/client_cer.pem", "tls/client_key.pem", "tls/server_cer.pem")
+    gridY: Int = 5
 ) {
     @get:JsonIgnore val gridXProperty = gridX.toProperty()
     @get:JsonIgnore val gridYProperty = gridY.toProperty()
 
     var gridX by gridXProperty
     var gridY by gridYProperty
-
-    class Environment(
-        target: String,
-        clientCer: String,
-        clientKey: String,
-        serverCer: String
-    ) {
-        @get:JsonIgnore val targetProperty = target.toProperty()
-        @get:JsonIgnore val clientCerProperty = clientCer.toProperty()
-        @get:JsonIgnore val clientKeyProperty = clientKey.toProperty()
-        @get:JsonIgnore val serverCerProperty = serverCer.toProperty()
-
-        var target: String by targetProperty
-        var clientCer: String by clientCerProperty
-        var clientKey: String by clientKeyProperty
-        var serverCer: String by serverCerProperty
-
-        fun toChannel(): ManagedChannel = NettyChannelBuilder.forTarget(target).negotiationType(NegotiationType.TLS).sslContext(GrpcSslContexts.configure(SslContextBuilder.forClient().keyManager(File(clientCer), File(clientKey)).trustManager(object : X509TrustManager {
-            private val parent = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm()).apply { init(null as KeyStore?) }.trustManagers.find { it is X509TrustManager } as X509TrustManager
-
-            override fun checkClientTrusted(chain: Array<out X509Certificate>, authType: String) = Unit
-
-            override fun checkServerTrusted(chain: Array<out X509Certificate>, authType: String) = Unit
-
-            override fun getAcceptedIssuers() = parent.acceptedIssuers
-        })).build()).build()
-    }
 }
