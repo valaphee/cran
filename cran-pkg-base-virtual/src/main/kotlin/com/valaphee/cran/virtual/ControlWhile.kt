@@ -27,7 +27,7 @@ import kotlinx.coroutines.CoroutineScope
  */
 @NodeImpl("virtual")
 object ControlWhile : Implementation {
-    override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = if (node is While) {
+    override fun initialize(node: Node, virtual: Virtual) = if (node is While) {
         val `in` = virtual.controlPath(node.`in`)
         val inValue = virtual.dataPath(node.inValue)
         val outBody = virtual.controlPath(node.outBody)

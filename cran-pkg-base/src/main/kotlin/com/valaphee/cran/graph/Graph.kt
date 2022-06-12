@@ -64,17 +64,4 @@ abstract class Graph {
             else             -> null
         }
     })
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Graph
-
-        if (name.lowercase() != other.name.lowercase()) return false
-
-        return true
-    }
-
-    override fun hashCode() = name.lowercase().hashCode()
 }

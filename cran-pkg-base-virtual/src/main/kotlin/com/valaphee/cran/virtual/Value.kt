@@ -27,7 +27,7 @@ import kotlinx.coroutines.CoroutineScope
  */
 @NodeImpl("virtual")
 object Value : Implementation {
-    override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = if (node is Value) {
+    override fun initialize(node: Node, virtual: Virtual) = if (node is Value) {
         val out = virtual.dataPath(node.out)
 
         out.set(node.value)

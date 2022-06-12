@@ -18,11 +18,10 @@ package com.valaphee.cran.virtual
 
 import com.valaphee.cran.Virtual
 import com.valaphee.cran.node.Node
-import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
  */
 interface Implementation {
-    fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual): Boolean
+    fun initialize(node: Node, virtual: Virtual): Boolean
 }

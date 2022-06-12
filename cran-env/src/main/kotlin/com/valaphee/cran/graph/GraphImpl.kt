@@ -16,15 +16,22 @@
 
 package com.valaphee.cran.graph
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.inject.Inject
 import com.hazelcast.nio.ObjectDataInput
 import com.hazelcast.nio.ObjectDataOutput
 import com.hazelcast.nio.serialization.StreamSerializer
+import com.valaphee.cran.Virtual
 import com.valaphee.cran.injector
 import com.valaphee.cran.meta.Meta
+import com.valaphee.cran.node.Entry
 import com.valaphee.cran.node.Node
+import com.valaphee.cran.virtual.Implementation
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 /**
  * @author Kevin Ludwig
@@ -34,6 +41,19 @@ class GraphImpl(
     @get:JsonProperty("meta")          val meta : Meta?      ,
                               override val nodes: List<Node>
 ) : Graph() {
+    @JsonIgnore private var scope: Virtual? = null
+
+    fun run(objectMapper: ObjectMapper, nodeImpls: List<Implementation>, graphLookup: GraphLookup, coroutineDispatcher: CoroutineDispatcher) {
+        scope = Virtual(objectMapper, nodeImpls, graphLookup, this@GraphImpl, coroutineDispatcher).also { scope ->
+            scope.initialize()
+            nodes.forEach { if (it is Entry) scope.launch { scope.controlPath(it.out)() } }
+        }
+    }
+
+    fun shutdown() {
+        scope?.cancel()
+    }
+
     class Serializer : StreamSerializer<GraphImpl> {
         @Inject private lateinit var objectMapper: ObjectMapper
 

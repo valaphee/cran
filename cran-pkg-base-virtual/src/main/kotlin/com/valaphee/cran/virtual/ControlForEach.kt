@@ -27,7 +27,7 @@ import kotlinx.coroutines.CoroutineScope
  */
 @NodeImpl("virtual")
 object ControlForEach : Implementation {
-    override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = if (node is ForEach) {
+    override fun initialize(node: Node, virtual: Virtual) = if (node is ForEach) {
         val `in` = virtual.controlPath(node.`in`)
         val inValue = virtual.dataPath(node.inValue)
         val outBody = virtual.controlPath(node.outBody)

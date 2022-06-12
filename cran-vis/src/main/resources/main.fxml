@@ -62,13 +62,6 @@
                 </Menu>
             </menus>
         </MenuBar>
-        <ToolBar prefHeight="40.0" prefWidth="200.0">
-            <items>
-                <Pane HBox.hgrow="ALWAYS"/>
-                <Button mnemonicParsing="false" onAction="#runButtonAction" text="Run"/>
-                <Button mnemonicParsing="false" onAction="#stopButtonAction" text="Stop"/>
-            </items>
-        </ToolBar>
         <HBox fx:id="rootHbox" VBox.vgrow="ALWAYS">
             <children>
                 <TabPane prefHeight="200.0" prefWidth="200.0" side="BOTTOM" tabClosingPolicy="UNAVAILABLE" HBox.hgrow="ALWAYS">

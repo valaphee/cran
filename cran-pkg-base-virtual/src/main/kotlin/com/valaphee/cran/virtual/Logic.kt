@@ -31,7 +31,7 @@ import kotlinx.coroutines.CoroutineScope
  */
 @NodeImpl("virtual")
 object Logic : Implementation {
-    override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = when (node) {
+    override fun initialize(node: Node, virtual: Virtual) = when (node) {
         is UnaryOperation -> {
             val `in` = virtual.dataPath(node.`in`)
             val out = virtual.dataPath(node.out)

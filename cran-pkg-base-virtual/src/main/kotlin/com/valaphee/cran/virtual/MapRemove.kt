@@ -27,7 +27,7 @@ import kotlinx.coroutines.CoroutineScope
  */
 @NodeImpl("virtual")
 object MapRemove : Implementation {
-    override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = if (node is Remove) {
+    override fun initialize(node: Node, virtual: Virtual) = if (node is Remove) {
         val `in` = virtual.dataPath(node.`in`)
         val inKey = virtual.dataPath(node.inKey)
         val out = virtual.dataPath(node.out)

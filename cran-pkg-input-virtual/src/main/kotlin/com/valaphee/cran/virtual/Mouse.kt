@@ -46,7 +46,7 @@ object Mouse : Implementation {
         hidDevice = HidManager.getHidServices().attachedHidDevices.find { it.path.startsWith(path) }?.also { it.open() }
     }
 
-    override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = when (node) {
+    override fun initialize(node: Node, virtual: Virtual) = when (node) {
         /*is OnMouseMove -> {
             true
         }*/

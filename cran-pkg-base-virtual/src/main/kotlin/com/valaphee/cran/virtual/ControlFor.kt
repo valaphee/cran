@@ -27,7 +27,7 @@ import kotlinx.coroutines.CoroutineScope
  */
 @NodeImpl("virtual")
 object ControlFor : Implementation {
-    override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = if (node is For) {
+    override fun initialize(node: Node, virtual: Virtual) = if (node is For) {
         val `in` = virtual.controlPath(node.`in`)
         val inRangeStart = virtual.dataPath(node.inRangeStart)
         val inRangeEnd = virtual.dataPath(node.inRangeEnd)

@@ -23,15 +23,14 @@ import com.valaphee.cran.node.nesting.ControlOutput
 import com.valaphee.cran.node.nesting.DataInput
 import com.valaphee.cran.node.nesting.DataOutput
 import com.valaphee.cran.spec.NodeImpl
-import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
  */
 @NodeImpl("virtual")
 object SubGraph : Implementation {
-    override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = virtual.graphLookup.getGraph(node.type)?.let { subGraph ->
-        val subScope = virtual.subScope(subGraph).also { it.initialize(coroutineScope) }
+    override fun initialize(node: Node, virtual: Virtual) = virtual.graphLookup.getGraph(node.type)?.let { subGraph ->
+        val subScope = virtual.subScope(subGraph).also { it.initialize() }
         subGraph.nodes.forEach { subNode ->
             when (subNode) {
                 is ControlInput -> {

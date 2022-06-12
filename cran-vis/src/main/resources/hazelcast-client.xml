@@ -17,7 +17,7 @@
 <hazelcast-client xmlns="http://www.hazelcast.com/schema/client-config">
     <serialization>
         <serializers>
-            <serializer class-name="com.valaphee.cran.spec.SpecNodeSerializer" type-class="com.valaphee.cran.spec.Spec$Node"/>
+            <serializer class-name="SpecNodeSerializer" type-class="com.valaphee.cran.spec.Spec$Node"/>
             <serializer class-name="com.valaphee.cran.graph.GraphImpl$Serializer" type-class="com.valaphee.cran.graph.GraphImpl"/>
         </serializers>
     </serialization>

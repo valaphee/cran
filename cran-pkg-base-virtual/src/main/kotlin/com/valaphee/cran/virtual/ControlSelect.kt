@@ -27,7 +27,7 @@ import kotlinx.coroutines.CoroutineScope
  */
 @NodeImpl("virtual")
 object ControlSelect : Implementation {
-    override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = if (node is Select) {
+    override fun initialize(node: Node, virtual: Virtual) = if (node is Select) {
         val `in` = virtual.dataPath(node.`in`)
         val inValue = node.inValue.associate { it.key to virtual.dataPath(it.value) }
         val inDefault = virtual.dataPath(node.inDefault)

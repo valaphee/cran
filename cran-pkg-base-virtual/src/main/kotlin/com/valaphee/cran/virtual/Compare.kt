@@ -27,14 +27,13 @@ import com.valaphee.cran.node.logic.LessThanOrEqual
 import com.valaphee.cran.node.logic.NotEqual
 import com.valaphee.cran.path.DataPathException
 import com.valaphee.cran.spec.NodeImpl
-import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
  */
 @NodeImpl("virtual")
 object Compare : Implementation {
-    override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = when (node) {
+    override fun initialize(node: Node, virtual: Virtual) = when (node) {
         is BinaryOperation -> {
             val in1 = virtual.dataPath(node.in1)
             val in2 = virtual.dataPath(node.in2)

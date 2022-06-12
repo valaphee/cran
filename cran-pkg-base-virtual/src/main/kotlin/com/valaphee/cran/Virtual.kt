@@ -23,6 +23,8 @@ import com.valaphee.cran.virtual.ControlPath
 import com.valaphee.cran.virtual.DataPath
 import com.valaphee.cran.virtual.Implementation
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlin.coroutines.CoroutineContext
 
 /**
  * @author Kevin Ludwig
@@ -32,11 +34,13 @@ class Virtual(
     val impls: List<Implementation>,
     val graphLookup: GraphLookup,
     val graph: Graph,
-) {
+    coroutineContext: CoroutineContext
+) : CoroutineScope {
+    override val coroutineContext = coroutineContext + SupervisorJob()
     private val controlPaths = mutableListOf<ControlPath?>()
     private val dataPaths = mutableListOf<DataPath?>()
 
-    fun subScope(graph: Graph) = Virtual(objectMapper, impls, graphLookup, graph)
+    fun subScope(graph: Graph) = Virtual(objectMapper, impls, graphLookup, graph, coroutineContext)
 
     fun controlPath(controlPathId: Int) = controlPaths.getOrNull(controlPathId) ?: ControlPath().also {
         if (controlPathId > controlPaths.size) repeat(controlPathId - controlPaths.size) { controlPaths += null }
@@ -50,7 +54,7 @@ class Virtual(
         else dataPaths[dataPathId] = it
     }
 
-    fun initialize(coroutineScope: CoroutineScope) {
-        graph.nodes.forEach { node -> impls.any { impl -> impl.initialize(coroutineScope, node, this) } }
+    fun initialize() {
+        graph.nodes.forEach { node -> impls.any { impl -> impl.initialize(node, this) } }
     }
 }

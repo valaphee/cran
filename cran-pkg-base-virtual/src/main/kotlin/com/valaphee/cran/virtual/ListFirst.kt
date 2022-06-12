@@ -27,7 +27,7 @@ import kotlinx.coroutines.CoroutineScope
  */
 @NodeImpl("virtual")
 object ListFirst : Implementation {
-    override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = if (node is First) {
+    override fun initialize(node: Node, virtual: Virtual) = if (node is First) {
         val `in` = virtual.dataPath(node.`in`)
         val out = virtual.dataPath(node.out)
 

@@ -69,7 +69,7 @@ object Keyboard : Implementation {
         }*/
     }
 
-    override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = when(node) {
+    override fun initialize(node: Node, virtual: Virtual) = when(node) {
         /*is OnKeyboardKey -> {
             val outKey = virtual.dataPath(node.outKey)
             val outState = virtual.dataPath(node.outState)

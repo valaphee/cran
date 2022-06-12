@@ -30,19 +30,26 @@ import com.google.inject.Guice
 import com.google.inject.Injector
 import com.google.inject.Provides
 import com.google.inject.Singleton
+import com.hazelcast.core.EntryEvent
+import com.hazelcast.core.EntryListener
 import com.hazelcast.core.Hazelcast
+import com.hazelcast.map.MapEvent
 import com.valaphee.cran.graph.GraphImpl
+import com.valaphee.cran.graph.GraphLookup
 import com.valaphee.cran.node.math.vector.DoubleVectorDeserializer
 import com.valaphee.cran.node.math.vector.DoubleVectorSerializer
 import com.valaphee.cran.node.math.vector.IntVectorDeserializer
 import com.valaphee.cran.node.math.vector.IntVectorSerializer
 import com.valaphee.cran.spec.Spec
+import com.valaphee.cran.virtual.Implementation
 import io.github.classgraph.ClassGraph
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.IntVector
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.io.IoBuilder
+import java.util.concurrent.Executors
 
 lateinit var injector: Injector
 
@@ -67,13 +74,49 @@ fun main() {
 
     val log = LogManager.getLogger()
 
+    val objectMapper = injector.getInstance(ObjectMapper::class.java)
+
     val hazelcast = Hazelcast.newHazelcastInstance()
     val nodeSpecs = hazelcast.getReplicatedMap<String, Spec.Node>("node_specs")
+    val nodeImpls = mutableListOf<Implementation>()
     val graphs = hazelcast.getReplicatedMap<String, GraphImpl>("graphs")
+    val graphLookup = object : GraphLookup {
+        override fun getGraph(name: String) = graphs[name]
+    }
 
     ClassGraph().scan().use {
-        val objectMapper = injector.getInstance(ObjectMapper::class.java)
-        it.getResourcesMatchingWildcard("**.spec.json").urLs.forEach { nodeSpecs.putAll(objectMapper.readValue<Spec>(it).nodes.onEach { log.info("Built-in node '{}' found", it.name) }.associateBy { it.name }) }
+        val spec = it.getResourcesMatchingWildcard("**.spec.json").urLs.map { objectMapper.readValue<Spec>(it).also { it.nodes.onEach { log.info("Built-in node '{}' found", it.name) } } }.reduce { acc, spec -> acc + spec }
+        nodeSpecs.putAll(spec.nodes.onEach { log.info("Built-in node '{}' found", it.name) }.associateBy { it.name })
+        spec.nodesImpls["virtual"]?.let { nodeImpls.addAll(it.mapNotNull { Class.forName(it).kotlin.objectInstance as Implementation? }) }
         graphs.putAll(it.getResourcesMatchingWildcard("**.gph").urLs.map { objectMapper.readValue<GraphImpl>(it).also { log.info("Built-in graph '{}' found", it.name) } }.associateBy { it.name })
     }
+
+    val coroutineDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+
+    graphs.addEntryListener(object : EntryListener<String, GraphImpl> {
+        override fun entryAdded(event: EntryEvent<String, GraphImpl>) {
+            event.value.run(objectMapper, nodeImpls, graphLookup, coroutineDispatcher)
+        }
+
+        override fun entryUpdated(event: EntryEvent<String, GraphImpl>) {
+            event.oldValue.shutdown()
+            event.value.run(objectMapper, nodeImpls, graphLookup, coroutineDispatcher)
+        }
+
+        override fun entryRemoved(event: EntryEvent<String, GraphImpl>) {
+            event.value.shutdown()
+        }
+
+        override fun entryEvicted(event: EntryEvent<String, GraphImpl>) {
+            event.value.shutdown()
+        }
+
+        override fun entryExpired(event: EntryEvent<String, GraphImpl>) {
+            event.value.shutdown()
+        }
+
+        override fun mapCleared(event: MapEvent) = Unit
+
+        override fun mapEvicted(event: MapEvent) = Unit
+    })
 }

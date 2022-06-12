@@ -20,14 +20,13 @@ import com.valaphee.cran.Virtual
 import com.valaphee.cran.node.Node
 import com.valaphee.cran.node.control.Branch
 import com.valaphee.cran.spec.NodeImpl
-import kotlinx.coroutines.CoroutineScope
 
 /**
  * @author Kevin Ludwig
  */
 @NodeImpl("virtual")
 object ControlBranch : Implementation {
-    override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = if (node is Branch) {
+    override fun initialize(node: Node, virtual: Virtual) = if (node is Branch) {
         val `in` = virtual.controlPath(node.`in`)
         val inValue = virtual.dataPath(node.inValue)
         val out = node.out.associate { it.key to virtual.controlPath(it.value) }

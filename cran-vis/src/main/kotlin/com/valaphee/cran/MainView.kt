@@ -35,7 +35,6 @@ import com.valaphee.cran.settings.SettingsView
 import com.valaphee.cran.spec.Spec
 import com.valaphee.cran.spec.SpecLookup
 import com.valaphee.cran.util.PathTree
-import com.valaphee.cran.util.PathTree.Companion.get
 import com.valaphee.cran.util.asStyleClass
 import com.valaphee.cran.util.update
 import eu.mihosoft.vrl.workflow.VNode
@@ -74,6 +73,7 @@ import tornadofx.getValue
 import tornadofx.item
 import tornadofx.onChange
 import tornadofx.rectangle
+import tornadofx.runLater
 import tornadofx.selectedValue
 import tornadofx.separator
 import tornadofx.setContent
@@ -117,47 +117,15 @@ class MainView : View("%main"), CoroutineScope, SpecLookup {
             }))
         }
     })
-    private val nodeSpecs = hazelcastClient.getReplicatedMap<String, Spec.Node>("node_specs") as Map<String, Spec.Node>
+    private val nodeSpecs = hazelcastClient.getReplicatedMap<String, Spec.Node>("node_specs")
     private val graphs = hazelcastClient.getReplicatedMap<String, GraphImpl>("graphs")
 
-    init {
-        graphs.addEntryListener(object : EntryListener<String, GraphImpl> {
-            override fun entryAdded(event: EntryEvent<String, GraphImpl>) {
-                graphsTreeMerge(graphs.values, true)
-            }
-
-            override fun entryUpdated(event: EntryEvent<String, GraphImpl>) {
-                graphsTreeMerge(graphs.values, true)
-            }
-
-            override fun entryRemoved(event: EntryEvent<String, GraphImpl>) {
-                graphsTreeMerge(graphs.values, true)
-            }
-
-            override fun entryEvicted(event: EntryEvent<String, GraphImpl>) {
-                graphsTreeMerge(graphs.values, true)
-            }
-
-            override fun entryExpired(event: EntryEvent<String, GraphImpl>) {
-                graphsTreeMerge(graphs.values, true)
-            }
-
-            override fun mapCleared(event: MapEvent) {
-                graphsTreeMerge(graphs.values, true)
-            }
-
-            override fun mapEvicted(event: MapEvent) {
-                graphsTreeMerge(graphs.values, true)
-            }
-        })
-    }
-
-    private val graphProperty = SimpleObjectProperty<GraphImpl>().apply { update { title = it?.let { " - ${it.name}" } ?: "" } }
+    private val graphProperty = SimpleObjectProperty<GraphImpl?>().apply { update { title = it?.let { " - ${it.name}" } ?: "" } }
     private var graph by graphProperty
 
     override val root by fxml<Parent>("/main.fxml")
     private val rootHbox by fxid<HBox>()
-    private lateinit var graphsTreeView: TreeView<PathTree<GraphImpl>>
+    private lateinit var graphsTreeView: TreeView<Pair<String, GraphImpl?>>
     private val graphScrollPane by fxid<ScrollPane>()
     private val graphPane by fxid<Pane>()
     private val jsonFormat by fxid<HBox>()
@@ -175,41 +143,19 @@ class MainView : View("%main"), CoroutineScope, SpecLookup {
 
         with(graphsTreeView) {
             /*isEditable = true*/
-            root = TreeItem(PathTree())
             isShowRoot = false
 
-            setOnKeyPressed {
-                if (it.isControlDown) when (it.code) {
-                    KeyCode.ENTER -> {
-                        selectedValue?.value?.let { graph = it }
-                        it.consume()
-                    }
-                    KeyCode.DELETE -> {
-                        selectedValue?.value?.let { graphs.remove(it.name) }
-                        it.consume()
-                    }
-                    else -> Unit
-                }
-            }
-
-            contextmenu {
-                item(messages["main.graphs.new"]) { action { graphsTreeMerge(listOf(graphProvider.get())) } }
-                separator()
-                item(messages["main.graphs.delete"]) { action { selectedValue?.value?.let { graphs.remove(it.name) } } }
-                item(messages["main.graphs.rename"])
-            }
-
             setCellFactory {
-                TextFieldTreeCell<PathTree<GraphImpl>>().apply {
+                TextFieldTreeCell<Pair<String, GraphImpl?>>().apply {
                     setOnMouseClicked {
                         if (it.clickCount == 2) {
-                            item?.value?.let { graph = it }
+                            item?.second?.let { graph = it }
                             it.consume()
                         }
                     }
 
                     setOnDragDetected {
-                        item?.value?.let {
+                        item?.second?.let {
                             startDragAndDrop(TransferMode.COPY).apply {
                                 dragView = snapshot(null, null)
                                 setContent { this[nodeSpecDataFormat] = objectMapper.writeValueAsString(it.toSpec()) }
@@ -218,13 +164,96 @@ class MainView : View("%main"), CoroutineScope, SpecLookup {
                         it.consume()
                     }
 
-                    converter = object : StringConverter<PathTree<GraphImpl>>() {
-                        override fun toString(`object`: PathTree<GraphImpl>) = `object`.name
+                    converter = object : StringConverter<Pair<String, GraphImpl?>>() {
+                        override fun toString(`object`: Pair<String, GraphImpl?>) = `object`.first
 
-                        override fun fromString(string: String) = PathTree(item.path, string, item.value?.also { it.name = string })
+                        override fun fromString(string: String) = string to item.second?.apply { name = string }
                     }
                 }
             }
+
+            setOnKeyPressed {
+                if (it.isControlDown) when (it.code) {
+                    KeyCode.ENTER -> {
+                        selectedValue?.second?.let { graph = it }
+                        it.consume()
+                    }
+                    KeyCode.DELETE -> {
+                        selectedValue?.second?.let { graphs.remove(it.name) }
+                        it.consume()
+                    }
+                    else -> Unit
+                }
+            }
+
+            contextmenu {
+                item(messages["main.graphs.new"]) {
+                    action {
+                        val graph = graphProvider.get()
+                        graphs[graph.name] = graph
+                    }
+                }
+                separator()
+                item(messages["main.graphs.delete"]) { action { selectedValue?.second?.let { graphs.remove(it.name) } } }
+                item(messages["main.graphs.rename"])
+            }
+
+            graphs.addEntryListener(object : EntryListener<String, GraphImpl> {
+                init {
+                    clear()
+                    graphs.values.forEach(::update)
+                }
+
+                private fun clear() {
+                    root = TreeItem("" to null)
+                    graph = null
+                }
+
+                private fun update(graph: GraphImpl) {
+                    val path = graph.name.split('/')
+                    var current = root
+                    path.forEachIndexed { i, _path -> current = current.children.find { it.value.first == _path }?.also { if (i == path.lastIndex) it.value = it.value.copy(second = graph) } ?: TreeItem(_path to if (i == path.lastIndex) graph else null).also { current.children += it } }
+                    this@MainView.graph?.let { if (it.name == graph.name) this@MainView.graph = graph }
+                }
+
+                private fun remove(graphName: String) {
+                    val pathIterator = graphName.split('/').iterator()
+                    var current = root
+                    var found = true
+                    while (pathIterator.hasNext() && found) {
+                        found = false
+
+                        val path = pathIterator.next()
+                        val childrenIterator = current.children.iterator()
+                        while (childrenIterator.hasNext()) {
+                            val child = childrenIterator.next()
+                            if (child.value.first == path) {
+                                if (!pathIterator.hasNext()) childrenIterator.remove()
+                                else {
+                                    current = child
+                                    found = true
+                                }
+                                break
+                            }
+                        }
+                    }
+                    graph?.let { if (it.name == graphName) graph = null }
+                }
+
+                override fun entryAdded(event: EntryEvent<String, GraphImpl>) = runLater { update(event.value) }
+
+                override fun entryUpdated(event: EntryEvent<String, GraphImpl>) = runLater { update(event.value) }
+
+                override fun entryRemoved(event: EntryEvent<String, GraphImpl>) = runLater { remove(event.key) }
+
+                override fun entryEvicted(event: EntryEvent<String, GraphImpl>) = runLater { remove(event.key) }
+
+                override fun entryExpired(event: EntryEvent<String, GraphImpl>) = runLater { remove(event.key) }
+
+                override fun mapCleared(event: MapEvent) = runLater { clear() }
+
+                override fun mapEvicted(event: MapEvent) = runLater { clear() }
+            })
         }
 
         // Graph
@@ -302,12 +331,7 @@ class MainView : View("%main"), CoroutineScope, SpecLookup {
 
         // Json
         with(jsonTextArea) { graphProperty.onChange { text = it?.let { objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it) } ?: "" } }
-
-        // Initialization
-        graphsTreeMerge(graphs.values, true)
     }
-
-    override fun getNodeSpec(name: String) = nodeSpecs[name] ?: graphsTreeView.root?.get(name)?.toSpec()
 
     fun keyPressed(event: KeyEvent) {
         if (event.isControlDown) when (event.code) {
@@ -338,7 +362,10 @@ class MainView : View("%main"), CoroutineScope, SpecLookup {
     }
 
     fun fileImportMenuItemAction() {
-        chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Graph", "*.gph"), FileChooser.ExtensionFilter("All Files", "*.*"))).singleOrNull()?.let { graphsTreeMerge(listOf(it.inputStream().use { objectMapper.readValue(GZIPInputStream(it)) })) }
+        chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Graph", "*.gph"), FileChooser.ExtensionFilter("All Files", "*.*"))).singleOrNull()?.let {
+            val graph = it.inputStream().use { objectMapper.readValue<GraphImpl>(GZIPInputStream(it)) }
+            graphs[graph.name] = graph
+        }
     }
 
     fun fileExportAsMenuItemAction() {
@@ -350,50 +377,50 @@ class MainView : View("%main"), CoroutineScope, SpecLookup {
     }
 
     fun editLayoutIsomMenuItemAction() {
-        LayoutGeneratorSmart().apply {
-            layoutSelector = 0
-            workflow = graph.flow.model
-        }.generateLayout()
+        graph?.let {
+            LayoutGeneratorSmart().apply {
+                layoutSelector = 0
+                workflow = it.flow.model
+            }.generateLayout()
+        }
     }
 
     fun editLayoutFrMenuItemAction() {
-        LayoutGeneratorSmart().apply {
-            layoutSelector = 1
-            workflow = graph.flow.model
-        }.generateLayout()
+        graph?.let {
+            LayoutGeneratorSmart().apply {
+                layoutSelector = 1
+                workflow = it.flow.model
+            }.generateLayout()
+        }
     }
 
     fun editLayoutKkMenuItemAction() {
-        LayoutGeneratorSmart().apply {
-            layoutSelector = 2
-            workflow = graph.flow.model
-        }.generateLayout()
+        graph?.let {
+            LayoutGeneratorSmart().apply {
+                layoutSelector = 2
+                workflow = it.flow.model
+            }.generateLayout()
+        }
     }
 
     fun editLayoutDagMenuItemAction() {
-        LayoutGeneratorSmart().apply {
-            layoutSelector = 3
-            workflow = graph.flow.model
-        }.generateLayout()
+        graph?.let {
+            LayoutGeneratorSmart().apply {
+                layoutSelector = 3
+                workflow = it.flow.model
+            }.generateLayout()
+        }
     }
 
     fun helpAboutMenuItemAction() {
         openInternalWindow<AboutView>()
     }
 
-    fun runButtonAction() {
-    }
-
-    fun stopButtonAction() {
-    }
-
     fun jsonTabSelectionChanged() {
         jsonTextArea.text = graph?.let { objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it) } ?: ""
     }
 
-    private fun graphsTreeMerge(graphs: Collection<GraphImpl>, replace: Boolean = false) {
-         PathTree(graphs) { it.name }.convert<TreeItem<PathTree<GraphImpl>>>(graphsTreeView.root, { parent, tree -> parent?.children?.find { it.value.path == tree.path }?.also { it.value = tree } ?: TreeItem(tree) }) { parent, children -> if (replace) parent?.children?.setAll(children) else parent?.children?.addAll(children) }
-    }
+    override fun getNodeSpec(name: String) = nodeSpecs[name] ?: graphs[name]?.toSpec()
 
     companion object {
         private val nodeSpecDataFormat = DataFormat(Spec.Node.MediaType)

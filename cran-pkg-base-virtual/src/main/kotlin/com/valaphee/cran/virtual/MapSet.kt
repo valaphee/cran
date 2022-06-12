@@ -27,7 +27,7 @@ import kotlinx.coroutines.CoroutineScope
  */
 @NodeImpl("virtual")
 object MapSet : Implementation {
-    override fun initialize(coroutineScope: CoroutineScope, node: Node, virtual: Virtual) = if (node is Set) {
+    override fun initialize(node: Node, virtual: Virtual) = if (node is Set) {
         val `in` = virtual.dataPath(node.`in`)
         val inKey = virtual.dataPath(node.inKey)
         val inValue = virtual.dataPath(node.inValue)
