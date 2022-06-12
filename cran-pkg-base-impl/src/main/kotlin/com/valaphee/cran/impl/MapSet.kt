@@ -14,13 +14,26 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.spec
+package com.valaphee.cran.impl
+
+import com.valaphee.cran.Scope
+import com.valaphee.cran.node.Node
+import com.valaphee.cran.node.map.Set
+import com.valaphee.cran.spec.NodeImpl
 
 /**
  * @author Kevin Ludwig
  */
-@Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class NodeImpl(
-    val name: String = ""
-)
+@NodeImpl
+object MapSet : Implementation {
+    override fun initialize(node: Node, scope: Scope) = if (node is Set) {
+        val `in` = scope.dataPath(node.`in`)
+        val inKey = scope.dataPath(node.inKey)
+        val inValue = scope.dataPath(node.inValue)
+        val out = scope.dataPath(node.out)
+
+        out.set { `in`.getOfType<Map<Any?, Any?>>().also { it + (inKey.get() to inValue.get()) } }
+
+        true
+    } else false
+}

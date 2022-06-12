@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
-rootProject.name = "cran"
+package com.valaphee.cran.impl
 
-include("cran-meta")
-include("cran-spec")
+import com.valaphee.cran.Scope
+import com.valaphee.cran.node.Node
+import com.valaphee.cran.node.Value
+import com.valaphee.cran.spec.NodeImpl
 
-include("cran-pkg-base")
-include("cran-pkg-base-impl")
-include("cran-pkg-input")
-include("cran-pkg-input-impl-hid")
+/**
+ * @author Kevin Ludwig
+ */
+@NodeImpl
+object Value : Implementation {
+    override fun initialize(node: Node, scope: Scope) = if (node is Value) {
+        val out = scope.dataPath(node.out)
 
-include("cran-env")
-include("cran-vis")
+        out.set(node.value)
 
-enableFeaturePreview("VERSION_CATALOGS")
-dependencyResolutionManagement {
-    versionCatalogs {
-        create("libs") {
-            from(files("libs.versions.toml"))
-        }
-    }
+        true
+    } else false
 }

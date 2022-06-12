@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
-rootProject.name = "cran"
+package com.valaphee.cran.impl
 
-include("cran-meta")
-include("cran-spec")
+import com.valaphee.cran.path.ControlPathException
 
-include("cran-pkg-base")
-include("cran-pkg-base-impl")
-include("cran-pkg-input")
-include("cran-pkg-input-impl-hid")
+/**
+ * @author Kevin Ludwig
+ */
+class ControlPath {
+    internal var function: (suspend () -> Unit)? = null
 
-include("cran-env")
-include("cran-vis")
+    suspend operator fun invoke() {
+        function?.invoke()
+    }
 
-enableFeaturePreview("VERSION_CATALOGS")
-dependencyResolutionManagement {
-    versionCatalogs {
-        create("libs") {
-            from(files("libs.versions.toml"))
-        }
+    fun define(function: suspend () -> Unit) {
+        if (this.function != null) throw ControlPathException.AlreadyDefined
+
+        this.function = function
     }
 }

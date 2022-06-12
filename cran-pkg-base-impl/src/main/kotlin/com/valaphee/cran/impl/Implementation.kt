@@ -14,24 +14,14 @@
  * limitations under the License.
  */
 
-rootProject.name = "cran"
+package com.valaphee.cran.impl
 
-include("cran-meta")
-include("cran-spec")
+import com.valaphee.cran.Scope
+import com.valaphee.cran.node.Node
 
-include("cran-pkg-base")
-include("cran-pkg-base-impl")
-include("cran-pkg-input")
-include("cran-pkg-input-impl-hid")
-
-include("cran-env")
-include("cran-vis")
-
-enableFeaturePreview("VERSION_CATALOGS")
-dependencyResolutionManagement {
-    versionCatalogs {
-        create("libs") {
-            from(files("libs.versions.toml"))
-        }
-    }
+/**
+ * @author Kevin Ludwig
+ */
+interface Implementation {
+    fun initialize(node: Node, scope: Scope): Boolean
 }

@@ -15,6 +15,9 @@
   -->
 
 <hazelcast xmlns="http://www.hazelcast.com/schema/config">
+    <properties>
+        <property name="hazelcast.logging.type">log4j2</property>
+    </properties>
     <serialization>
         <serializers>
             <serializer class-name="com.valaphee.cran.spec.SpecNodeSerializer" type-class="com.valaphee.cran.spec.Spec$Node"/>

@@ -36,12 +36,12 @@ import com.hazelcast.core.Hazelcast
 import com.hazelcast.map.MapEvent
 import com.valaphee.cran.graph.GraphImpl
 import com.valaphee.cran.graph.GraphLookup
+import com.valaphee.cran.impl.Implementation
 import com.valaphee.cran.node.math.vector.DoubleVectorDeserializer
 import com.valaphee.cran.node.math.vector.DoubleVectorSerializer
 import com.valaphee.cran.node.math.vector.IntVectorDeserializer
 import com.valaphee.cran.node.math.vector.IntVectorSerializer
 import com.valaphee.cran.spec.Spec
-import com.valaphee.cran.virtual.Implementation
 import io.github.classgraph.ClassGraph
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.IntVector
@@ -87,7 +87,7 @@ fun main() {
     ClassGraph().scan().use {
         val spec = it.getResourcesMatchingWildcard("**.spec.json").urLs.map { objectMapper.readValue<Spec>(it).also { it.nodes.onEach { log.info("Built-in node '{}' found", it.name) } } }.reduce { acc, spec -> acc + spec }
         nodeSpecs.putAll(spec.nodes.onEach { log.info("Built-in node '{}' found", it.name) }.associateBy { it.name })
-        spec.nodesImpls["virtual"]?.let { nodeImpls.addAll(it.mapNotNull { Class.forName(it).kotlin.objectInstance as Implementation? }) }
+        spec.nodesImpls[""]?.let { nodeImpls.addAll(it.mapNotNull { Class.forName(it).kotlin.objectInstance as Implementation? }) }
         graphs.putAll(it.getResourcesMatchingWildcard("**.gph").urLs.map { objectMapper.readValue<GraphImpl>(it).also { log.info("Built-in graph '{}' found", it.name) } }.associateBy { it.name })
     }
 

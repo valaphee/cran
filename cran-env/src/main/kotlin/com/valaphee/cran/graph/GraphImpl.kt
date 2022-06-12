@@ -23,12 +23,12 @@ import com.google.inject.Inject
 import com.hazelcast.nio.ObjectDataInput
 import com.hazelcast.nio.ObjectDataOutput
 import com.hazelcast.nio.serialization.StreamSerializer
-import com.valaphee.cran.Virtual
+import com.valaphee.cran.Scope
+import com.valaphee.cran.impl.Implementation
 import com.valaphee.cran.injector
 import com.valaphee.cran.meta.Meta
 import com.valaphee.cran.node.Entry
 import com.valaphee.cran.node.Node
-import com.valaphee.cran.virtual.Implementation
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -41,10 +41,10 @@ class GraphImpl(
     @get:JsonProperty("meta")          val meta : Meta?      ,
                               override val nodes: List<Node>
 ) : Graph() {
-    @JsonIgnore private var scope: Virtual? = null
+    @JsonIgnore private var scope: Scope? = null
 
     fun run(objectMapper: ObjectMapper, nodeImpls: List<Implementation>, graphLookup: GraphLookup, coroutineDispatcher: CoroutineDispatcher) {
-        scope = Virtual(objectMapper, nodeImpls, graphLookup, this@GraphImpl, coroutineDispatcher).also { scope ->
+        scope = Scope(objectMapper, nodeImpls, graphLookup, this@GraphImpl, coroutineDispatcher).also { scope ->
             scope.initialize()
             nodes.forEach { if (it is Entry) scope.launch { scope.controlPath(it.out)() } }
         }

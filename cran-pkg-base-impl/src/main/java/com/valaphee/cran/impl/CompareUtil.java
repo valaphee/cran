@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-rootProject.name = "cran"
+package com.valaphee.cran.impl;
 
-include("cran-meta")
-include("cran-spec")
+/**
+ * @author Kevin Ludwig
+ */
+public class CompareUtil {
+    private CompareUtil() {
+    }
 
-include("cran-pkg-base")
-include("cran-pkg-base-impl")
-include("cran-pkg-input")
-include("cran-pkg-input-impl-hid")
-
-include("cran-env")
-include("cran-vis")
-
-enableFeaturePreview("VERSION_CATALOGS")
-dependencyResolutionManagement {
-    versionCatalogs {
-        create("libs") {
-            from(files("libs.versions.toml"))
+    public static int compare(Object inA, Object inB) {
+        if (inA instanceof Comparable<?>) {
+            return ((Comparable<Object>) inA).compareTo(inB);
+        } else /*if (inB instanceof Comparable<?>) {
+            return ((Comparable<Object>) inB).compareTo(inA);
+        } else */ {
+            return Integer.MAX_VALUE;
         }
     }
 }

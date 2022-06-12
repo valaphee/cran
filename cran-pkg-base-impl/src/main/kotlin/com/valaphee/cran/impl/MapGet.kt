@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-rootProject.name = "cran"
+package com.valaphee.cran.impl
 
-include("cran-meta")
-include("cran-spec")
+import com.valaphee.cran.Scope
+import com.valaphee.cran.node.Node
+import com.valaphee.cran.node.map.Get
+import com.valaphee.cran.spec.NodeImpl
 
-include("cran-pkg-base")
-include("cran-pkg-base-impl")
-include("cran-pkg-input")
-include("cran-pkg-input-impl-hid")
+/**
+ * @author Kevin Ludwig
+ */
+@NodeImpl
+object MapGet : Implementation {
+    override fun initialize(node: Node, scope: Scope)  = if (node is Get) {
+        val `in` = scope.dataPath(node.`in`)
+        val inKey = scope.dataPath(node.inKey)
+        val out = scope.dataPath(node.out)
 
-include("cran-env")
-include("cran-vis")
+        out.set { `in`.getOfType<Map<Any?, Any?>>()[inKey.get()] }
 
-enableFeaturePreview("VERSION_CATALOGS")
-dependencyResolutionManagement {
-    versionCatalogs {
-        create("libs") {
-            from(files("libs.versions.toml"))
-        }
-    }
+        true
+    } else false
 }

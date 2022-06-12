@@ -20,10 +20,8 @@ dependencies {
     implementation(project(":cran-meta"))
     implementation(project(":cran-spec"))
 
-    implementation(project(":cran-pkg-base"))
-    implementation(project(":cran-pkg-base-virtual"))
-    implementation(project(":cran-pkg-input"))
-    implementation(project(":cran-pkg-input-virtual"))
+    implementation(project(":cran-pkg-base-impl"))
+    implementation(project(":cran-pkg-input-impl-hid"))
 
     implementation(libs.classgraph)
     implementation(libs.fasterxml.guice)
