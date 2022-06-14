@@ -32,7 +32,7 @@ class SkinFactory(
     parentFactory: FXSkinFactory? = null,
     val uiComponent: UIComponent
 ) : FXSkinFactory(parent, parentFactory) {
-    override fun createSkin(node: VNode, flow: VFlow) = NodeSkin(this, fxParent, node, flow)
+    override fun createSkin(node: VNode, flow: VFlow) = NodeSkin(this, fxParent, node, flow).postInit()
 
     override fun createSkin(connection: Connection, flow: VFlow, type: String): FXConnectionSkin = ConnectionSkin(this, fxParent, connection, flow, type).init()
 }

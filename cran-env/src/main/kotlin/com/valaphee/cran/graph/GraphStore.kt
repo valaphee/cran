@@ -37,11 +37,11 @@ class GraphStore : MapStore<String, GraphEnv> {
         injector.injectMembers(this)
     }
 
-    override fun load(key: String) = GZIPInputStream(File(path, key.graphToFileName()).inputStream()).use { objectMapper.readValue<GraphEnv>(it) }
+    override fun load(key: String) = File(path, key.graphToFileName()).takeIf { it.exists() }?.let { GZIPInputStream(it.inputStream()).use { objectMapper.readValue<GraphEnv>(it) } }
 
-    override fun loadAll(keys: Collection<String>) = keys.associateWith(::load)
+    override fun loadAll(keys: Collection<String>) = keys.mapNotNull { key -> load(key)?.let { key to it } }.toMap()
 
-    override fun loadAllKeys() = path.list()?.map { load(it).name } ?: emptyList()
+    override fun loadAllKeys() = path.list()?.mapNotNull { load(it)?.name } ?: emptyList()
 
     override fun deleteAll(keys: Collection<String>) {
         keys.forEach(::delete)

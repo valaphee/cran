@@ -20,6 +20,7 @@ import eu.mihosoft.vrl.workflow.Connector
 import eu.mihosoft.vrl.workflow.VFlow
 import eu.mihosoft.vrl.workflow.fx.FXNewConnectionSkin
 import javafx.scene.Parent
+import javafx.scene.paint.Color
 
 /**
  * @author Kevin Ludwig
@@ -31,9 +32,14 @@ class NewConnectionSkin(
     flow: VFlow,
     type: String
 ) : FXNewConnectionSkin(skinFactory, parent, sender, flow, type) {
-    override fun initSenderAndReceiver() {
-        super.initSenderAndReceiver()
+    override fun initStyle() {
+        super.initStyle()
 
-        receiverConnectorUI.isVisible = false
+        receiverUI.fill = Color(0.0, 0.0, 0.0, 0.0)
+        receiverUI.stroke = Color(0.0, 0.0, 0.0, 0.0)
+    }
+
+    override fun initConnectionListener() {
+        connectionListener = ConnectionListener()
     }
 }

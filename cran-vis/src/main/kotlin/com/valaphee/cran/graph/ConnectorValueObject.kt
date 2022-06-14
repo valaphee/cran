@@ -17,13 +17,15 @@
 package com.valaphee.cran.graph
 
 import com.valaphee.cran.spec.Spec
-import eu.mihosoft.vrl.workflow.DefaultValueObject
+import eu.mihosoft.vrl.workflow.Connector
+import eu.mihosoft.vrl.workflow.DefaultConnectorValueObject
 import javafx.beans.property.ObjectProperty
 
 /**
  * @author Kevin Ludwig
  */
 class ConnectorValueObject(
+    connector: Connector,
     val spec: Spec.Node.Port,
     val multiKeyProperty: ObjectProperty<Any>? = null
-) : DefaultValueObject()
+) : DefaultConnectorValueObject(connector)

@@ -17,6 +17,7 @@
 package com.valaphee.cran.graph
 
 import com.valaphee.cran.graph.properties.PropertiesView
+import com.valaphee.cran.util.update
 import eu.mihosoft.vrl.workflow.Connector
 import eu.mihosoft.vrl.workflow.VFlow
 import eu.mihosoft.vrl.workflow.VNode
@@ -102,10 +103,9 @@ class NodeSkin(
                 }
             }
         }
-
-        // Adjust height
-        model.height = 25.0 + 20.0 * 2 + max(20.0 * model.inputs.size, 20.0 * model.outputs.size)
     }
 
     override fun createConnectorShape(connector: Connector) = ConnectorShape(controller, connector)
+
+    fun postInit() = apply { model.connectors.update { model.height = 25.0 + 20.0 * 2 + max(20.0 * model.inputs.size, 20.0 * model.outputs.size) } }
 }

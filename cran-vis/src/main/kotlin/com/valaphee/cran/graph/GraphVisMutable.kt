@@ -106,20 +106,20 @@ class GraphVisMutable(
             Spec.Node.Port.Type.InControl -> addInput("control").apply {
                 /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
                 localId = spec.json
-                valueObject = ConnectorValueObject(spec, mapKey)
+                valueObject = ConnectorValueObject(this, spec, mapKey)
             }
             Spec.Node.Port.Type.OutControl -> addOutput("control").apply {
                 /*visualizationRequest[VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN] = true*/
                 localId = spec.json
-                valueObject = ConnectorValueObject(spec, mapKey)
+                valueObject = ConnectorValueObject(this, spec, mapKey)
             }
             Spec.Node.Port.Type.InData -> addInput("data").apply {
                 localId = spec.json
-                valueObject = ConnectorValueObject(spec, mapKey)
+                valueObject = ConnectorValueObject(this, spec, mapKey)
             }
             Spec.Node.Port.Type.OutData -> addOutput("data").apply {
                 localId = spec.json
-                valueObject = ConnectorValueObject(spec, mapKey)
+                valueObject = ConnectorValueObject(this, spec, mapKey)
             }
             Spec.Node.Port.Type.Const -> {
                 checkNotNull(const) += NodeValueObject.Const(spec)
