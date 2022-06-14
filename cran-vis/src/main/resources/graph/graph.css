@@ -65,3 +65,62 @@
 .vnode-connection-data-str     { -fx-stroke: #C784D4 }
 .vnode-new-connection-data-str { -fx-stroke: #C784D4 }
 .node-connector-shape-data-str { -fx-stroke: #C784D4 }
+
+.menu-item.control                       .label { -fx-graphic: url("control/branch@16x.png"               ) }
+.menu-item.control-branch                .label { -fx-graphic: url("control/branch@16x.png"               ) }
+.menu-item.control-for                   .label { -fx-graphic: url("control/loop@16x.png"                 ) }
+.menu-item.control-for-each              .label { -fx-graphic: url("control/loop@16x.png"                 ) }
+.menu-item.control-select                .label { -fx-graphic: url("control/select@16x.png"               ) }
+.menu-item.control-while                 .label { -fx-graphic: url("control/loop@16x.png"                 ) }
+.menu-item.entry                         .label { -fx-graphic: url("entry@16x.png"                        ) }
+.menu-item.logic                         .label { -fx-graphic: url("logic@16x.png"                        ) }
+.menu-item.logic-and                     .label { -fx-graphic: url("logic/and@16x.png"                    ) }
+.menu-item.logic-approximately-equal     .label { -fx-graphic: url("logic/approximately-equal@16x.png"    ) }
+.menu-item.logic-equal                   .label { -fx-graphic: url("logic/equal@16x.png"                  ) }
+.menu-item.logic-greater-than            .label { -fx-graphic: url("logic/greater-than@16x.png"           ) }
+.menu-item.logic-greater-than-or-equal   .label { -fx-graphic: url("logic/greater-than-or-equal@16x.png"  ) }
+.menu-item.logic-less-than               .label { -fx-graphic: url("logic/less-than@16x.png"              ) }
+.menu-item.logic-less-than-or-equal      .label { -fx-graphic: url("logic/less-than-or-equal@16x.png"     ) }
+.menu-item.logic-not                     .label { -fx-graphic: url("logic/not@16x.png"                    ) }
+.menu-item.logic-not-approximately-equal .label { -fx-graphic: url("logic/not-approximately-equal@16x.png") }
+.menu-item.logic-not-equal               .label { -fx-graphic: url("logic/not-equal@16x.png"              ) }
+.menu-item.logic-or                      .label { -fx-graphic: url("logic/or@16x.png"                     ) }
+.menu-item.math                          .label { -fx-graphic: url("math@16x.png"                         ) }
+.menu-item.math-scalar                   .label { -fx-graphic: url("math/scalar@16x.png"                  ) }
+.menu-item.math-scalar-absolute          .label { -fx-graphic: url("math/absolute@16x.png"                ) }
+.menu-item.math-scalar-add               .label { -fx-graphic: url("math/add@16x.png"                     ) }
+.menu-item.math-scalar-divide            .label { -fx-graphic: url("math/divide@16x.png"                  ) }
+.menu-item.math-scalar-exponentiate      .label { -fx-graphic: url("math/exponentiate@16x.png"            ) }
+.menu-item.math-scalar-modulo            .label { -fx-graphic: url("math/modulo@16x.png"                  ) }
+.menu-item.math-scalar-multiply          .label { -fx-graphic: url("math/multiply@16x.png"                ) }
+.menu-item.math-scalar-normalize         .label { -fx-graphic: url("math/normalize@16x.png"               ) }
+.menu-item.math-scalar-root              .label { -fx-graphic: url("math/root@16x.png"                    ) }
+.menu-item.math-scalar-round             .label { -fx-graphic: url("math/round@16x.png"                   ) }
+.menu-item.math-scalar-subtract          .label { -fx-graphic: url("math/subtract@16x.png"                ) }
+.menu-item.math-vector-absolute          .label { -fx-graphic: url("math/absolute@16x.png"                ) }
+.menu-item.math-vector-add               .label { -fx-graphic: url("math/add@16x.png"                     ) }
+.menu-item.math-vector-distance          .label { -fx-graphic: url("math/distance@16x.png"                ) }
+.menu-item.math-vector-subtract          .label { -fx-graphic: url("math/subtract@16x.png"                ) }
+.menu-item.nesting                       .label { -fx-graphic: url("nesting@16x.png"                      ) }
+.menu-item.nesting-control-input         .label { -fx-graphic: url("nesting/input@16x.png"                ) }
+.menu-item.nesting-control-output        .label { -fx-graphic: url("nesting/output@16x.png"               ) }
+.menu-item.nesting-data-input            .label { -fx-graphic: url("nesting/input@16x.png"                ) }
+.menu-item.nesting-data-output           .label { -fx-graphic: url("nesting/output@16x.png"               ) }
+.menu-item.list                          .label { -fx-graphic: url("list@16x.png"                         ) }
+.menu-item.list-add                      .label { -fx-graphic: url("list/add@16x.png"                     ) }
+.menu-item.list-first                    .label { -fx-graphic: url("list/first-or-last@16x.png"           ) }
+.menu-item.list-last                     .label { -fx-graphic: url("list/first-or-last@16x.png"           ) }
+.menu-item.list-remove                   .label { -fx-graphic: url("list/remove@16x.png"                  ) }
+.menu-item.map                           .label { -fx-graphic: url("map@16x.png"                          ) }
+.menu-item.map-remove                    .label { -fx-graphic: url("map/remove@16x.png"                   ) }
+.menu-item.map-set                       .label { -fx-graphic: url("map/set@16x.png"                      ) }
+.menu-item.value                         .label { -fx-graphic: url("value@16x.png"                        ) }
+.menu-item.input                         .label { -fx-graphic: url("input/keyboard@16x.png"               ) }
+.menu-item.input-set-keyboard-key        .label { -fx-graphic: url("input/keyboard@16x.png"               ) }
+.menu-item.input-on-keyboard-key         .label { -fx-graphic: url("input/keyboard@16x.png"               ) }
+.menu-item.input-mouse-position          .label { -fx-graphic: url("input/mouse@16x.png"                  ) }
+.menu-item.input-move-mouse              .label { -fx-graphic: url("input/mouse@16x.png"                  ) }
+.menu-item.input-move-mouse-to           .label { -fx-graphic: url("input/mouse@16x.png"                  ) }
+.menu-item.input-set-mouse-button        .label { -fx-graphic: url("input/mouse@16x.png"                  ) }
+.menu-item.input-on-mouse-button         .label { -fx-graphic: url("input/mouse@16x.png"                  ) }
+.menu-item.input-on-mouse-move           .label { -fx-graphic: url("input/mouse@16x.png"                  ) }
