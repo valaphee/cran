@@ -21,7 +21,12 @@
     <serialization>
         <serializers>
             <serializer class-name="com.valaphee.cran.spec.SpecNodeSerializer" type-class="com.valaphee.cran.spec.Spec$Node"/>
-            <serializer class-name="com.valaphee.cran.graph.GraphImpl$Serializer" type-class="com.valaphee.cran.graph.GraphImpl"/>
+            <serializer class-name="com.valaphee.cran.graph.GraphEnv$Serializer" type-class="com.valaphee.cran.graph.GraphEnv"/>
         </serializers>
     </serialization>
+    <map name="graphs">
+        <map-store initial-mode="EAGER">
+            <class-name>com.valaphee.cran.graph.GraphStore</class-name>
+        </map-store>
+    </map>
 </hazelcast>

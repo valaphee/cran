@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.treeToValue
 import com.valaphee.cran.graph.ConnectorValueObject
-import com.valaphee.cran.graph.GraphImpl.Companion.addPort
+import com.valaphee.cran.graph.GraphVisMutable.Companion.addPort
 import com.valaphee.cran.graph.NodeValueObject
 import com.valaphee.cran.spec.Spec
 import com.valaphee.cran.util.update
@@ -124,8 +124,8 @@ class PropertiesView(
                 isDefaultButton = true
 
                 action {
-                    viewModel.commit()
                     close()
+                    viewModel.commit()
                 }
             }
             button(messages["graph.properties.cancel"]) {

@@ -77,15 +77,13 @@ class NodeSkin(
         connectorNode.setOnMouseDragged {
             if (!connectorNode.isMouseTransparent) {
                 if (!controller.getConnections(connector.type).isInputConnected(connector)) {
-                    val numOfExistingConnections = connector.node.flow.getConnections(connector.type).getAllWith(connector).size
-
-                    if (numOfExistingConnections < connector.maxNumberOfConnections) {
+                    if (connector.node.flow.getConnections(connector.type).getAllWith(connector).size < connector.maxNumberOfConnections) {
+                        it.consume()
                         if (newConnectionSkin == null) {
                             newConnectionSkin = NewConnectionSkin((skinFactory as SkinFactory), parent, connector, controller, connector.type).init()
                             newConnectionSkin!!.add()
                             MouseEvent.fireEvent(newConnectionSkin!!.receiverUI, newConnectionPressEvent!!)
                         }
-                        it.consume()
                         MouseEvent.fireEvent(newConnectionSkin!!.receiverUI, it)
                     }
                 }

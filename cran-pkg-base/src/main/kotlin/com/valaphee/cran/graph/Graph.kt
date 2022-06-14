@@ -64,4 +64,8 @@ abstract class Graph {
             else             -> null
         }
     })
+
+    companion object {
+        const val MediaType = "application/x-cran-graph"
+    }
 }

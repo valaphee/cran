@@ -28,8 +28,12 @@ import com.hazelcast.map.MapEvent
 import com.hazelcast.nio.ObjectDataInput
 import com.hazelcast.nio.ObjectDataOutput
 import com.hazelcast.nio.serialization.StreamSerializer
-import com.valaphee.cran.graph.GraphImpl
+import com.valaphee.cran.graph.Graph
+import com.valaphee.cran.graph.GraphVisImpl
+import com.valaphee.cran.graph.GraphVisMutable
+import com.valaphee.cran.graph.GraphWithMetaImpl
 import com.valaphee.cran.graph.SkinFactory
+import com.valaphee.cran.graph.properties.PropertiesView
 import com.valaphee.cran.meta.Meta
 import com.valaphee.cran.settings.SettingsView
 import com.valaphee.cran.spec.Spec
@@ -48,6 +52,7 @@ import javafx.scene.control.TextArea
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
 import javafx.scene.control.cell.TextFieldTreeCell
+import javafx.scene.input.Clipboard
 import javafx.scene.input.DataFormat
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
@@ -73,6 +78,7 @@ import tornadofx.getValue
 import tornadofx.item
 import tornadofx.onChange
 import tornadofx.rectangle
+import tornadofx.removeFromParent
 import tornadofx.runLater
 import tornadofx.selectedValue
 import tornadofx.separator
@@ -93,7 +99,7 @@ class MainView : View("%main"), CoroutineScope, SpecLookup {
 
     private val objectMapper by di<ObjectMapper>()
     private val injector by di<Injector>()
-    private var graphProvider = injector.getProvider(GraphImpl::class.java)
+    private var graphProvider = injector.getProvider(GraphVisMutable::class.java)
 
     private val hazelcastClient = HazelcastClient.newHazelcastClient(ClientConfig().apply {
         serializationConfig.apply {
@@ -106,26 +112,26 @@ class MainView : View("%main"), CoroutineScope, SpecLookup {
 
                 override fun read(`in`: ObjectDataInput) = objectMapper.readValue(`in`, Spec.Node::class.java)
             }))
-            addSerializerConfig(SerializerConfig().setTypeClass(GraphImpl::class.java).setImplementation(object : StreamSerializer<GraphImpl> {
+            addSerializerConfig(SerializerConfig().setTypeClass(GraphVisMutable::class.java).setImplementation(object : StreamSerializer<GraphVisMutable> {
                 override fun getTypeId() = 2
 
-                override fun write(out: ObjectDataOutput, `object`: GraphImpl) {
+                override fun write(out: ObjectDataOutput, `object`: GraphVisMutable) {
                     objectMapper.writeValue(out, `object`)
                 }
 
-                override fun read(`in`: ObjectDataInput) = objectMapper.readValue(`in`, GraphImpl::class.java).apply { specLookup = this@MainView }
+                override fun read(`in`: ObjectDataInput) = objectMapper.readValue(`in`, GraphVisMutable::class.java).apply { specLookup = this@MainView }
             }))
         }
     })
-    private val nodeSpecs = hazelcastClient.getReplicatedMap<String, Spec.Node>("node_specs")
-    private val graphs = hazelcastClient.getReplicatedMap<String, GraphImpl>("graphs")
+    private val nodeSpecs = hazelcastClient.getMap<String, Spec.Node>("node_specs")
+    private val graphs = hazelcastClient.getMap<String, GraphVisMutable>("graphs")
 
-    private val graphProperty = SimpleObjectProperty<GraphImpl?>().apply { update { title = it?.let { " - ${it.name}" } ?: "" } }
+    private val graphProperty = SimpleObjectProperty<GraphVisMutable?>().apply { update { title = "Cran${it?.let { " - ${it.name}" } ?: "" }" } }
     private var graph by graphProperty
 
     override val root by fxml<Parent>("/main.fxml")
     private val rootHbox by fxid<HBox>()
-    private lateinit var graphsTreeView: TreeView<Pair<String, GraphImpl?>>
+    private lateinit var graphsTreeView: TreeView<Pair<String, GraphVisMutable?>>
     private val graphScrollPane by fxid<ScrollPane>()
     private val graphPane by fxid<Pane>()
     private val jsonFormat by fxid<HBox>()
@@ -146,28 +152,28 @@ class MainView : View("%main"), CoroutineScope, SpecLookup {
             isShowRoot = false
 
             setCellFactory {
-                TextFieldTreeCell<Pair<String, GraphImpl?>>().apply {
+                TextFieldTreeCell<Pair<String, GraphVisMutable?>>().apply {
                     setOnMouseClicked {
                         if (it.clickCount == 2) {
-                            item?.second?.let { graph = it }
                             it.consume()
+                            item?.second?.let { graph = it }
                         }
                     }
 
                     setOnDragDetected {
+                        it.consume()
                         item?.second?.let {
                             startDragAndDrop(TransferMode.COPY).apply {
                                 dragView = snapshot(null, null)
                                 setContent { this[nodeSpecDataFormat] = objectMapper.writeValueAsString(it.toSpec()) }
                             }
                         }
-                        it.consume()
                     }
 
-                    converter = object : StringConverter<Pair<String, GraphImpl?>>() {
-                        override fun toString(`object`: Pair<String, GraphImpl?>) = `object`.first
+                    converter = object : StringConverter<Pair<String, GraphVisMutable?>>() {
+                        override fun toString(`object`: Pair<String, GraphVisMutable?>) = `object`.first
 
-                        override fun fromString(string: String) = string to item.second?.apply { name = string }
+                        override fun fromString(string: String) = TODO()
                     }
                 }
             }
@@ -175,12 +181,18 @@ class MainView : View("%main"), CoroutineScope, SpecLookup {
             setOnKeyPressed {
                 if (it.isControlDown) when (it.code) {
                     KeyCode.ENTER -> {
-                        selectedValue?.second?.let { graph = it }
                         it.consume()
+                        selectedValue?.second?.let { graph = it }
                     }
                     KeyCode.DELETE -> {
-                        selectedValue?.second?.let { graphs.remove(it.name) }
                         it.consume()
+                        val children = mutableListOf(selectionModel.selectedItem)
+                        while (children.isNotEmpty()) {
+                            val child = children.removeLast()
+                            child.value?.second?.let { graphs -= it.name }
+                            children += child.children
+                        }
+                        selectionModel.selectedItem.removeFromParent()
                     }
                     else -> Unit
                 }
@@ -194,11 +206,21 @@ class MainView : View("%main"), CoroutineScope, SpecLookup {
                     }
                 }
                 separator()
-                item(messages["main.graphs.delete"]) { action { selectedValue?.second?.let { graphs.remove(it.name) } } }
-                item(messages["main.graphs.rename"])
+                item(messages["main.graphs.delete"]) {
+                    action {
+                        val children = mutableListOf(selectionModel.selectedItem)
+                        while (children.isNotEmpty()) {
+                            val child = children.removeLast()
+                            child.value?.second?.let { graphs -= it.name }
+                            children += child.children
+                        }
+                        selectionModel.selectedItem.removeFromParent()
+                    }
+                }
+                item(messages["main.graphs.rename"]) { action { selectionModel.selectedItem?.let { openInternalWindow(RenameView(it)) } } }
             }
 
-            graphs.addEntryListener(object : EntryListener<String, GraphImpl> {
+            graphs.addEntryListener(object : EntryListener<String, GraphVisMutable> {
                 init {
                     clear()
                     graphs.values.forEach(::update)
@@ -209,7 +231,7 @@ class MainView : View("%main"), CoroutineScope, SpecLookup {
                     graph = null
                 }
 
-                private fun update(graph: GraphImpl) {
+                private fun update(graph: GraphVisMutable) {
                     val path = graph.name.split('/')
                     var current = root
                     path.forEachIndexed { i, _path -> current = current.children.find { it.value.first == _path }?.also { if (i == path.lastIndex) it.value = it.value.copy(second = graph) } ?: TreeItem(_path to if (i == path.lastIndex) graph else null).also { current.children += it } }
@@ -240,20 +262,20 @@ class MainView : View("%main"), CoroutineScope, SpecLookup {
                     graph?.let { if (it.name == graphName) graph = null }
                 }
 
-                override fun entryAdded(event: EntryEvent<String, GraphImpl>) = runLater { update(event.value) }
+                override fun entryAdded(event: EntryEvent<String, GraphVisMutable>) = runLater { update(event.value) }
 
-                override fun entryUpdated(event: EntryEvent<String, GraphImpl>) = runLater { update(event.value) }
+                override fun entryUpdated(event: EntryEvent<String, GraphVisMutable>) = runLater { update(event.value) }
 
-                override fun entryRemoved(event: EntryEvent<String, GraphImpl>) = runLater { remove(event.key) }
+                override fun entryRemoved(event: EntryEvent<String, GraphVisMutable>) = runLater { remove(event.key) }
 
-                override fun entryEvicted(event: EntryEvent<String, GraphImpl>) = runLater { remove(event.key) }
+                override fun entryEvicted(event: EntryEvent<String, GraphVisMutable>) = runLater { remove(event.key) }
 
-                override fun entryExpired(event: EntryEvent<String, GraphImpl>) = runLater { remove(event.key) }
+                override fun entryExpired(event: EntryEvent<String, GraphVisMutable>) = runLater { remove(event.key) }
 
                 override fun mapCleared(event: MapEvent) = runLater { clear() }
 
                 override fun mapEvicted(event: MapEvent) = runLater { clear() }
-            })
+            }, true)
         }
 
         // Graph
@@ -316,15 +338,15 @@ class MainView : View("%main"), CoroutineScope, SpecLookup {
 
             setOnDragOver {
                 if (it.dragboard.hasContent(nodeSpecDataFormat)) {
-                    it.acceptTransferModes(TransferMode.COPY)
                     it.consume()
+                    it.acceptTransferModes(TransferMode.COPY)
                 }
             }
 
             setOnDragDropped {
                 if (it.dragboard.hasContent(nodeSpecDataFormat)) {
-                    graph?.newNode(objectMapper.readValue(it.dragboard.getContent(nodeSpecDataFormat) as String), Meta.Node(it.x, it.y))
                     it.consume()
+                    graph?.newNode(objectMapper.readValue(it.dragboard.getContent(nodeSpecDataFormat) as String), Meta.Node(it.x, it.y))
                 }
             }
         }
@@ -336,22 +358,47 @@ class MainView : View("%main"), CoroutineScope, SpecLookup {
     fun keyPressed(event: KeyEvent) {
         if (event.isControlDown) when (event.code) {
             KeyCode.A -> {
-                graph?.let { it.flow.nodes.forEach { it.requestSelection(true) } }
                 event.consume()
+                graph?.let { it.flow.nodes.forEach { it.requestSelection(true) } }
+            }
+            KeyCode.C -> {
+                event.consume()
+                graph?.let { Clipboard.getSystemClipboard().setContent { put(graphDataFormat, objectMapper.writeValueAsString(GraphVisImpl("", it.flow.nodes.filter(VNode::isSelected), emptyMap()).also { injector.injectMembers(it) })) } }
             }
             KeyCode.S -> {
-                graph?.let { graphs[it.name] = it }
                 event.consume()
+                graph?.let { graphs[it.name] = it }
+            }
+            KeyCode.V -> {
+                event.consume()
+                graph?.let { graph ->
+                    Clipboard.getSystemClipboard().getContent(graphDataFormat)?.let {
+                        graph.flow.nodes.filter(VNode::isSelected).forEach { it.requestSelection(false) }
+                        graph.merge(objectMapper.readValue<GraphWithMetaImpl>(it as String)).forEach {
+                            it.x += 5.0
+                            it.y += 5.0
+                            it.requestSelection(true)
+                        }
+                    }
+                }
+            }
+            KeyCode.X -> {
+                event.consume()
+                graph?.let { Clipboard.getSystemClipboard().setContent { put(graphDataFormat, objectMapper.writeValueAsString(GraphVisImpl("", it.flow.nodes.filter(VNode::isSelected).onEach(it.flow::remove), emptyMap()).also { injector.injectMembers(it) })) } }
             }
             else -> Unit
         } else when (event.code) {
-            KeyCode.DELETE -> {
-                graph?.let { it.flow.nodes.filter(VNode::isSelected).forEach(it.flow::remove) }
+            KeyCode.ENTER -> {
                 event.consume()
+                graph?.let { it.flow.nodes.filter(VNode::isSelected).forEach { openInternalWindow(PropertiesView(it)) } }
+            }
+            KeyCode.DELETE -> {
+                event.consume()
+                graph?.let { it.flow.nodes.filter(VNode::isSelected).forEach(it.flow::remove) }
             }
             KeyCode.F11 -> {
-                primaryStage.isFullScreen = !primaryStage.isFullScreen
                 event.consume()
+                primaryStage.isFullScreen = !primaryStage.isFullScreen
             }
             else -> Unit
         }
@@ -363,7 +410,7 @@ class MainView : View("%main"), CoroutineScope, SpecLookup {
 
     fun fileImportMenuItemAction() {
         chooseFile(filters = arrayOf(FileChooser.ExtensionFilter("Graph", "*.gph"), FileChooser.ExtensionFilter("All Files", "*.*"))).singleOrNull()?.let {
-            val graph = it.inputStream().use { objectMapper.readValue<GraphImpl>(GZIPInputStream(it)) }
+            val graph = it.inputStream().use { objectMapper.readValue<GraphVisMutable>(GZIPInputStream(it)) }.apply { specLookup = this@MainView }
             graphs[graph.name] = graph
         }
     }
@@ -423,6 +470,7 @@ class MainView : View("%main"), CoroutineScope, SpecLookup {
     override fun getNodeSpec(name: String) = nodeSpecs[name] ?: graphs[name]?.toSpec()
 
     companion object {
+        private val graphDataFormat = DataFormat(Graph.MediaType)
         private val nodeSpecDataFormat = DataFormat(Spec.Node.MediaType)
     }
 }

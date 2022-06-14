@@ -125,8 +125,8 @@ class ConnectionSkin(
         // Fix context menu propagation
         val contextMenu = createContextMenu()
         val contextMenuHandler = EventHandler<ContextMenuEvent> {
-            contextMenu.show(it.source as Node, it.screenX, it.screenY)
             it.consume()
+            contextMenu.show(it.source as Node, it.screenX, it.screenY)
         }
         connectionPath.addEventHandler(ContextMenuEvent.CONTEXT_MENU_REQUESTED, contextMenuHandler)
         receiverUI.addEventHandler(ContextMenuEvent.CONTEXT_MENU_REQUESTED, contextMenuHandler)

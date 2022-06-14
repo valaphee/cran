@@ -21,6 +21,7 @@ import eu.mihosoft.vrl.workflow.VFlow
 import eu.mihosoft.vrl.workflow.VisualizationRequest
 import eu.mihosoft.vrl.workflow.fx.ConnectorShape
 import javafx.geometry.Pos
+import javafx.scene.CacheHint
 import javafx.scene.layout.HBox
 import javafx.scene.paint.Color
 import javafx.scene.text.Text
@@ -47,6 +48,11 @@ class ConnectorShape(
     private val radiusProperty = 0.0.toProperty()
 
     init {
+        isManaged = true
+        isCache = true
+        isCacheShape = true
+        cacheHint = CacheHint.SPEED
+
         setConnector(connector)
 
         // Connector shapes are by default in back of the containing node

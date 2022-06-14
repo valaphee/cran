@@ -34,7 +34,7 @@ import com.hazelcast.core.EntryEvent
 import com.hazelcast.core.EntryListener
 import com.hazelcast.core.Hazelcast
 import com.hazelcast.map.MapEvent
-import com.valaphee.cran.graph.GraphImpl
+import com.valaphee.cran.graph.GraphEnv
 import com.valaphee.cran.graph.GraphLookup
 import com.valaphee.cran.impl.Implementation
 import com.valaphee.cran.node.math.vector.DoubleVectorDeserializer
@@ -49,7 +49,9 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.io.IoBuilder
+import java.io.File
 import java.util.concurrent.Executors
+import java.util.zip.GZIPInputStream
 
 lateinit var injector: Injector
 
@@ -77,46 +79,56 @@ fun main() {
     val objectMapper = injector.getInstance(ObjectMapper::class.java)
 
     val hazelcast = Hazelcast.newHazelcastInstance()
-    val nodeSpecs = hazelcast.getReplicatedMap<String, Spec.Node>("node_specs")
+    val nodeSpecs = hazelcast.getMap<String, Spec.Node>("node_specs")
     val nodeImpls = mutableListOf<Implementation>()
-    val graphs = hazelcast.getReplicatedMap<String, GraphImpl>("graphs")
-    val graphLookup = object : GraphLookup {
-        override fun getGraph(name: String) = graphs[name]
-    }
+    val graphs = hazelcast.getMap<String, GraphEnv>("graphs")
 
     ClassGraph().scan().use {
         val spec = it.getResourcesMatchingWildcard("**.spec.json").urLs.map { objectMapper.readValue<Spec>(it).also { it.nodes.onEach { log.info("Built-in node '{}' found", it.name) } } }.reduce { acc, spec -> acc + spec }
         nodeSpecs.putAll(spec.nodes.onEach { log.info("Built-in node '{}' found", it.name) }.associateBy { it.name })
         spec.nodesImpls[""]?.let { nodeImpls.addAll(it.mapNotNull { Class.forName(it).kotlin.objectInstance as Implementation? }) }
-        graphs.putAll(it.getResourcesMatchingWildcard("**.gph").urLs.map { objectMapper.readValue<GraphImpl>(it).also { log.info("Built-in graph '{}' found", it.name) } }.associateBy { it.name })
+        graphs.putAll(it.getResourcesMatchingWildcard("**.gph").urLs.map { objectMapper.readValue<GraphEnv>(it).also { log.info("Built-in graph '{}' found", it.name) } }.associateBy { it.name })
     }
 
+    File("data").walk().forEach {
+        if (it.isFile && it.extension == "gph") it.inputStream().use {
+            objectMapper.readValue<GraphEnv>(GZIPInputStream(it)).also {
+                graphs[it.name] = it
+
+                log.info("Graph '{}' found", it.name)
+            }
+        }
+    }
+
+    val graphLookup = object : GraphLookup {
+        override fun getGraph(name: String) = graphs[name]
+    }
     val coroutineDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 
-    graphs.addEntryListener(object : EntryListener<String, GraphImpl> {
-        override fun entryAdded(event: EntryEvent<String, GraphImpl>) {
+    graphs.addEntryListener(object : EntryListener<String, GraphEnv> {
+        override fun entryAdded(event: EntryEvent<String, GraphEnv>) {
             event.value.run(objectMapper, nodeImpls, graphLookup, coroutineDispatcher)
         }
 
-        override fun entryUpdated(event: EntryEvent<String, GraphImpl>) {
+        override fun entryUpdated(event: EntryEvent<String, GraphEnv>) {
             event.oldValue.shutdown()
             event.value.run(objectMapper, nodeImpls, graphLookup, coroutineDispatcher)
         }
 
-        override fun entryRemoved(event: EntryEvent<String, GraphImpl>) {
+        override fun entryRemoved(event: EntryEvent<String, GraphEnv>) {
             event.value.shutdown()
         }
 
-        override fun entryEvicted(event: EntryEvent<String, GraphImpl>) {
+        override fun entryEvicted(event: EntryEvent<String, GraphEnv>) {
             event.value.shutdown()
         }
 
-        override fun entryExpired(event: EntryEvent<String, GraphImpl>) {
+        override fun entryExpired(event: EntryEvent<String, GraphEnv>) {
             event.value.shutdown()
         }
 
         override fun mapCleared(event: MapEvent) = Unit
 
         override fun mapEvicted(event: MapEvent) = Unit
-    })
+    }, true)
 }

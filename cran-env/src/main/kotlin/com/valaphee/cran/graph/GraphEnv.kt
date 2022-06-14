@@ -16,7 +16,6 @@
 
 package com.valaphee.cran.graph
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.inject.Inject
@@ -36,15 +35,15 @@ import kotlinx.coroutines.launch
 /**
  * @author Kevin Ludwig
  */
-class GraphImpl(
+class GraphEnv(
                               override val name : String     ,
     @get:JsonProperty("meta")          val meta : Meta?      ,
                               override val nodes: List<Node>
 ) : Graph() {
-    @JsonIgnore private var scope: Scope? = null
+    private var scope: Scope? = null
 
     fun run(objectMapper: ObjectMapper, nodeImpls: List<Implementation>, graphLookup: GraphLookup, coroutineDispatcher: CoroutineDispatcher) {
-        scope = Scope(objectMapper, nodeImpls, graphLookup, this@GraphImpl, coroutineDispatcher).also { scope ->
+        scope = Scope(objectMapper, nodeImpls, graphLookup, this@GraphEnv, coroutineDispatcher).also { scope ->
             scope.initialize()
             nodes.forEach { if (it is Entry) scope.launch { scope.controlPath(it.out)() } }
         }
@@ -54,7 +53,7 @@ class GraphImpl(
         scope?.cancel()
     }
 
-    class Serializer : StreamSerializer<GraphImpl> {
+    class Serializer : StreamSerializer<GraphEnv> {
         @Inject private lateinit var objectMapper: ObjectMapper
 
         init {
@@ -63,10 +62,10 @@ class GraphImpl(
 
         override fun getTypeId() = 2
 
-        override fun write(out: ObjectDataOutput, `object`: GraphImpl) {
+        override fun write(out: ObjectDataOutput, `object`: GraphEnv) {
             objectMapper.writeValue(out, `object`)
         }
 
-        override fun read(`in`: ObjectDataInput): GraphImpl = objectMapper.readValue(`in`, GraphImpl::class.java)
+        override fun read(`in`: ObjectDataInput): GraphEnv = objectMapper.readValue(`in`, GraphEnv::class.java)
     }
 }
