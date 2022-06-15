@@ -36,8 +36,8 @@ import kotlinx.coroutines.launch
  * @author Kevin Ludwig
  */
 class GraphEnv(
-                              override val name : String     ,
-    @get:JsonProperty("meta")          val meta : Meta?      ,
+                              override val name : String    ,
+    @get:JsonProperty("meta")          val meta : Meta?     ,
                               override val nodes: List<Node>
 ) : Graph() {
     private var scope: Scope? = null

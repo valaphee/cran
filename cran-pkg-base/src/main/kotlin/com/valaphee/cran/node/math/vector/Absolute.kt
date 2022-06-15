@@ -30,4 +30,8 @@ class Absolute(
     type: String,
     @get:In ("X"  , Vec) @get:JsonProperty("in" ) override val `in`: Int,
     @get:Out("|X|", Vec) @get:JsonProperty("out") override val out : Int
-) : UnaryOperation(type)
+) : UnaryOperation(type) {
+    init {
+        out requires `in`
+    }
+}

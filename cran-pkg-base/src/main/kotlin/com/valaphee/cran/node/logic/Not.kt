@@ -31,5 +31,9 @@ class Not(
     type: String,
     @get:In ("X" , Bit) @get:JsonProperty("in" ) override val `in`: Int,
     @get:Out("¬X", Bit) @get:JsonProperty("out") override val out : Int
-) : UnaryOperation(type)
+) : UnaryOperation(type) {
+    init {
+        out requires `in`
+    }
+}
 

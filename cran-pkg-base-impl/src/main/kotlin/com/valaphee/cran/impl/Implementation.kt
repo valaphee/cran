@@ -23,5 +23,7 @@ import com.valaphee.cran.node.Node
  * @author Kevin Ludwig
  */
 interface Implementation {
-    fun initialize(node: Node, scope: Scope): Boolean
+    fun initialize(node: Node, scope: Scope) = false
+
+    fun postInitialize(node: Node, scope: Scope) = false
 }

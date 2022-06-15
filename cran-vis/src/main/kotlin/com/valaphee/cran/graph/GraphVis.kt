@@ -50,16 +50,16 @@ abstract class GraphVis : GraphWithMeta() {
                     input.localId to (connections.find { it.value.contains(input) }?.index ?: connectorValueObject.value?.let {
                         embed += Value("Value", it, index, true)
                         index++
-                    } ?: index++)
+                    } ?: -1)
                 } + multiInputs.groupBy { it.localId }.mapValues {
                     it.value.map { input ->
                         val connectorValueObject = input.valueObject as ConnectorValueObject
                         Entry(connectorValueObject.multiKeyProperty!!.value, (connections.find { it.value.contains(input) }?.index ?: connectorValueObject.value?.let {
                             embed += Value("Value", it, index, true)
                             index++
-                        } ?: index++))
+                        } ?: -1))
                     }
-                } + otherOutputs.associate { output -> output.localId to (connections.find { it.value.contains(output) }?.index ?: index++) } + multiOutputs.groupBy { it.localId }.mapValues { it.value.map { output -> Entry((output.valueObject as ConnectorValueObject).multiKeyProperty!!.value, (connections.find { it.value.contains(output) }?.index ?: index++)) } })
+                } + otherOutputs.associate { output -> output.localId to (connections.find { it.value.contains(output) }?.index ?: -1) } + multiOutputs.groupBy { it.localId }.mapValues { it.value.map { output -> Entry((output.valueObject as ConnectorValueObject).multiKeyProperty!!.value, (connections.find { it.value.contains(output) }?.index ?: -1)) } })
             } + embed
         }
 

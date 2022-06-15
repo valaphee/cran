@@ -42,19 +42,25 @@ class Scope(
 
     fun subScope(graph: Graph) = Scope(objectMapper, impls, graphLookup, graph, coroutineContext)
 
-    fun controlPath(controlPathId: Int) = controlPaths.getOrNull(controlPathId) ?: ControlPath().also {
-        if (controlPathId > controlPaths.size) repeat(controlPathId - controlPaths.size) { controlPaths += null }
-        if (controlPathId == controlPaths.size) controlPaths += it
-        else controlPaths[controlPathId] = it
+    fun controlPath(pathId: Int) = controlPathOrNull(pathId) ?: ControlPath()
+
+    fun controlPathOrNull(pathId: Int) = if (pathId == -1) null else controlPaths.getOrNull(pathId) ?: ControlPath().also {
+        if (pathId > controlPaths.size) repeat(pathId - controlPaths.size) { controlPaths += null }
+        if (pathId == controlPaths.size) controlPaths += it
+        else controlPaths[pathId] = it
     }
 
-    fun dataPath(dataPathId: Int) = dataPaths.getOrNull(dataPathId) ?: DataPath(objectMapper).also {
-        if (dataPathId > dataPaths.size) repeat(dataPathId - dataPaths.size) { dataPaths += null }
-        if (dataPathId == dataPaths.size) dataPaths += it
-        else dataPaths[dataPathId] = it
+    fun dataPath(pathId: Int) = dataPathOrNull(pathId) ?: DataPath(objectMapper)
+
+    fun dataPathOrNull(pathId: Int) = if (pathId == -1) null else dataPaths.getOrNull(pathId) ?: DataPath(objectMapper).also {
+        if (pathId > dataPaths.size) repeat(pathId - dataPaths.size) { dataPaths += null }
+        if (pathId == dataPaths.size) dataPaths += it
+        else dataPaths[pathId] = it
     }
 
     fun initialize() {
-        graph.nodes.forEach { node -> impls.any { impl -> impl.initialize(node, this) } }
+        val sortedNodes = graph.sortedNodes
+        sortedNodes.forEach { node -> impls.any { impl -> impl.initialize(node, this) } }
+        sortedNodes.forEach { node -> impls.any { impl -> impl.postInitialize(node, this) } }
     }
 }

@@ -17,6 +17,7 @@
 package com.valaphee.cran.graph
 
 import com.valaphee.cran.graph.properties.PropertiesView
+import com.valaphee.cran.util.asStyleClass
 import com.valaphee.cran.util.update
 import eu.mihosoft.vrl.workflow.Connector
 import eu.mihosoft.vrl.workflow.VFlow
@@ -54,6 +55,14 @@ class NodeSkin(
         setShowCloseIconCallback { null }
         isResizableWindow = false
         resizeableWindowProperty().onChange { if (it) isResizableWindow = false }
+
+        model.valueObjectProperty().update { (it as? NodeValueObject)?.let { it.spec.name.split('/').fold("") { _path, pathElement -> (if (_path.isNotEmpty()) "$_path/$pathElement" else pathElement).also { styleClass += it.asStyleClass() } } } }
+        skinProperty().onChange {
+            it?.let {
+                val titleBar = it.node.lookup(".$titleBarStyleClass")
+                (model.valueObject as NodeValueObject).spec.name.split('/').fold("") { _path, pathElement -> (if (_path.isNotEmpty()) "$_path/$pathElement" else pathElement).also { titleBar.styleClass += it.asStyleClass() } }
+            }
+        }
 
         contextmenu {
             item((skinFactory as SkinFactory).uiComponent.messages["graph.node.delete"]) { action { controller.remove(model) } }

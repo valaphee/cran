@@ -34,4 +34,8 @@ class Select(
     @get:In (""       , Und, true) @get:JsonProperty("in_value"  ) val inValue  : List<Entry> = emptyList(),
     @get:In ("Default", Und      ) @get:JsonProperty("in_default") val inDefault: Int                      ,
     @get:Out(""       , Und      ) @get:JsonProperty("out"       ) val out      : Int
-) : Node(type)
+) : Node(type) {
+    init {
+        out requires (inValue.map { it.value } + `in` + inDefault).toIntArray()
+    }
+}

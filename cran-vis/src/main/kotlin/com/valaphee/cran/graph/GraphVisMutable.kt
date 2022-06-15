@@ -85,7 +85,7 @@ class GraphVisMutable(
 
     companion object {
         fun VFlow.newNode(spec: Spec.Node, meta: Meta.Node?, settings: Settings): VNode = newNode().apply {
-            title = spec.name
+            title = spec.name.split('/').last()
             meta?.let {
                 x = it.x
                 y = it.y

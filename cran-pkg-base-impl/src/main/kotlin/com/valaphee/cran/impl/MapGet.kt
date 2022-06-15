@@ -26,7 +26,7 @@ import com.valaphee.cran.spec.NodeImpl
  */
 @NodeImpl
 object MapGet : Implementation {
-    override fun initialize(node: Node, scope: Scope)  = if (node is Get) {
+    override fun initialize(node: Node, scope: Scope) = if (node is Get) {
         val `in` = scope.dataPath(node.`in`)
         val inKey = scope.dataPath(node.inKey)
         val out = scope.dataPath(node.out)

@@ -26,7 +26,7 @@ abstract class BinaryOperation(
     abstract val in2: Int
     abstract val out: Int
 
-    init {
+    /*init {
         out requires intArrayOf(in1, in2)
-    }
+    }*/
 }

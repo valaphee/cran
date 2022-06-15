@@ -32,6 +32,6 @@ class Value(
     @get:JsonProperty("embed") val embed: Boolean = false
 ) : Node(type) {
     init {
-        out requires intArrayOf()
+        out requires nothing
     }
 }

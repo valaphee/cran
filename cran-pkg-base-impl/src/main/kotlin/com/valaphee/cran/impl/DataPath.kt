@@ -29,16 +29,6 @@ class DataPath(
     internal var value: Any? = null
     internal var valueFunction: (suspend () -> Any?)? = null
 
-    suspend fun get() = value ?: valueFunction?.invoke()
-
-    suspend fun <T: Any> getOfTypeOrNull(type: KClass<T>) = value?.let {
-        @Suppress("UNCHECKED_CAST")
-        if (type.isInstance(it)) it as T else objectMapper.convertValue(it, type.java).also { value = it }
-    } ?: valueFunction?.invoke()?.let {
-        @Suppress("UNCHECKED_CAST")
-        if (type.isInstance(it)) it as T else objectMapper.convertValue(it, type.java)
-    }
-
     fun set(value: Any?) {
         if (valueFunction != null) throw DataPathException.AlreadySet
 
@@ -49,6 +39,16 @@ class DataPath(
         if (value != null || this.valueFunction != null) throw DataPathException.AlreadySet
 
         this.valueFunction = getValue
+    }
+
+    suspend fun get() = value ?: valueFunction?.invoke()
+
+    suspend fun <T: Any> getOfTypeOrNull(type: KClass<T>) = value?.let {
+        @Suppress("UNCHECKED_CAST")
+        if (type.isInstance(it)) it as T else objectMapper.convertValue(it, type.java).also { value = it }
+    } ?: valueFunction?.invoke()?.let {
+        @Suppress("UNCHECKED_CAST")
+        if (type.isInstance(it)) it as T else objectMapper.convertValue(it, type.java)
     }
 
     suspend inline fun <reified T : Any> getOfTypeOrNull(): T? = getOfTypeOrNull(T::class)

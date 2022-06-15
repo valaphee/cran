@@ -30,7 +30,6 @@ const val Vec2 = """{"type":"array","items":{"type":"number"},"minItems":2,"maxI
 const val Vec3 = """{"type":"array","items":{"type":"number"},"minItems":3,"maxItems":3}"""
 const val Vec4 = """{"type":"array","items":{"type":"number"},"minItems":4,"maxItems":4}"""
 
-
 fun intVectorSpeciesByLength(length: Int) = when (length) {
     1, 2                          -> IntVector.SPECIES_64
     3, 4                          -> IntVector.SPECIES_128

@@ -41,7 +41,7 @@ object Compare : Implementation {
 
             when (node) {
                 is LessThan -> {
-                    out.set {
+                    out?.set {
                         val a = in1.get()
                         val b = in2.get()
                         val result = CompareUtil.compare(a, b)

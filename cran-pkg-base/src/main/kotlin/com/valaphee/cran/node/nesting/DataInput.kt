@@ -33,4 +33,8 @@ class DataInput(
     @get:Const("Name", Str) @get:JsonProperty("name") val name: String,
     @get:Const("Json", Str) @get:JsonProperty("json") val json: String,
     @get:Out  (""    , Und) @get:JsonProperty("out" ) val out : Int   ,
-) : Node(type)
+) : Node(type) {
+    init {
+        out requires nothing
+    }
+}

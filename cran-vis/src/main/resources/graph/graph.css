@@ -31,10 +31,15 @@
     -fx-font-family: "Segoe UI";
     -fx-font-size: 0.8em;
 
-    -fx-background-color: #494949, #1F1F1F;
+    -fx-background-color: #494949, #494949;
     -fx-background-insets: 0, 1;
     -fx-background-radius: 0;
 }
+
+.window.logic { -fx-border-color: hsb(28, 61%, 94%); -fx-background-color: hsb(28, 61%, 94%), #111; }
+.window-titlebar.logic { -fx-background-color: hsb(28, 61%, 94%), hsb(28, 61%, 94%) }
+.window.math { -fx-border-color: hsb(204, 52%, 90%); -fx-background-color: hsb(204, 52%, 90%), #111; }
+.window-titlebar.math { -fx-background-color: hsb(204, 52%, 90%), hsb(204, 52%, 90%) }
 
 /* Node Connections & Connectors */
 .vnode-connection {
@@ -47,21 +52,9 @@
     -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 1, 0.8, 0, 1);
 }
 
-.vnode-connection-control      { -fx-stroke: #E6E6E6 }
-.vnode-new-connection-control  { -fx-stroke: #E6E6E6 }
-.node-connector-shape-control  { -fx-stroke: #E6E6E6 }
-.vnode-connection-data         { -fx-stroke: #90CC0E }
-.vnode-new-connection-data     { -fx-stroke: #90CC0E }
-.node-connector-shape-data     { -fx-stroke: #90CC0E }
-.vnode-connection-data-bit     { -fx-stroke: #F0A35E }
-.vnode-new-connection-data-bit { -fx-stroke: #F0A35E }
-.node-connector-shape-data-bit { -fx-stroke: #F0A35E }
-.vnode-connection-data-num     { -fx-stroke: #6EB6E5 }
-.vnode-new-connection-data-num { -fx-stroke: #6EB6E5 }
-.node-connector-shape-data-num { -fx-stroke: #6EB6E5 }
-.vnode-connection-data-vec     { -fx-stroke: #6EE5BE }
-.vnode-new-connection-data-vec { -fx-stroke: #6EE5BE }
-.node-connector-shape-data-vec { -fx-stroke: #6EE5BE }
-.vnode-connection-data-str     { -fx-stroke: #C784D4 }
-.vnode-new-connection-data-str { -fx-stroke: #C784D4 }
-.node-connector-shape-data-str { -fx-stroke: #C784D4 }
+.vnode-connection-control      { -fx-stroke: hsb(0, 0%, 90%) }
+.vnode-new-connection-control  { -fx-stroke: hsb(0, 0%, 90%) }
+.node-connector-shape-control  { -fx-stroke: hsb(0, 0%, 90%) }
+.vnode-connection-data         { -fx-stroke: hsb(79, 93%, 80%) }
+.vnode-new-connection-data     { -fx-stroke: hsb(79, 93%, 80%) }
+.node-connector-shape-data     { -fx-stroke: hsb(79, 93%, 80%) }

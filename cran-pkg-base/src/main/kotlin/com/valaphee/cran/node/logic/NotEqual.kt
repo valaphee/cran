@@ -33,4 +33,8 @@ class NotEqual(
     @get:In ("A"    , Und) @get:JsonProperty("in_1") override val in1: Int,
     @get:In ("B"    , Und) @get:JsonProperty("in_2") override val in2: Int,
     @get:Out("A ≠ B", Bit) @get:JsonProperty("out" ) override val out: Int
-) : BinaryOperation(type)
+) : BinaryOperation(type) {
+    init {
+        out requires intArrayOf(in1, in2)
+    }
+}

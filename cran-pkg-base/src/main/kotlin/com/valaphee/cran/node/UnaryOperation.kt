@@ -25,7 +25,7 @@ abstract class UnaryOperation(
     abstract val `in`: Int
     abstract val out : Int
 
-    init {
-        out requires intArrayOf(`in`)
-    }
+    /*init {
+        out requires `in`
+    }*/
 }

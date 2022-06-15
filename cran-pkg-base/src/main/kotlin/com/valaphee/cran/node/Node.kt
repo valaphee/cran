@@ -53,14 +53,27 @@ open class Node(
     private val _requirements = mutableMapOf<Int, IntArray>()
     @get:JsonIgnore val requirements get() = _requirements
 
+    infix fun Int.requires(requirement: Int) = requires(intArrayOf(requirement))
+
     infix fun Int.requires(requirements: IntArray) {
         this@Node._requirements[this] = requirements
     }
+
+    infix fun IntArray.requires(requirement: Int) = requires(intArrayOf(requirement))
+
+    infix fun IntArray.requires(requirements: IntArray) {
+        forEach { this@Node._requirements[it] = requirements }
+    }
+
 
     operator fun get(key: String) = extra[key]
 
     @JsonAnySetter
     operator fun set(key: String, value: Any?) {
         extra[key] = value
+    }
+
+    companion object {
+        val nothing = intArrayOf()
     }
 }

@@ -24,13 +24,13 @@ import com.valaphee.cran.path.ControlPathException
 class ControlPath {
     internal var function: (suspend () -> Unit)? = null
 
-    suspend operator fun invoke() {
-        function?.invoke()
-    }
-
     fun define(function: suspend () -> Unit) {
         if (this.function != null) throw ControlPathException.AlreadyDefined
 
         this.function = function
+    }
+
+    suspend operator fun invoke() {
+        function?.invoke()
     }
 }

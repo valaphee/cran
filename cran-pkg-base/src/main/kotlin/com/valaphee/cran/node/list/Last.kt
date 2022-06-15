@@ -34,6 +34,6 @@ class Last(
     @get:Out("", Und) @get:JsonProperty("out") val out : Int
 ) : Node(type) {
     init {
-        out requires intArrayOf(`in`)
+        out requires `in`
     }
 }

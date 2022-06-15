@@ -31,7 +31,7 @@ object ListGet : Implementation {
         val inIndex = scope.dataPath(node.inIndex)
         val out = scope.dataPath(node.out)
 
-        out.set { `in`.getOfType<List<Any?>>()[inIndex.getOfType()] }
+        out.set { `in`.getOfType<List<Any?>>().getOrNull(inIndex.getOfType()) }
 
         true
     } else false

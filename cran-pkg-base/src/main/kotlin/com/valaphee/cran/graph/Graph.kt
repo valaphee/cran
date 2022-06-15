@@ -51,8 +51,10 @@ abstract class Graph {
                     anySatisfied = true
                 }
             }
-            check(anySatisfied)
+            /*check(anySatisfied)*/
+            if (!anySatisfied) break
         }
+        this += nodes
     }
 
     fun toSpec() = Spec.Node(name, nodes.mapNotNull {
