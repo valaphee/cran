@@ -32,7 +32,7 @@ import eu.mihosoft.vrl.workflow.VNode
 /**
  * @author Kevin Ludwig
  */
-abstract class GraphVis : GraphWithMeta() {
+abstract class VGraph : GraphWithMeta() {
     @get:JsonIgnore protected abstract val _nodes: List<VNode>
     @get:JsonIgnore protected abstract val _connections: Map<String, Connections>
     override val meta get() = Meta(nodes = _nodes.map { Meta.Node(it.x, it.y) })

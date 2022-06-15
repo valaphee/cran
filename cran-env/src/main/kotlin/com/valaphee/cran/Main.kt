@@ -34,7 +34,7 @@ import com.hazelcast.core.EntryEvent
 import com.hazelcast.core.EntryListener
 import com.hazelcast.core.Hazelcast
 import com.hazelcast.map.MapEvent
-import com.valaphee.cran.graph.GraphEnv
+import com.valaphee.cran.graph.GraphDefault
 import com.valaphee.cran.graph.GraphLookup
 import com.valaphee.cran.impl.Implementation
 import com.valaphee.cran.node.math.vector.DoubleVectorDeserializer
@@ -81,18 +81,18 @@ fun main() {
     val hazelcast = Hazelcast.newHazelcastInstance()
     val nodeSpecs = hazelcast.getMap<String, Spec.Node>("node_specs")
     val nodeImpls = mutableListOf<Implementation>()
-    val graphs = hazelcast.getMap<String, GraphEnv>("graphs")
+    val graphs = hazelcast.getMap<String, GraphDefault>("graphs")
 
     ClassGraph().scan().use {
         val spec = it.getResourcesMatchingWildcard("**.spec.json").urLs.map { objectMapper.readValue<Spec>(it).also { it.nodes.onEach { log.info("Built-in node '{}' found", it.name) } } }.reduce { acc, spec -> acc + spec }
         nodeSpecs.putAll(spec.nodes.onEach { log.info("Built-in node '{}' found", it.name) }.associateBy { it.name })
         spec.nodesImpls[""]?.let { nodeImpls.addAll(it.mapNotNull { Class.forName(it).kotlin.objectInstance as Implementation? }) }
-        graphs.putAll(it.getResourcesMatchingWildcard("**.gph").urLs.map { objectMapper.readValue<GraphEnv>(it).also { log.info("Built-in graph '{}' found", it.name) } }.associateBy { it.name })
+        graphs.putAll(it.getResourcesMatchingWildcard("**.gph").urLs.map { objectMapper.readValue<GraphDefault>(it).also { log.info("Built-in graph '{}' found", it.name) } }.associateBy { it.name })
     }
 
     File("data").walk().forEach {
         if (it.isFile && it.extension == "gph") it.inputStream().use {
-            objectMapper.readValue<GraphEnv>(GZIPInputStream(it)).also {
+            objectMapper.readValue<GraphDefault>(GZIPInputStream(it)).also {
                 graphs[it.name] = it
 
                 log.info("Graph '{}' found", it.name)
@@ -105,25 +105,25 @@ fun main() {
     }
     val coroutineDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 
-    graphs.addEntryListener(object : EntryListener<String, GraphEnv> {
-        override fun entryAdded(event: EntryEvent<String, GraphEnv>) {
+    graphs.addEntryListener(object : EntryListener<String, GraphDefault> {
+        override fun entryAdded(event: EntryEvent<String, GraphDefault>) {
             event.value.run(objectMapper, nodeImpls, graphLookup, coroutineDispatcher)
         }
 
-        override fun entryUpdated(event: EntryEvent<String, GraphEnv>) {
+        override fun entryUpdated(event: EntryEvent<String, GraphDefault>) {
             event.oldValue.shutdown()
             event.value.run(objectMapper, nodeImpls, graphLookup, coroutineDispatcher)
         }
 
-        override fun entryRemoved(event: EntryEvent<String, GraphEnv>) {
+        override fun entryRemoved(event: EntryEvent<String, GraphDefault>) {
             event.value.shutdown()
         }
 
-        override fun entryEvicted(event: EntryEvent<String, GraphEnv>) {
+        override fun entryEvicted(event: EntryEvent<String, GraphDefault>) {
             event.value.shutdown()
         }
 
-        override fun entryExpired(event: EntryEvent<String, GraphEnv>) {
+        override fun entryExpired(event: EntryEvent<String, GraphDefault>) {
             event.value.shutdown()
         }
 

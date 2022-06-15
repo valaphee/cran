@@ -18,7 +18,7 @@
     <serialization>
         <serializers>
             <serializer class-name="SpecNodeSerializer" type-class="com.valaphee.cran.spec.Spec$Node"/>
-            <serializer class-name="com.valaphee.cran.graph.GraphVisMutable$Serializer" type-class="com.valaphee.cran.graph.GraphVisMutable"/>
+            <serializer class-name="com.valaphee.cran.graph.VGraphDefault$Serializer" type-class="com.valaphee.cran.graph.VGraphDefault"/>
         </serializers>
     </serialization>
 </hazelcast-client>

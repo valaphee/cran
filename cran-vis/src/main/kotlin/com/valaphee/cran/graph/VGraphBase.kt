@@ -22,8 +22,8 @@ import eu.mihosoft.vrl.workflow.VNode
 /**
  * @author Kevin Ludwig
  */
-class GraphVisImpl(
+class VGraphBase(
     override val name: String,
     override val _nodes: List<VNode>,
     override val _connections: Map<String, Connections>
-) : GraphVis()
+) : VGraph()

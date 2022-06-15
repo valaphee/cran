@@ -29,7 +29,7 @@ import java.util.zip.GZIPOutputStream
 /**
  * @author Kevin Ludwig
  */
-class GraphStore : MapStore<String, GraphEnv> {
+class GraphStore : MapStore<String, GraphDefault> {
     private val path = File("data").also { it.mkdir() }
     @Inject private lateinit var objectMapper: ObjectMapper
 
@@ -37,7 +37,7 @@ class GraphStore : MapStore<String, GraphEnv> {
         injector.injectMembers(this)
     }
 
-    override fun load(key: String) = File(path, key.graphToFileName()).takeIf { it.exists() }?.let { GZIPInputStream(it.inputStream()).use { objectMapper.readValue<GraphEnv>(it) } }
+    override fun load(key: String) = File(path, key.graphToFileName()).takeIf { it.exists() }?.let { GZIPInputStream(it.inputStream()).use { objectMapper.readValue<GraphDefault>(it) } }
 
     override fun loadAll(keys: Collection<String>) = keys.mapNotNull { key -> load(key)?.let { key to it } }.toMap()
 
@@ -51,11 +51,11 @@ class GraphStore : MapStore<String, GraphEnv> {
         File(path, key.graphToFileName()).delete()
     }
 
-    override fun storeAll(map: Map<String, GraphEnv>) {
+    override fun storeAll(map: Map<String, GraphDefault>) {
         map.forEach(::store)
     }
 
-    override fun store(key: String, value: GraphEnv) {
+    override fun store(key: String, value: GraphDefault) {
         GZIPOutputStream(File(path, key.graphToFileName()).outputStream()).use { objectMapper.writeValue(it, value) }
     }
 

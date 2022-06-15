@@ -46,7 +46,7 @@ class JsonSchema(
 
     @Inject private lateinit var objectMapper: ObjectMapper
 
-    fun toNode(valueProperty: ObjectProperty<Any?>, readOnly: Boolean = false): Node {
+    fun toNode(valueProperty: ObjectProperty<Any>, readOnly: Boolean = false): Node {
         lateinit var node: Node
         node = toNode(valueProperty.value, readOnly) { toValue(node)?.let { valueProperty.value = it } }
         valueProperty.onChange { updateNode(it, node) }

@@ -22,7 +22,7 @@ import com.valaphee.cran.node.Node
 /**
  * @author Kevin Ludwig
  */
-class GraphWithMetaImpl(
+class GraphWithMetaBase(
     override val name : String    ,
     override val meta : Meta      ,
     override val nodes: List<Node>

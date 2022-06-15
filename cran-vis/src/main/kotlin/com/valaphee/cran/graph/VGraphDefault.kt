@@ -39,11 +39,11 @@ import kotlin.math.round
 /**
  * @author Kevin Ludwig
  */
-class GraphVisMutable(
+class VGraphDefault(
     override var name : String     = "New Graph",
                  meta : Meta = Meta(emptyList()),
                  nodes: List<Node> = emptyList()
-) : GraphVis() {
+) : VGraph() {
     override val _nodes: List<VNode> get() = flow.nodes
     override val _connections: Map<String, Connections> get() = flow.allConnections
 
@@ -72,9 +72,11 @@ class GraphVisMutable(
                     (valueObject as NodeValueObject).const.forEach { it.value = _node[it.spec.json] }
                     connectors.forEach {
                         val connectorValueObject = it.valueObject as ConnectorValueObject
-                        val connectionId = _node[connectorValueObject.spec.json] as Int
-                        if (connectorValueObject.spec.type == Spec.Node.Port.Type.InData) connectorValueObject.value = _embed[connectionId]
-                        getOrPut(connectionId) { mutableListOf() } += it
+                        val pathId = _node[connectorValueObject.spec.json] as Int
+                        if (pathId != -1) {
+                            if (connectorValueObject.spec.type == Spec.Node.Port.Type.InData) connectorValueObject.value = _embed[pathId]
+                            getOrPut(pathId) { mutableListOf() } += it
+                        }
                     }
                     spec.ports.forEach { if (it.multi) objectMapper.convertValue<List<Entry>>(checkNotNull(_node[it.json])).forEach { entry -> getOrPut(entry.value) { mutableListOf() } += checkNotNull(addPort(it, entry.key.toProperty(), null)).apply { if (it.type == Spec.Node.Port.Type.InData) (valueObject as ConnectorValueObject).value = _embed[entry.value] } } }
                 }
@@ -85,7 +87,7 @@ class GraphVisMutable(
 
     companion object {
         fun VFlow.newNode(spec: Spec.Node, meta: Meta.Node?, settings: Settings): VNode = newNode().apply {
-            title = spec.name.split('/').last()
+            title = spec.name
             meta?.let {
                 x = it.x
                 y = it.y

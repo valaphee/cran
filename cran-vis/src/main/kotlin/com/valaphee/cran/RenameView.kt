@@ -16,7 +16,7 @@
 
 package com.valaphee.cran
 
-import com.valaphee.cran.graph.GraphVisMutable
+import com.valaphee.cran.graph.VGraphDefault
 import javafx.scene.control.TreeItem
 import tornadofx.View
 import tornadofx.action
@@ -29,7 +29,7 @@ import tornadofx.vbox
  * @author Kevin Ludwig
  */
 class RenameView(
-    private val selectedValue: TreeItem<Pair<String, GraphVisMutable?>>
+    private val selectedValue: TreeItem<Pair<String, VGraphDefault?>>
 ) : View() {
     override val root = vbox {
         styleClass += "background"

@@ -21,7 +21,7 @@
     <serialization>
         <serializers>
             <serializer class-name="com.valaphee.cran.spec.SpecNodeSerializer" type-class="com.valaphee.cran.spec.Spec$Node"/>
-            <serializer class-name="com.valaphee.cran.graph.GraphEnv$Serializer" type-class="com.valaphee.cran.graph.GraphEnv"/>
+            <serializer class-name="com.valaphee.cran.graph.GraphDefault$Serializer" type-class="com.valaphee.cran.graph.GraphDefault"/>
         </serializers>
     </serialization>
     <map name="graphs">

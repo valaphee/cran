@@ -20,20 +20,13 @@ import eu.mihosoft.vrl.workflow.Connector
 import eu.mihosoft.vrl.workflow.VFlow
 import eu.mihosoft.vrl.workflow.VisualizationRequest
 import eu.mihosoft.vrl.workflow.fx.ConnectorShape
-import javafx.geometry.Pos
 import javafx.scene.CacheHint
-import javafx.scene.layout.HBox
-import javafx.scene.paint.Color
-import javafx.scene.text.Text
+import javafx.scene.layout.Region
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import tornadofx.circle
-import tornadofx.doubleBinding
 import tornadofx.dynamicContent
-import tornadofx.label
-import tornadofx.paddingLeft
-import tornadofx.paddingRight
 import tornadofx.polygon
 import tornadofx.toProperty
 
@@ -43,7 +36,7 @@ import tornadofx.toProperty
 class ConnectorShape(
     private val flow: VFlow,
     connector: Connector
-) : HBox(), ConnectorShape {
+) : Region(), ConnectorShape {
     private var connector: Connector? = null
     private val radiusProperty = 0.0.toProperty()
 
@@ -65,67 +58,19 @@ class ConnectorShape(
         this.connector = connector
 
         dynamicContent(connector.valueObjectProperty()) {
-            children.clear()
-
-            val nodeValueObject = (connector.node.valueObject as NodeValueObject)
             if (it is ConnectorValueObject) {
-                spacing = 4.0
-
-                val topDown = connector.visualizationRequest.get<Boolean>(VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN).orElseGet { false }
-                if (connector.isInput) {
-                    paddingLeft = -4.0
-                    alignment = Pos.CENTER_LEFT
-
-                    when (connector.type) {
-                        "control" -> polygon(
-                            0.0, -4.0,
-                            8.0,  0.0,
-                            0.0,  4.0,
-                            0.0, -4.0,
-                        ) {
-                            styleClass += "node-connector-shape-${connector.type}"
-                            if (topDown) rotate = 90.0
-                        }
-                        "data" -> circle(4.0, 0.0, 4.0) { styleClass += "node-connector-shape-${connector.type}" }
-                        else -> error(connector.type)
+                when (connector.type) {
+                    "control" -> polygon(
+                        -4.0, -4.0,
+                         4.0,  0.0,
+                        -4.0,  4.0,
+                        -4.0, -4.0,
+                    ) {
+                        styleClass += "node-connector-shape-${connector.type}"
+                        if (connector.visualizationRequest.get<Boolean>(VisualizationRequest.KEY_CONNECTOR_PREFER_TOP_DOWN).orElseGet { false }) rotate = 90.0
                     }
-                    label(when (nodeValueObject.spec.name) {
-                        "Nesting/Control Output", "Nesting/Data Output" -> nodeValueObject.const.single { it.spec.json == "name" }.valueProperty.asString()
-                        else -> it.multiKeyProperty?.asString() ?: it.spec.name.toProperty()
-                    }) {
-                        minWidthProperty().bind(Text().let {
-                            it.textProperty().bind(textProperty())
-                            it.layoutBoundsProperty().doubleBinding { it?.width ?: 0.0 }
-                        })
-                        textFill = Color.WHITE
-                    }
-                } else {
-                    paddingRight = -4.0
-                    alignment = Pos.CENTER_RIGHT
-
-                    label(when (nodeValueObject.spec.name) {
-                        "Nesting/Control Input", "Nesting/Data Input" -> nodeValueObject.const.single { it.spec.json == "name" }.valueProperty.asString()
-                        else -> it.multiKeyProperty?.asString() ?: it.spec.name.toProperty()
-                    }) {
-                        minWidthProperty().bind(Text().let {
-                            it.textProperty().bind(textProperty())
-                            it.layoutBoundsProperty().doubleBinding { it?.width ?: 0.0 }
-                        })
-                        textFill = Color.WHITE
-                    }
-                    when (connector.type) {
-                        "control" -> polygon(
-                            0.0, -4.0,
-                            8.0,  0.0,
-                            0.0,  4.0,
-                            0.0, -4.0
-                        ) {
-                            styleClass += "node-connector-shape-${connector.type}"
-                            if (topDown) rotate = 90.0
-                        }
-                        "data" -> circle(4.0, 0.0, 4.0) { styleClass += "node-connector-shape-${connector.type}" }
-                        else -> error(connector.type)
-                    }
+                    "data" -> circle(0.0, 0.0, 4.0) { styleClass += "node-connector-shape-${connector.type}" }
+                    else -> error(connector.type)
                 }
             }
         }

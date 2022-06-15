@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 /**
  * @author Kevin Ludwig
  */
-class GraphEnv(
+class GraphDefault(
                               override val name : String    ,
     @get:JsonProperty("meta")          val meta : Meta?     ,
                               override val nodes: List<Node>
@@ -43,7 +43,7 @@ class GraphEnv(
     private var scope: Scope? = null
 
     fun run(objectMapper: ObjectMapper, nodeImpls: List<Implementation>, graphLookup: GraphLookup, coroutineDispatcher: CoroutineDispatcher) {
-        scope = Scope(objectMapper, nodeImpls, graphLookup, this@GraphEnv, coroutineDispatcher).also { scope ->
+        scope = Scope(objectMapper, nodeImpls, graphLookup, this@GraphDefault, coroutineDispatcher).also { scope ->
             scope.initialize()
             nodes.forEach { if (it is Entry) scope.launch { scope.controlPath(it.out)() } }
         }
@@ -53,7 +53,7 @@ class GraphEnv(
         scope?.cancel()
     }
 
-    class Serializer : StreamSerializer<GraphEnv> {
+    class Serializer : StreamSerializer<GraphDefault> {
         @Inject private lateinit var objectMapper: ObjectMapper
 
         init {
@@ -62,10 +62,10 @@ class GraphEnv(
 
         override fun getTypeId() = 2
 
-        override fun write(out: ObjectDataOutput, `object`: GraphEnv) {
+        override fun write(out: ObjectDataOutput, `object`: GraphDefault) {
             objectMapper.writeValue(out, `object`)
         }
 
-        override fun read(`in`: ObjectDataInput): GraphEnv = objectMapper.readValue(`in`, GraphEnv::class.java)
+        override fun read(`in`: ObjectDataInput): GraphDefault = objectMapper.readValue(`in`, GraphDefault::class.java)
     }
 }

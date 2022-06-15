@@ -16,7 +16,14 @@
 
 package com.valaphee.cran.graph
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.module.kotlin.treeToValue
+import com.valaphee.cran.graph.VGraphDefault.Companion.addPort
+import com.valaphee.cran.graph.properties.JsonSchema
 import com.valaphee.cran.graph.properties.PropertiesView
+import com.valaphee.cran.injector
+import com.valaphee.cran.spec.Spec
 import com.valaphee.cran.util.asStyleClass
 import com.valaphee.cran.util.update
 import eu.mihosoft.vrl.workflow.Connector
@@ -28,12 +35,25 @@ import eu.mihosoft.vrl.workflow.fx.FlowNodeWindow
 import eu.mihosoft.vrl.workflow.fx.NodeUtil
 import javafx.scene.Parent
 import javafx.scene.input.MouseEvent
+import javafx.scene.layout.HBox
+import javafx.scene.layout.Priority
 import tornadofx.action
+import tornadofx.add
+import tornadofx.button
+import tornadofx.clear
 import tornadofx.contextmenu
+import tornadofx.field
+import tornadofx.fieldset
+import tornadofx.form
 import tornadofx.get
+import tornadofx.hbox
+import tornadofx.hgrow
 import tornadofx.item
 import tornadofx.onChange
 import tornadofx.separator
+import tornadofx.textfield
+import tornadofx.toProperty
+import tornadofx.vbox
 import kotlin.math.max
 
 /**
@@ -48,6 +68,8 @@ class NodeSkin(
     private var newConnectionSkin: FXConnectionSkin? = null
     private var newConnectionPressEvent: MouseEvent? = null
 
+    private val objectMapper get() = injector.getInstance(ObjectMapper::class.java)
+
     override fun createNodeWindow(): FlowNodeWindow = super.createNodeWindow().apply {
         // Prevent minimizing, closing and resizing
         leftIcons.clear()
@@ -56,7 +78,116 @@ class NodeSkin(
         isResizableWindow = false
         resizeableWindowProperty().onChange { if (it) isResizableWindow = false }
 
-        model.valueObjectProperty().update { (it as? NodeValueObject)?.let { it.spec.name.split('/').fold("") { _path, pathElement -> (if (_path.isNotEmpty()) "$_path/$pathElement" else pathElement).also { styleClass += it.asStyleClass() } } } }
+        model.valueObjectProperty().update { nodeValueObject ->
+            (nodeValueObject as? NodeValueObject)?.let {
+                nodeValueObject.spec.name.split('/').fold("") { _path, pathElement -> (if (_path.isNotEmpty()) "$_path/$pathElement" else pathElement).also { styleClass += it.asStyleClass() } }
+                contentPane = HBox().apply {
+                    scaleX = 0.6
+                    scaleY = 0.6
+
+                    model.connectors.update { connectors ->
+                        clear()
+
+                        form {
+                            fieldset {
+                                nodeValueObject.spec.ports.filter { it.type == Spec.Node.Port.Type.InControl || it.type == Spec.Node.Port.Type.InData }.groupBy { it }.forEach {
+                                    field(it.key.name) {
+                                        vbox {
+                                            objectMapper.treeToValue<JsonSchema?>(it.key.data)?.let { jsonSchema ->
+                                                it.value.forEach {
+                                                    if (it.type == Spec.Node.Port.Type.Const) add(jsonSchema.toNode(nodeValueObject.const.single { const -> const.spec == it }.valueProperty))
+                                                    else connectors.filter { connector -> connector.localId == it.json }.forEach { connector ->
+                                                        val connectorValueObject = connector.valueObject as ConnectorValueObject
+                                                        connectorValueObject.multiKeyProperty?.let {
+                                                            add(hbox {
+                                                                val multiKeyProperty = it
+                                                                textfield(multiKeyProperty.value.let { objectMapper.writeValueAsString(it) } ?: "") { focusedProperty().onChange { _ -> multiKeyProperty.value = objectMapper.readValue(text) } }
+                                                                if (connector.isInput && !model.flow.getConnections(connector.type).isInputConnected(connector)) add(jsonSchema.toNode(connectorValueObject.valueProperty()).apply { hgrow = Priority.ALWAYS })
+                                                                button("-") { action { model.removeConnector(connector) } }
+                                                            })
+                                                        } ?: if (connector.isInput && !model.flow.getConnections(connector.type).isInputConnected(connector)) add(jsonSchema.toNode(connectorValueObject.valueProperty())) else Unit
+                                                    }
+                                                }
+                                            } ?: it.value.forEach {
+                                                connectors.filter { connector -> connector.localId == it.json }.forEach { connector ->
+                                                    (connector.valueObject as ConnectorValueObject).multiKeyProperty?.let {
+                                                        add(hbox {
+                                                            val multiKeyProperty = it
+                                                            textfield(multiKeyProperty.value.let { objectMapper.writeValueAsString(it) } ?: "") {
+                                                                hgrow = Priority.ALWAYS
+                                                                focusedProperty().onChange { _ -> multiKeyProperty.value = objectMapper.readValue(text) }
+                                                            }
+                                                            button("-") { action { model.removeConnector(connector) } }
+                                                        })
+                                                    }
+                                                }
+                                            }
+                                            if (it.key.multi) add(hbox {
+                                                val newMapKeyTextField = textfield { hgrow = Priority.ALWAYS }
+                                                button("+") {
+                                                    action {
+                                                        checkNotNull(model.addPort(it.key, objectMapper.readValue<Any?>(newMapKeyTextField.text).toProperty(), null))
+                                                        newMapKeyTextField.clear()
+                                                    }
+                                                }
+                                            })
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        form {
+                            fieldset {
+                                nodeValueObject.spec.ports.filter { it.type == Spec.Node.Port.Type.OutControl || it.type == Spec.Node.Port.Type.OutData }.groupBy { it }.forEach {
+                                    field(it.key.name) {
+                                        vbox {
+                                            objectMapper.treeToValue<JsonSchema?>(it.key.data)?.let { jsonSchema ->
+                                                it.value.forEach {
+                                                    if (it.type == Spec.Node.Port.Type.Const) add(jsonSchema.toNode(nodeValueObject.const.single { const -> const.spec == it }.valueProperty))
+                                                    else connectors.filter { connector -> connector.localId == it.json }.forEach { connector ->
+                                                        val connectorValueObject = connector.valueObject as ConnectorValueObject
+                                                        connectorValueObject.multiKeyProperty?.let {
+                                                            add(hbox {
+                                                                val multiKeyProperty = it
+                                                                textfield(multiKeyProperty.value.let { objectMapper.writeValueAsString(it) } ?: "") { focusedProperty().onChange { _ -> multiKeyProperty.value = objectMapper.readValue(text) } }
+                                                                if (connector.isInput && !model.flow.getConnections(connector.type).isInputConnected(connector)) add(jsonSchema.toNode(connectorValueObject.valueProperty()).apply { hgrow = Priority.ALWAYS })
+                                                                button("-") { action { model.removeConnector(connector) } }
+                                                            })
+                                                        } ?: if (connector.isInput && !model.flow.getConnections(connector.type).isInputConnected(connector)) add(jsonSchema.toNode(connectorValueObject.valueProperty())) else Unit
+                                                    }
+                                                }
+                                            } ?: it.value.forEach {
+                                                connectors.filter { connector -> connector.localId == it.json }.forEach { connector ->
+                                                    (connector.valueObject as ConnectorValueObject).multiKeyProperty?.let {
+                                                        add(hbox {
+                                                            val multiKeyProperty = it
+                                                            textfield(multiKeyProperty.value.let { objectMapper.writeValueAsString(it) } ?: "") {
+                                                                hgrow = Priority.ALWAYS
+                                                                focusedProperty().onChange { _ -> multiKeyProperty.value = objectMapper.readValue(text) }
+                                                            }
+                                                            button("-") { action { model.removeConnector(connector) } }
+                                                        })
+                                                    }
+                                                }
+                                            }
+                                            if (it.key.multi) add(hbox {
+                                                val newMapKeyTextField = textfield { hgrow = Priority.ALWAYS }
+                                                button("+") {
+                                                    action {
+                                                        checkNotNull(model.addPort(it.key, objectMapper.readValue<Any?>(newMapKeyTextField.text).toProperty(), null))
+                                                        newMapKeyTextField.clear()
+                                                    }
+                                                }
+                                            })
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         skinProperty().onChange {
             it?.let {
                 val titleBar = it.node.lookup(".$titleBarStyleClass")
