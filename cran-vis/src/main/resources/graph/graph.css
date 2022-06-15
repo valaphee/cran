@@ -19,6 +19,8 @@
 .window {
     -fx-border-color: #494949;
 
+    -fx-font-size: 0.8em;
+
     -fx-background-color: #494949, #111;
     -fx-background-insets: -1 0 0 0, 0 1 1 1;
 }
@@ -29,7 +31,7 @@
     -fx-fill: white;
 
     -fx-font-family: "Segoe UI";
-    -fx-font-size: 0.8em;
+    -fx-font-size: 1.4em;
 
     -fx-background-color: #494949, #494949;
     -fx-background-insets: 0, 1;

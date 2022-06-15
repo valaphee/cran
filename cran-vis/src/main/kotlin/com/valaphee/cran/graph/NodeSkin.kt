@@ -20,8 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.treeToValue
 import com.valaphee.cran.graph.VGraphDefault.Companion.addPort
-import com.valaphee.cran.graph.properties.JsonSchema
-import com.valaphee.cran.graph.properties.PropertiesView
+import com.valaphee.cran.graph.data.JsonSchema
+import com.valaphee.cran.graph.data.PropertiesView
 import com.valaphee.cran.injector
 import com.valaphee.cran.spec.Spec
 import com.valaphee.cran.util.asStyleClass
@@ -35,20 +35,18 @@ import eu.mihosoft.vrl.workflow.fx.FlowNodeWindow
 import eu.mihosoft.vrl.workflow.fx.NodeUtil
 import javafx.scene.Parent
 import javafx.scene.input.MouseEvent
-import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
+import javafx.scene.layout.VBox
 import tornadofx.action
 import tornadofx.add
 import tornadofx.button
 import tornadofx.clear
 import tornadofx.contextmenu
-import tornadofx.field
-import tornadofx.fieldset
-import tornadofx.form
 import tornadofx.get
 import tornadofx.hbox
 import tornadofx.hgrow
 import tornadofx.item
+import tornadofx.label
 import tornadofx.onChange
 import tornadofx.separator
 import tornadofx.textfield
@@ -70,7 +68,7 @@ class NodeSkin(
 
     private val objectMapper get() = injector.getInstance(ObjectMapper::class.java)
 
-    override fun createNodeWindow(): FlowNodeWindow = super.createNodeWindow().apply {
+    override fun createNodeWindow(): FlowNodeWindow = super.createNodeWindow().apply window@ {
         // Prevent minimizing, closing and resizing
         leftIcons.clear()
         setShowMinimizeIconCallback { null }
@@ -81,17 +79,61 @@ class NodeSkin(
         model.valueObjectProperty().update { nodeValueObject ->
             (nodeValueObject as? NodeValueObject)?.let {
                 nodeValueObject.spec.name.split('/').fold("") { _path, pathElement -> (if (_path.isNotEmpty()) "$_path/$pathElement" else pathElement).also { styleClass += it.asStyleClass() } }
-                contentPane = HBox().apply {
-                    scaleX = 0.6
-                    scaleY = 0.6
-
-                    model.connectors.update { connectors ->
+                model.connectors.update { connectors ->
+                    contentPane = VBox().apply {
                         clear()
 
-                        form {
-                            fieldset {
+
+                        nodeValueObject.spec.ports.filter { it.type == Spec.Node.Port.Type.Const }.groupBy { it }.forEach {
+                            hbox {
+                                label(it.key.name)
+                                vbox {
+                                    objectMapper.treeToValue<JsonSchema?>(it.key.data)?.let { jsonSchema ->
+                                        it.value.forEach {
+                                            if (it.type == Spec.Node.Port.Type.Const) add(jsonSchema.toNode(nodeValueObject.const.single { const -> const.spec == it }.valueProperty))
+                                            else connectors.filter { connector -> connector.localId == it.json }.forEach { connector ->
+                                                val connectorValueObject = connector.valueObject as ConnectorValueObject
+                                                connectorValueObject.multiKeyProperty?.let {
+                                                    add(hbox {
+                                                        val multiKeyProperty = it
+                                                        textfield(multiKeyProperty.value.let { objectMapper.writeValueAsString(it) } ?: "") { focusedProperty().onChange { _ -> multiKeyProperty.value = objectMapper.readValue(text) } }
+                                                        if (connector.isInput && !model.flow.getConnections(connector.type).isInputConnected(connector)) add(jsonSchema.toNode(connectorValueObject.valueProperty()).apply { hgrow = Priority.ALWAYS })
+                                                        button("-") { action { model.removeConnector(connector) } }
+                                                    })
+                                                } ?: if (connector.isInput && !model.flow.getConnections(connector.type).isInputConnected(connector)) add(jsonSchema.toNode(connectorValueObject.valueProperty())) else Unit
+                                            }
+                                        }
+                                    } ?: it.value.forEach {
+                                        connectors.filter { connector -> connector.localId == it.json }.forEach { connector ->
+                                            (connector.valueObject as ConnectorValueObject).multiKeyProperty?.let {
+                                                add(hbox {
+                                                    val multiKeyProperty = it
+                                                    textfield(multiKeyProperty.value.let { objectMapper.writeValueAsString(it) } ?: "") {
+                                                        hgrow = Priority.ALWAYS
+                                                        focusedProperty().onChange { _ -> multiKeyProperty.value = objectMapper.readValue(text) }
+                                                    }
+                                                    button("-") { action { model.removeConnector(connector) } }
+                                                })
+                                            }
+                                        }
+                                    }
+                                    if (it.key.multi) add(hbox {
+                                        val newMapKeyTextField = textfield { hgrow = Priority.ALWAYS }
+                                        button("+") {
+                                            action {
+                                                checkNotNull(model.addPort(it.key, objectMapper.readValue<Any?>(newMapKeyTextField.text).toProperty(), null))
+                                                newMapKeyTextField.clear()
+                                            }
+                                        }
+                                    })
+                                }
+                            }
+                        }
+                        hbox {
+                            vbox {
                                 nodeValueObject.spec.ports.filter { it.type == Spec.Node.Port.Type.InControl || it.type == Spec.Node.Port.Type.InData }.groupBy { it }.forEach {
-                                    field(it.key.name) {
+                                    hbox {
+                                        label(it.key.name)
                                         vbox {
                                             objectMapper.treeToValue<JsonSchema?>(it.key.data)?.let { jsonSchema ->
                                                 it.value.forEach {
@@ -135,11 +177,10 @@ class NodeSkin(
                                     }
                                 }
                             }
-                        }
-                        form {
-                            fieldset {
+                            vbox {
                                 nodeValueObject.spec.ports.filter { it.type == Spec.Node.Port.Type.OutControl || it.type == Spec.Node.Port.Type.OutData }.groupBy { it }.forEach {
-                                    field(it.key.name) {
+                                    hbox {
+                                        label(it.key.name)
                                         vbox {
                                             objectMapper.treeToValue<JsonSchema?>(it.key.data)?.let { jsonSchema ->
                                                 it.value.forEach {
@@ -186,12 +227,6 @@ class NodeSkin(
                         }
                     }
                 }
-            }
-        }
-        skinProperty().onChange {
-            it?.let {
-                val titleBar = it.node.lookup(".$titleBarStyleClass")
-                (model.valueObject as NodeValueObject).spec.name.split('/').fold("") { _path, pathElement -> (if (_path.isNotEmpty()) "$_path/$pathElement" else pathElement).also { titleBar.styleClass += it.asStyleClass() } }
             }
         }
 

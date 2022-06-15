@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.graph.properties
+package com.valaphee.cran.graph.data
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonProcessingException

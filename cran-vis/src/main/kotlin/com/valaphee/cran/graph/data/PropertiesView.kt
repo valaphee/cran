@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.valaphee.cran.graph.properties
+package com.valaphee.cran.graph.data
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue

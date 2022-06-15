@@ -29,11 +29,11 @@ import com.hazelcast.nio.ObjectDataInput
 import com.hazelcast.nio.ObjectDataOutput
 import com.hazelcast.nio.serialization.StreamSerializer
 import com.valaphee.cran.graph.Graph
-import com.valaphee.cran.graph.VGraphBase
-import com.valaphee.cran.graph.VGraphDefault
 import com.valaphee.cran.graph.GraphWithMetaBase
 import com.valaphee.cran.graph.SkinFactory
-import com.valaphee.cran.graph.properties.PropertiesView
+import com.valaphee.cran.graph.VGraphBase
+import com.valaphee.cran.graph.VGraphDefault
+import com.valaphee.cran.graph.data.PropertiesView
 import com.valaphee.cran.meta.Meta
 import com.valaphee.cran.settings.SettingsView
 import com.valaphee.cran.spec.Spec
