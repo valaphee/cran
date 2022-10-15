@@ -20,4 +20,4 @@ This project consists of 6 parts:
 
 ## Screenshots
 
-![main](https://github.com/valaphee/cran/blob/master/imgs/main.png?raw=true)
+![main](https://github.com/valaphee/cran-fbp/blob/master/imgs/main.png?raw=true)
